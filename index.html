@@ -82,6 +82,20 @@
   .install-hint{margin-top:18px; border:1px dashed var(--line-hi); border-radius:16px; padding:15px; background:rgba(242,169,59,0.06); font-size:12.5px; color:var(--ink-soft); line-height:1.55;}
   .install-hint b{color:var(--ink);}
 
+  .contact-card{display:flex; align-items:center; gap:13px; margin-top:10px; padding:14px 15px; border-radius:14px; border:1px solid var(--line); background:var(--paper); text-decoration:none; box-shadow:var(--shadow); cursor:pointer;}
+  .contact-card:active{transform:scale(0.98);}
+  .contact-icon{width:38px; height:38px; border-radius:11px; background:rgba(27,199,154,0.12); border:1px solid rgba(27,199,154,0.3); display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+  .contact-icon svg{width:18px; height:18px; stroke:var(--teal);}
+  .contact-txt{flex:1; min-width:0;}
+  .contact-txt h4{margin:0 0 2px; font-family:'Manrope',sans-serif; font-size:14px; font-weight:700; color:var(--ink);}
+  .contact-txt p{margin:0; font-size:12px; color:var(--ink-soft); line-height:1.4;}
+
+  .modal-lang-row{display:flex; align-items:center; justify-content:space-between; margin-top:14px;}
+  .modal-lang-label{font-size:11.5px; color:var(--ink-faint); font-family:'JetBrains Mono',monospace; letter-spacing:0.04em; text-transform:uppercase;}
+  .modal-langsw{display:flex; border:1px solid var(--line); border-radius:999px; overflow:hidden; background:var(--paper); flex-shrink:0;}
+  .modal-langsw button{border:none; background:transparent; padding:6px 12px; font-family:'JetBrains Mono',monospace; font-size:11.5px; font-weight:600; color:var(--ink-soft); cursor:pointer;}
+  .modal-langsw button.active{background:var(--teal); color:#04231D;}
+
   /* ---- Detail view ---- */
   .detail{display:none; padding:calc(env(safe-area-inset-top) + 18px) 20px 60px;}
   .detail.show{display:block;}
@@ -127,6 +141,31 @@
   .howtext.show{display:block;}
 
   .disclaimer{margin-top:22px; font-size:11.5px; color:var(--ink-faint); text-align:center; line-height:1.5; padding:0 6px;}
+
+  /* ---- Modal instalar ---- */
+  .modal-overlay{position:fixed; inset:0; background:rgba(4,10,8,0.72); backdrop-filter:blur(2px); z-index:100; display:none; align-items:flex-end; justify-content:center; padding:0;}
+  .modal-overlay.show{display:flex;}
+  @media (min-width:601px){ .modal-overlay{align-items:center;} }
+  .modal-sheet{background:var(--paper-hi); border:1px solid var(--line-hi); border-radius:22px 22px 0 0; width:100%; max-width:480px; max-height:88vh; overflow-y:auto; padding:22px 22px calc(env(safe-area-inset-bottom) + 22px); box-shadow:0 -20px 50px -10px rgba(0,0,0,0.6);}
+  @media (min-width:601px){ .modal-sheet{border-radius:22px; margin-bottom:0;} }
+  .modal-head{display:flex; align-items:flex-start; gap:12px; margin-bottom:4px;}
+  .modal-icon{width:44px; height:44px; border-radius:13px; flex-shrink:0;}
+  .modal-head h3{font-family:'Manrope',sans-serif; font-weight:800; font-size:18px; margin:0 0 4px; color:var(--ink); line-height:1.25;}
+  .modal-head p{margin:0; font-size:12.5px; color:var(--ink-soft); line-height:1.45;}
+  .modal-close{margin-left:auto; background:none; border:none; color:var(--ink-faint); cursor:pointer; padding:4px; flex-shrink:0;}
+  .modal-close svg{width:20px; height:20px; stroke:var(--ink-faint);}
+
+  .modal-tabs{display:flex; gap:8px; margin:18px 0 16px; background:var(--paper); border:1px solid var(--line); border-radius:12px; padding:4px;}
+  .modal-tab{flex:1; text-align:center; padding:9px 6px; border-radius:9px; font-size:13px; font-weight:700; font-family:'Manrope',sans-serif; color:var(--ink-soft); cursor:pointer; background:none; border:none;}
+  .modal-tab.active{background:var(--teal); color:#04231D;}
+
+  .steps{display:flex; flex-direction:column; gap:12px; margin-bottom:6px;}
+  .step{display:flex; align-items:flex-start; gap:12px;}
+  .step-n{width:24px; height:24px; border-radius:50%; background:rgba(27,199,154,0.14); border:1px solid rgba(27,199,154,0.35); color:var(--teal); font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px;}
+  .step p{margin:0; font-size:13.5px; color:var(--ink); line-height:1.5; padding-top:2px;}
+  .step b{color:var(--teal);}
+
+  .modal-cta{width:100%; margin-top:20px; padding:15px; border-radius:14px; border:none; background:linear-gradient(135deg, var(--teal), var(--teal-dark)); color:#04231D; font-size:15px; font-weight:800; font-family:'Manrope',sans-serif; cursor:pointer;}
 </style>
 </head>
 <body>
@@ -165,11 +204,54 @@
   <main>
     <div class="list" id="list"></div>
     <div class="install-hint" id="installhint"></div>
+    <button id="reopenBtn" style="width:100%; margin-top:10px; background:var(--paper); border:1px solid var(--line); border-radius:12px; padding:12px; color:var(--teal); font-weight:700; font-family:'Manrope',sans-serif; font-size:13.5px; cursor:pointer;" onclick="openInstallModal()">📲 <span id="reopenLabel">Ver paso a paso</span></button>
+    <a class="contact-card" id="contactCard" href="#">
+      <div class="contact-icon">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M3 6.5A2.5 2.5 0 0 1 5.5 4h13A2.5 2.5 0 0 1 21 6.5v11A2.5 2.5 0 0 1 18.5 20h-13A2.5 2.5 0 0 1 3 17.5v-11Z" stroke-width="1.8"/><path d="M4 7l7.4 5.3a1 1 0 0 0 1.2 0L20 7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="contact-txt">
+        <h4 id="contactTitle">¿Falta alguna calculadora?</h4>
+        <p id="contactSub">Escribime y la agrego · dr.joaovictor@icloud.com</p>
+      </div>
+      <svg class="chev" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
   </main>
 
   <div class="detail" id="detail">
     <button class="backbtn" onclick="closeDetail()"><svg viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span id="backlabel">Volver</span></button>
     <div id="detailBody"></div>
+  </div>
+
+  <div class="modal-overlay" id="installModal">
+    <div class="modal-sheet">
+      <div class="modal-head">
+        <svg class="modal-icon" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+          <defs><linearGradient id="mg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1BC79A"/><stop offset="1" stop-color="#0A4F48"/></linearGradient></defs>
+          <rect width="200" height="200" rx="46" fill="url(#mg)"/>
+          <path d="M86 28 H114 V86 H172 V114 H114 V172 H86 V114 H28 V86 H86 Z" fill="#F5F1E6"/>
+          <polyline points="108,100 132,100 141,74 152,126 161,100 186,100" fill="none" stroke="#F2A93B" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="186" cy="100" r="6.5" fill="#F2A93B"/>
+        </svg>
+        <div>
+          <h3 id="mTitle">Instalá la app en tu pantalla de inicio</h3>
+          <p id="mSub">Así la abrís como una app, sin el navegador, incluso sin internet.</p>
+        </div>
+        <button class="modal-close" onclick="closeInstallModal()"><svg viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke-width="2" stroke-linecap="round"/></svg></button>
+      </div>
+      <div class="modal-lang-row">
+        <span class="modal-lang-label" id="modalLangLabel">Idioma de esta guía</span>
+        <div class="modal-langsw">
+          <button id="modalLangES" onclick="setModalLang('es')">ES</button>
+          <button id="modalLangPT" onclick="setModalLang('pt')">PT</button>
+        </div>
+      </div>
+      <div class="modal-tabs">
+        <button class="modal-tab" id="tabIOS" onclick="setModalTab('ios')">iPhone</button>
+        <button class="modal-tab" id="tabAndroid" onclick="setModalTab('android')">Android</button>
+      </div>
+      <div class="steps" id="stepsWrap"></div>
+      <button class="modal-cta" onclick="closeInstallModal()" id="mCta">Entendido</button>
+    </div>
   </div>
 
 </div>
@@ -182,12 +264,32 @@ const UI = {
        cats:{all:'Todas', emergencia:'Emergencias', cardiologia:'Cardiología', nefrologia:'Nefrología', geral:'General'},
        calc:'Calcular', result:'Resultado', how:'Por qué funciona así', hide:'Ocultar explicación',
        disclaimer:'Herramienta de apoyo educativo, basada en escalas y fórmulas publicadas en la literatura médica. No reemplaza el juicio clínico ni la evaluación de un profesional de salud.',
-       install:'<b>Instalar en tu iPhone:</b> abrí este link en Safari, tocá el ícono de compartir (⬆️) y elegí "Agregar a pantalla de inicio".' },
+       install:'<b>¿Todavía no la instalaste?</b> Tocá el botón de abajo para ver el paso a paso en iPhone o Android.',
+       reopen:'Ver paso a paso para instalar',
+       mTitle:'Instalá la app en tu pantalla de inicio',
+       mSub:'Así la abrís como una app, sin el navegador, incluso sin internet.',
+       mCta:'Entendido',
+       iosSteps:['Abrí este sitio en <b>Safari</b> (no funciona desde Chrome en iPhone).','Tocá el ícono de compartir <b>⬆️</b>, en la barra de abajo (o arriba, según el modelo).','Deslizá la lista de opciones y elegí <b>"Agregar a pantalla de inicio"</b>.','Tocá <b>"Agregar"</b> arriba a la derecha. Listo, ya tenés el ícono en tu pantalla.'],
+       androidSteps:['Abrí este sitio en <b>Chrome</b>.','Tocá los <b>tres puntos ⋮</b> arriba a la derecha.','Elegí <b>"Agregar a pantalla de inicio"</b> o <b>"Instalar app"</b> (el texto varía según el modelo).','Confirmá tocando <b>"Agregar"</b> o <b>"Instalar"</b>. Listo, ya tenés el ícono en tu pantalla.'],
+       contactTitle:'¿Falta alguna calculadora?', contactSub:'Escribime y la agrego',
+       modalLangLabel:'Idioma de esta guía',
+       mailSubject:'Sugerencia de calculadora – Calculadora do Cruz',
+       mailBody:'Hola! Te escribo para sugerir que agregues la siguiente calculadora o índice clínico:\n\nNombre: \nPor qué la uso: \n\nGracias!' },
   pt:{ tagline:'REFERÊNCIA CLÍNICA DE BOLSO', search:'Buscar calculadora...', back:'Voltar',
        cats:{all:'Todas', emergencia:'Emergência', cardiologia:'Cardiologia', nefrologia:'Nefrologia', geral:'Geral'},
        calc:'Calcular', result:'Resultado', how:'Por que funciona assim', hide:'Ocultar explicação',
        disclaimer:'Ferramenta de apoio educativo, baseada em escalas e fórmulas publicadas na literatura médica. Não substitui o julgamento clínico nem a avaliação de um profissional de saúde.',
-       install:'<b>Instalar no seu iPhone:</b> abra este link no Safari, toque no ícone de compartilhar (⬆️) e escolha "Adicionar à Tela de Início".' }
+       install:'<b>Ainda não instalou?</b> Toque no botão abaixo para ver o passo a passo no iPhone ou Android.',
+       reopen:'Ver passo a passo para instalar',
+       mTitle:'Instale o app na sua tela de início',
+       mSub:'Assim você abre como um app, sem o navegador, mesmo sem internet.',
+       mCta:'Entendi',
+       iosSteps:['Abra este site no <b>Safari</b> (não funciona pelo Chrome no iPhone).','Toque no ícone de compartilhar <b>⬆️</b>, na barra de baixo (ou de cima, dependendo do modelo).','Deslize a lista de opções e escolha <b>"Adicionar à Tela de Início"</b>.','Toque em <b>"Adicionar"</b> no canto superior direito. Pronto, o ícone já está na sua tela.'],
+       androidSteps:['Abra este site no <b>Chrome</b>.','Toque nos <b>três pontinhos ⋮</b> no canto superior direito.','Escolha <b>"Adicionar à tela inicial"</b> ou <b>"Instalar app"</b> (o texto varia conforme o modelo).','Confirme tocando em <b>"Adicionar"</b> ou <b>"Instalar"</b>. Pronto, o ícone já está na sua tela.'],
+       contactTitle:'Falta alguma calculadora?', contactSub:'Me escreva e eu adiciono',
+       modalLangLabel:'Idioma deste guia',
+       mailSubject:'Sugestão de calculadora – Calculadora do Cruz',
+       mailBody:'Olá! Estou escrevendo para sugerir que você adicione a seguinte calculadora ou índice clínico:\n\nNome: \nPor que eu uso: \n\nObrigado(a)!' }
 };
 
 let activeCat = 'all';
@@ -562,6 +664,12 @@ function renderChrome(){
   document.getElementById('searchbox').placeholder = t.search;
   document.getElementById('backlabel').textContent = t.back;
   document.getElementById('installhint').innerHTML = t.install;
+  document.getElementById('reopenLabel').textContent = t.reopen;
+  document.getElementById('contactTitle').textContent = t.contactTitle;
+  document.getElementById('contactSub').textContent = t.contactSub + ' · dr.joaovictor@icloud.com';
+  const subject = encodeURIComponent(t.mailSubject);
+  const body = encodeURIComponent(t.mailBody);
+  document.getElementById('contactCard').href = `mailto:dr.joaovictor@icloud.com?subject=${subject}&body=${body}`;
   const catsEl = document.getElementById('cats');
   catsEl.innerHTML = '';
   const cats = ['all','emergencia','cardiologia','nefrologia','geral'];
@@ -572,6 +680,17 @@ function renderChrome(){
     chip.onclick = ()=>{ activeCat=c; renderChrome(); renderList(); };
     catsEl.appendChild(chip);
   });
+}
+
+function renderModalChrome(){
+  const t = UI[modalLang];
+  document.getElementById('modalLangES').classList.toggle('active', modalLang==='es');
+  document.getElementById('modalLangPT').classList.toggle('active', modalLang==='pt');
+  document.getElementById('modalLangLabel').textContent = t.modalLangLabel;
+  document.getElementById('mTitle').textContent = t.mTitle;
+  document.getElementById('mSub').textContent = t.mSub;
+  document.getElementById('mCta').textContent = t.mCta;
+  renderModalSteps();
 }
 
 function renderList(){
@@ -685,9 +804,71 @@ function closeDetail(){
   currentCalc = null;
 }
 
+/* ============ MODAL DE INSTALAÇÃO ============ */
+const INSTALL_KEY = 'cdc_install_prompt_last_shown';
+const THIRTY_DAYS_MS = 30*24*60*60*1000;
+let modalTab = 'ios';
+let modalLang = 'es';
+
+function detectPlatform(){
+  const ua = navigator.userAgent || '';
+  if(/iPhone|iPad|iPod/i.test(ua)) return 'ios';
+  if(/Android/i.test(ua)) return 'android';
+  return 'ios';
+}
+
+function isStandalone(){
+  return window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+}
+
+function setModalTab(tab){
+  modalTab = tab;
+  renderModalSteps();
+}
+
+function setModalLang(l){
+  modalLang = l;
+  renderModalChrome();
+}
+
+function renderModalSteps(){
+  const t = UI[modalLang];
+  document.getElementById('tabIOS').classList.toggle('active', modalTab==='ios');
+  document.getElementById('tabAndroid').classList.toggle('active', modalTab==='android');
+  const stepsArr = modalTab==='ios' ? t.iosSteps : t.androidSteps;
+  const wrap = document.getElementById('stepsWrap');
+  wrap.innerHTML = stepsArr.map((s,i)=>`
+    <div class="step"><div class="step-n">${i+1}</div><p>${s}</p></div>
+  `).join('');
+}
+
+function openInstallModal(){
+  modalTab = detectPlatform();
+  modalLang = LANG;
+  renderModalChrome();
+  document.getElementById('installModal').classList.add('show');
+  try{ localStorage.setItem(INSTALL_KEY, Date.now().toString()); }catch(e){}
+}
+
+function closeInstallModal(){
+  document.getElementById('installModal').classList.remove('show');
+  try{ localStorage.setItem(INSTALL_KEY, Date.now().toString()); }catch(e){}
+}
+
+function maybeAutoShowInstallModal(){
+  if(isStandalone()) return;
+  let last = null;
+  try{ last = localStorage.getItem(INSTALL_KEY); }catch(e){}
+  const now = Date.now();
+  if(!last || (now - parseInt(last,10)) > THIRTY_DAYS_MS){
+    setTimeout(openInstallModal, 900);
+  }
+}
+
 /* ============ INIT ============ */
 renderChrome();
 renderList();
+maybeAutoShowInstallModal();
 </script>
 </body>
 </html>

@@ -142,6 +142,18 @@
 
   .disclaimer{margin-top:22px; font-size:11.5px; color:var(--ink-faint); text-align:center; line-height:1.5; padding:0 6px;}
 
+  /* ---- Bloco de confiança ---- */
+  .trust{margin-top:20px; border-top:1px solid var(--line); padding-top:16px;}
+  .trustbtn{display:flex; align-items:center; gap:6px; background:none; border:none; color:var(--ink-soft); font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:600; padding:0; cursor:pointer; letter-spacing:0.02em; text-transform:uppercase;}
+  .trustbtn svg{width:13px; height:13px; stroke:var(--ink-soft); flex-shrink:0;}
+  .trustbody{max-height:0; overflow:hidden; transition:max-height .25s ease;}
+  .trustbody.show{max-height:900px;}
+  .trust-item{display:flex; gap:11px; padding:13px 0; border-bottom:1px solid var(--line);}
+  .trust-item:last-child{border-bottom:none;}
+  .trust-icon{width:30px; height:30px; border-radius:9px; background:rgba(27,199,154,0.12); border:1px solid rgba(27,199,154,0.3); display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:14px;}
+  .trust-txt b{display:block; font-size:12.5px; color:var(--ink); margin-bottom:2px; font-family:'Manrope',sans-serif; font-weight:700;}
+  .trust-txt span{font-size:12px; color:var(--ink-soft); line-height:1.5;}
+
   /* ---- Modal instalar ---- */
   .modal-overlay{position:fixed; inset:0; background:rgba(4,10,8,0.72); backdrop-filter:blur(2px); z-index:100; display:none; align-items:flex-end; justify-content:center; padding:0;}
   .modal-overlay.show{display:flex;}
@@ -296,7 +308,11 @@ const UI = {
        contactTitle:'¿Falta alguna calculadora?', contactSub:'Escribime y la agrego',
        modalLangLabel:'Idioma de esta guía',
        mailSubject:'Sugerencia de calculadora – Calculadora do Cruz',
-       mailBody:'Hola! Te escribo para sugerir que agregues la siguiente calculadora o índice clínico:\n\nNombre: \nPor qué la uso: \n\nGracias!' },
+       mailBody:'Hola! Te escribo para sugerir que agregues la siguiente calculadora o índice clínico:\n\nNombre: \nPor qué la uso: \n\nGracias!',
+       trustToggle:'Confiabilidad de esta calculadora', trustSource:'Fuente de la fórmula', trustValidation:'Validación',
+       trustReview:'Última revisión de contenido', trustPrivacy:'Privacidad', trustAbout:'Sobre',
+       trustPrivacyText:'Todo el cálculo ocurre en tu propio dispositivo. Ningún dato que ingresás acá se envía, guarda o comparte.',
+       trustAboutText:'Herramienta de apoyo educativo mantenida de forma independiente, basada en escalas y fórmulas publicadas y revisadas por la literatura médica.' },
   pt:{ tagline:'REFERÊNCIA CLÍNICA DE BOLSO', search:'Buscar calculadora...', back:'Voltar',
        cats:{all:'Todas', emergencia:'Emergência', cardiologia:'Cardiologia', nefrologia:'Nefrologia', geral:'Geral'},
        calc:'Calcular', result:'Resultado', how:'Por que funciona assim', hide:'Ocultar explicação',
@@ -311,7 +327,11 @@ const UI = {
        contactTitle:'Falta alguma calculadora?', contactSub:'Me escreva e eu adiciono',
        modalLangLabel:'Idioma deste guia',
        mailSubject:'Sugestão de calculadora – Calculadora do Cruz',
-       mailBody:'Olá! Estou escrevendo para sugerir que você adicione a seguinte calculadora ou índice clínico:\n\nNome: \nPor que eu uso: \n\nObrigado(a)!' }
+       mailBody:'Olá! Estou escrevendo para sugerir que você adicione a seguinte calculadora ou índice clínico:\n\nNome: \nPor que eu uso: \n\nObrigado(a)!',
+       trustToggle:'Confiabilidade desta calculadora', trustSource:'Fonte da fórmula', trustValidation:'Validação',
+       trustReview:'Última revisão de conteúdo', trustPrivacy:'Privacidade', trustAbout:'Sobre',
+       trustPrivacyText:'Todo o cálculo acontece no seu próprio dispositivo. Nenhum dado que você digita aqui é enviado, armazenado ou compartilhado.',
+       trustAboutText:'Ferramenta de apoio educativo mantida de forma independente, baseada em escalas e fórmulas publicadas e revisadas pela literatura médica.' }
 };
 
 let activeCat = 'all';
@@ -342,7 +362,9 @@ const CALCS = [
     return {value:val.toFixed(1), unit:'kg/m²', band, text:txt};
   },
   how:{es:'Fórmula: peso (kg) ÷ altura² (m). Los puntos de corte (18.5 / 25 / 30 / 35 / 40) son los adoptados por la OMS para adultos.',
-       pt:'Fórmula: peso (kg) ÷ altura² (m). Os pontos de corte (18.5 / 25 / 30 / 35 / 40) são os adotados pela OMS para adultos.'}
+       pt:'Fórmula: peso (kg) ÷ altura² (m). Os pontos de corte (18.5 / 25 / 30 / 35 / 40) são os adotados pela OMS para adultos.'},
+  source:{es:'Organización Mundial de la Salud (OMS). "Obesity: preventing and managing the global epidemic", 1995/2000. Puntos de corte adoptados internacionalmente para adultos.', pt:'Organização Mundial da Saúde (OMS). "Obesity: preventing and managing the global epidemic", 1995/2000. Pontos de corte adotados internacionalmente para adultos.'},
+  reviewedAt:'2026-07'
 },
 
 { id:'crcl', cat:'nefrologia', tag:'CrCl',
@@ -368,7 +390,9 @@ const CALCS = [
     return {value:val.toFixed(0), unit:'mL/min', band, text:txt};
   },
   how:{es:'Fórmula: [(140−edad) × peso] ÷ (72 × creatinina), ×0.85 si es mujer (menor masa muscular promedio).',
-       pt:'Fórmula: [(140−idade) × peso] ÷ (72 × creatinina), ×0.85 se mulher (menor massa muscular média).'}
+       pt:'Fórmula: [(140−idade) × peso] ÷ (72 × creatinina), ×0.85 se mulher (menor massa muscular média).'},
+  source:{es:'Cockcroft DW, Gault MH. "Prediction of creatinine clearance from serum creatinine." Nephron, 1976. Validada en el estudio original con 249 pacientes y todavía ampliamente usada para ajuste de dosis renal.', pt:'Cockcroft DW, Gault MH. "Prediction of creatinine clearance from serum creatinine." Nephron, 1976. Validada no estudo original com 249 pacientes e ainda amplamente usada para ajuste de dose renal.'},
+  reviewedAt:'2026-07'
 },
 
 { id:'egfr', cat:'nefrologia', tag:'eGFR',
@@ -400,7 +424,9 @@ const CALCS = [
     return {value:val.toFixed(0), unit:'mL/min/1.73m²', band, text:txt};
   },
   how:{es:'Ecuación CKD-EPI 2021 (sin coeficiente racial): usa una función potencia de la creatinina normalizada, distinta según esté por debajo o encima de un valor de corte (0.7 en mujeres, 0.9 en hombres), multiplicada por un factor exponencial de edad. Fue re-derivada en 2021 para eliminar el ajuste por raza.',
-       pt:'Equação CKD-EPI 2021 (sem coeficiente racial): usa uma função potência da creatinina normalizada, diferente conforme esteja abaixo ou acima de um valor de corte (0.7 em mulheres, 0.9 em homens), multiplicada por um fator exponencial de idade. Foi re-derivada em 2021 para eliminar o ajuste por raça.'}
+       pt:'Equação CKD-EPI 2021 (sem coeficiente racial): usa uma função potência da creatinina normalizada, diferente conforme esteja abaixo ou acima de um valor de corte (0.7 em mulheres, 0.9 em homens), multiplicada por um fator exponencial de idade. Foi re-derivada em 2021 para eliminar o ajuste por raça.'},
+  source:{es:'Inker LA, et al. "New Creatinine- and Cystatin C-Based Equations to Estimate GFR without Race." New England Journal of Medicine, 2021. Ecuación recomendada por las guías KDIGO actuales.', pt:'Inker LA, et al. "New Creatinine- and Cystatin C-Based Equations to Estimate GFR without Race." New England Journal of Medicine, 2021. Equação recomendada pelas diretrizes KDIGO atuais.'},
+  reviewedAt:'2026-07'
 },
 
 { id:'fena', cat:'nefrologia', tag:'FeNa',
@@ -423,7 +449,9 @@ const CALCS = [
     return {value:val.toFixed(2), unit:'%', band, text:txt};
   },
   how:{es:'Fórmula: (Na urinario × creatinina plasmática) ÷ (Na plasmático × creatinina urinaria) × 100. Solo es interpretable en falla renal aguda oligúrica y pierde validez si el paciente recibió diuréticos recientemente (en ese caso se prefiere la fracción excretada de urea).',
-       pt:'Fórmula: (Na urinário × creatinina plasmática) ÷ (Na plasmático × creatinina urinária) × 100. Só é interpretável em falência renal aguda oligúrica e perde validade se o paciente recebeu diuréticos recentemente (nesse caso prefere-se a fração excretada de ureia).'}
+       pt:'Fórmula: (Na urinário × creatinina plasmática) ÷ (Na plasmático × creatinina urinária) × 100. Só é interpretável em falência renal aguda oligúrica e perde validade se o paciente recebeu diuréticos recentemente (nesse caso prefere-se a fração excretada de ureia).'},
+  source:{es:'Espinel CH. "The FENa test. Use in the differential diagnosis of acute renal failure." JAMA, 1976.', pt:'Espinel CH. "The FENa test. Use in the differential diagnosis of acute renal failure." JAMA, 1976.'},
+  reviewedAt:'2026-07'
 },
 
 { id:'anion', cat:'nefrologia', tag:'AG',
@@ -444,7 +472,9 @@ const CALCS = [
     return {value:val.toFixed(1), unit:'mEq/L', band, text:txt};
   },
   how:{es:'Fórmula: Na⁺ − (Cl⁻ + HCO₃⁻). En hipoalbuminemia se puede corregir sumando 2.5 por cada g/dL que la albúmina esté por debajo de 4.',
-       pt:'Fórmula: Na⁺ − (Cl⁻ + HCO₃⁻). Na hipoalbuminemia pode-se corrigir somando 2.5 para cada g/dL que a albumina estiver abaixo de 4.'}
+       pt:'Fórmula: Na⁺ − (Cl⁻ + HCO₃⁻). Na hipoalbuminemia pode-se corrigir somando 2.5 para cada g/dL que a albumina estiver abaixo de 4.'},
+  source:{es:'Emmett M, Narins RG. "Clinical use of the anion gap." Medicine (Baltimore), 1977.', pt:'Emmett M, Narins RG. "Clinical use of the anion gap." Medicine (Baltimore), 1977.'},
+  reviewedAt:'2026-07'
 },
 
 { id:'nacorr', cat:'nefrologia', tag:'Na⁺c',
@@ -465,7 +495,9 @@ const CALCS = [
     return {value:val.toFixed(1), unit:'mEq/L', band, text:txt};
   },
   how:{es:'Fórmula clásica (Katz): Na corregido = Na medido + 1.6 × [(glucemia − 100) / 100].',
-       pt:'Fórmula clássica (Katz): Na corrigido = Na medido + 1.6 × [(glicemia − 100) / 100].'}
+       pt:'Fórmula clássica (Katz): Na corrigido = Na medido + 1.6 × [(glicemia − 100) / 100].'},
+  source:{es:'Katz MA. "Hyperglycemia-induced hyponatremia — calculation of expected serum sodium depression." New England Journal of Medicine, 1973.', pt:'Katz MA. "Hyperglycemia-induced hyponatremia — calculation of expected serum sodium depression." New England Journal of Medicine, 1973.'},
+  reviewedAt:'2026-07'
 },
 
 { id:'cha2ds2', cat:'cardiologia', tag:'CHA₂DS₂',
@@ -493,7 +525,9 @@ const CALCS = [
     return {value:score, unit:'puntos', band, text:txt};
   },
   how:{es:'Cada letra vale puntos: C(1) H(1) A₂(2) D(1) S₂(2) V(1) A(1) Sc(1). Los ítems con "2" pesan más porque son predictores más fuertes de ACV.',
-       pt:'Cada letra vale pontos: C(1) H(1) A₂(2) D(1) S₂(2) V(1) A(1) Sc(1). Os itens com "2" pesam mais porque são preditores mais fortes de AVC.'}
+       pt:'Cada letra vale pontos: C(1) H(1) A₂(2) D(1) S₂(2) V(1) A(1) Sc(1). Os itens com "2" pesam mais porque são preditores mais fortes de AVC.'},
+  source:{es:'Lip GYH, et al. "Refining clinical risk stratification for predicting stroke and thromboembolism in atrial fibrillation." Chest, 2010. Adoptado por las guías de la ESC.', pt:'Lip GYH, et al. "Refining clinical risk stratification for predicting stroke and thromboembolism in atrial fibrillation." Chest, 2010. Adotado pelas diretrizes da ESC.'},
+  reviewedAt:'2026-07'
 },
 
 { id:'wells', cat:'cardiologia', tag:'Wells',
@@ -519,7 +553,9 @@ const CALCS = [
     return {value:score, unit:'puntos', band, text:txt};
   },
   how:{es:'Versión dicotomizada (≤4 vs >4). Los ítems de 3 puntos mostraron mayor asociación estadística con el diagnóstico final confirmado de TEP.',
-       pt:'Versão dicotomizada (≤4 vs >4). Os itens de 3 pontos mostraram maior associação estatística com o diagnóstico final confirmado de TEP.'}
+       pt:'Versão dicotomizada (≤4 vs >4). Os itens de 3 pontos mostraram maior associação estatística com o diagnóstico final confirmado de TEP.'},
+  source:{es:'Wells PS, et al. Thrombosis and Haemostasis, 2000 (versión validada). Ampliamente usado para estratificar riesgo de TEP.', pt:'Wells PS, et al. Thrombosis and Haemostasis, 2000 (versão validada). Amplamente usado para estratificar risco de TEP.'},
+  reviewedAt:'2026-07'
 },
 
 { id:'heart', cat:'cardiologia', tag:'HEART',
@@ -548,7 +584,9 @@ const CALCS = [
     return {value:val, unit:'/ 10', band, text:txt};
   },
   how:{es:'Cada una de las 5 categorías vale 0, 1 o 2 puntos (rango total 0-10). A diferencia de GRACE, no fue diseñado a partir de pacientes ya diagnosticados con síndrome coronario agudo, sino de cualquiera que consulta por dolor torácico, que es exactamente la pregunta clínica en la puerta de urgencias.',
-       pt:'Cada uma das 5 categorias vale 0, 1 ou 2 pontos (faixa total 0-10). Diferente do GRACE, não foi desenhado a partir de pacientes já diagnosticados com síndrome coronariana aguda, mas de qualquer um que procura atendimento por dor torácica, que é exatamente a pergunta clínica na porta da emergência.'}
+       pt:'Cada uma das 5 categorias vale 0, 1 ou 2 pontos (faixa total 0-10). Diferente do GRACE, não foi desenhado a partir de pacientes já diagnosticados com síndrome coronariana aguda, mas de qualquer um que procura atendimento por dor torácica, que é exatamente a pergunta clínica na porta da emergência.'},
+  source:{es:'Six AJ, Backus BE, Kelder JC. "Chest pain in the emergency room: value of the HEART score." Netherlands Heart Journal, 2008.', pt:'Six AJ, Backus BE, Kelder JC. "Chest pain in the emergency room: value of the HEART score." Netherlands Heart Journal, 2008.'},
+  reviewedAt:'2026-07'
 },
 
 { id:'grace', cat:'cardiologia', tag:'GRACE',
@@ -585,7 +623,9 @@ const CALCS = [
     return {value:val, unit:'puntos', band, text:txt};
   },
   how:{es:'Ocho variables ponderadas según su fuerza estadística en el estudio original (43.810 pacientes, Fox et al. 2006). Los tres ítems dicotómicos (paro cardíaco, desviación del ST, enzimas elevadas) pesan mucho porque marcan gravedad extrema o daño miocárdico ya establecido, no solo riesgo teórico.',
-       pt:'Oito variáveis ponderadas conforme sua força estatística no estudo original (43.810 pacientes, Fox et al. 2006). Os três itens dicotômicos (parada cardíaca, desvio do ST, enzimas elevadas) pesam muito porque marcam gravidade extrema ou dano miocárdico já estabelecido, não apenas risco teórico.'}
+       pt:'Oito variáveis ponderadas conforme sua força estatística no estudo original (43.810 pacientes, Fox et al. 2006). Os três itens dicotômicos (parada cardíaca, desvio do ST, enzimas elevadas) pesam muito porque marcam gravidade extrema ou dano miocárdico já estabelecido, não apenas risco teórico.'},
+  source:{es:'Granger CB, et al. "Predictors of hospital mortality in the global registry of acute coronary events (GRACE)." Archives of Internal Medicine, 2003.', pt:'Granger CB, et al. "Predictors of hospital mortality in the global registry of acute coronary events (GRACE)." Archives of Internal Medicine, 2003.'},
+  reviewedAt:'2026-07'
 },
 
 { id:'qsofa', cat:'emergencia', tag:'qSOFA',
@@ -608,7 +648,9 @@ const CALCS = [
     return {value:score, unit:'/ 3', band, text:txt};
   },
   how:{es:'Cada criterio vale 1 punto. Un puntaje ≥2 se asoció a mayor mortalidad intrahospitalaria en pacientes con sospecha de infección. No reemplaza los criterios formales de sepsis.',
-       pt:'Cada critério vale 1 ponto. Um escore ≥2 se associou a maior mortalidade intra-hospitalar em pacientes com suspeita de infecção. Não substitui os critérios formais de sepse.'}
+       pt:'Cada critério vale 1 ponto. Um escore ≥2 se associou a maior mortalidade intra-hospitalar em pacientes com suspeita de infecção. Não substitui os critérios formais de sepse.'},
+  source:{es:'Singer M, et al. "The Third International Consensus Definitions for Sepsis and Septic Shock (Sepsis-3)." JAMA, 2016.', pt:'Singer M, et al. "The Third International Consensus Definitions for Sepsis and Septic Shock (Sepsis-3)." JAMA, 2016.'},
+  reviewedAt:'2026-07'
 },
 
 { id:'gcs', cat:'emergencia', tag:'GCS',
@@ -637,7 +679,9 @@ const CALCS = [
     return {value:val, unit:'/ 15', band, text:txt};
   },
   how:{es:'Suma de tres subescalas: ocular (1-4) + verbal (1-5) + motora (1-6), rango total 3 a 15. La respuesta motora es la que más peso predictivo tiene sobre el pronóstico neurológico.',
-       pt:'Soma de três subescalas: ocular (1-4) + verbal (1-5) + motora (1-6), faixa total 3 a 15. A resposta motora é a que tem mais peso preditivo sobre o prognóstico neurológico.'}
+       pt:'Soma de três subescalas: ocular (1-4) + verbal (1-5) + motora (1-6), faixa total 3 a 15. A resposta motora é a que tem mais peso preditivo sobre o prognóstico neurológico.'},
+  source:{es:'Teasdale G, Jennett B. "Assessment of coma and impaired consciousness: a practical scale." The Lancet, 1974. Una de las escalas neurológicas más usadas en el mundo.', pt:'Teasdale G, Jennett B. "Assessment of coma and impaired consciousness: a practical scale." The Lancet, 1974. Uma das escalas neurológicas mais usadas no mundo.'},
+  reviewedAt:'2026-07'
 },
 
 { id:'meld', cat:'geral', tag:'MELD',
@@ -665,7 +709,9 @@ const CALCS = [
     return {value:val, unit:'puntos', band, text:txt};
   },
   how:{es:'Fórmula: 3.78×ln(bilirrubina) + 11.2×ln(INR) + 9.57×ln(creatinina) + 6.43. Los valores se acotan (mínimo 1, creatinina máximo 4, o 4 fijo si dializa) para evitar que valores extremos distorsionen el puntaje.',
-       pt:'Fórmula: 3.78×ln(bilirrubina) + 11.2×ln(INR) + 9.57×ln(creatinina) + 6.43. Os valores são limitados (mínimo 1, creatinina máximo 4, ou 4 fixo se dialisa) para evitar que valores extremos distorçam o escore.'}
+       pt:'Fórmula: 3.78×ln(bilirrubina) + 11.2×ln(INR) + 9.57×ln(creatinina) + 6.43. Os valores são limitados (mínimo 1, creatinina máximo 4, ou 4 fixo se dialisa) para evitar que valores extremos distorçam o escore.'},
+  source:{es:'Kamath PS, et al. "A model to predict survival in patients with end-stage liver disease." Hepatology, 2001. Usado para priorización en listas de trasplante hepático.', pt:'Kamath PS, et al. "A model to predict survival in patients with end-stage liver disease." Hepatology, 2001. Usado para priorização em listas de transplante hepático.'},
+  reviewedAt:'2026-07'
 },
 
 { id:'meldna', cat:'geral', tag:'MELD-Na',
@@ -698,7 +744,9 @@ const CALCS = [
     return {value:val, unit:'puntos', band, text:txt};
   },
   how:{es:'Fórmula (OPTN/UNOS): MELD-Na = MELD + 1.32×(137−Na) − [0.033×MELD×(137−Na)], con el sodio acotado entre 125 y 137 mEq/L para evitar que valores extremos distorsionen el ajuste.',
-       pt:'Fórmula (OPTN/UNOS): MELD-Na = MELD + 1.32×(137−Na) − [0.033×MELD×(137−Na)], com o sódio limitado entre 125 e 137 mEq/L para evitar que valores extremos distorçam o ajuste.'}
+       pt:'Fórmula (OPTN/UNOS): MELD-Na = MELD + 1.32×(137−Na) − [0.033×MELD×(137−Na)], com o sódio limitado entre 125 e 137 mEq/L para evitar que valores extremos distorçam o ajuste.'},
+  source:{es:'Kim WR, et al. "Hyponatremia and mortality among patients on the liver-transplant waiting list." New England Journal of Medicine, 2008.', pt:'Kim WR, et al. "Hyponatremia and mortality among patients on the liver-transplant waiting list." New England Journal of Medicine, 2008.'},
+  reviewedAt:'2026-07'
 },
 
 { id:'pam', cat:'geral', tag:'PAM',
@@ -719,7 +767,9 @@ const CALCS = [
     return {value:val.toFixed(0), unit:'mmHg', band, text:txt};
   },
   how:{es:'Fórmula: [PAS + (2 × PAD)] ÷ 3. El objetivo de ≥65 mmHg en shock séptico viene del estudio SEPSISPAM y guías de Surviving Sepsis, por ser el umbral por debajo del cual se compromete la autorregulación de la perfusión renal y cerebral en la mayoría de las personas.',
-       pt:'Fórmula: [PAS + (2 × PAD)] ÷ 3. A meta de ≥65 mmHg em choque séptico vem do estudo SEPSISPAM e das diretrizes Surviving Sepsis, por ser o limiar abaixo do qual se compromete a autorregulação da perfusão renal e cerebral na maioria das pessoas.'}
+       pt:'Fórmula: [PAS + (2 × PAD)] ÷ 3. A meta de ≥65 mmHg em choque séptico vem do estudo SEPSISPAM e das diretrizes Surviving Sepsis, por ser o limiar abaixo do qual se compromete a autorregulação da perfusão renal e cerebral na maioria das pessoas.'},
+  source:{es:'Fórmula clásica de fisiología cardiovascular, presente en libros de texto de fisiología médica (ej: Guyton & Hall, Tratado de Fisiología Médica). No depende de un único estudio de validación.', pt:'Fórmula clássica de fisiologia cardiovascular, presente em livros-texto de fisiologia médica (ex: Guyton & Hall, Tratado de Fisiologia Médica). Não depende de um único estudo de validação.'},
+  reviewedAt:'2026-07'
 },
 
 { id:'qtc', cat:'cardiologia', tag:'QTc',
@@ -743,7 +793,9 @@ const CALCS = [
     return {value:val.toFixed(0), unit:'ms', band, text:txt};
   },
   how:{es:'Fórmula de Bazett: QTc = QT ÷ √(RR), donde RR = 60 ÷ frecuencia cardíaca (en segundos). Es la fórmula más usada en la práctica clínica diaria, aunque sobrecorrige a frecuencias muy altas o muy bajas (ahí otras fórmulas como Fridericia son más precisas).',
-       pt:'Fórmula de Bazett: QTc = QT ÷ √(RR), onde RR = 60 ÷ frequência cardíaca (em segundos). É a fórmula mais usada na prática clínica diária, embora supercorrija em frequências muito altas ou muito baixas (nesses casos, outras fórmulas como Fridericia são mais precisas).'}
+       pt:'Fórmula de Bazett: QTc = QT ÷ √(RR), onde RR = 60 ÷ frequência cardíaca (em segundos). É a fórmula mais usada na prática clínica diária, embora supercorrija em frequências muito altas ou muito baixas (nesses casos, outras fórmulas como Fridericia são mais precisas).'},
+  source:{es:'Bazett HC. "An analysis of the time-relations of electrocardiograms." Heart, 1920. Fórmula de corrección más usada en la práctica clínica, a pesar de sus limitaciones conocidas en frecuencias extremas.', pt:'Bazett HC. "An analysis of the time-relations of electrocardiograms." Heart, 1920. Fórmula de correção mais usada na prática clínica, apesar de suas limitações conhecidas em frequências extremas.'},
+  reviewedAt:'2026-07'
 },
 
 { id:'pesoideal', cat:'geral', tag:'PIdeal',
@@ -763,7 +815,9 @@ const CALCS = [
     return {value:val.toFixed(1), unit:'kg', band:'low', text:{es:'Peso ideal estimado según altura y sexo.',pt:'Peso ideal estimado conforme altura e sexo.'}};
   },
   how:{es:'Fórmula de Devine: hombres = 50 + 2.3 × (altura en pulgadas − 60); mujeres = 45.5 + 2.3 × (altura en pulgadas − 60). Cada pulgada por encima de 60 (152 cm) agrega 2.3 kg al peso de referencia.',
-       pt:'Fórmula de Devine: homens = 50 + 2.3 × (altura em polegadas − 60); mulheres = 45.5 + 2.3 × (altura em polegadas − 60). Cada polegada acima de 60 (152 cm) soma 2.3 kg ao peso de referência.'}
+       pt:'Fórmula de Devine: homens = 50 + 2.3 × (altura em polegadas − 60); mulheres = 45.5 + 2.3 × (altura em polegadas − 60). Cada polegada acima de 60 (152 cm) soma 2.3 kg ao peso de referência.'},
+  source:{es:'Devine BJ. "Gentamicin therapy." Drug Intelligence & Clinical Pharmacy, 1974. Fórmula ampliamente adoptada para el cálculo de dosis de medicamentos por peso ideal.', pt:'Devine BJ. "Gentamicin therapy." Drug Intelligence & Clinical Pharmacy, 1974. Fórmula amplamente adotada para cálculo de dose de medicamentos por peso ideal.'},
+  reviewedAt:'2026-07'
 },
 
 { id:'homair', cat:'geral', tag:'HOMA-IR',
@@ -783,7 +837,9 @@ const CALCS = [
     return {value:val.toFixed(2), unit:'', band, text:txt};
   },
   how:{es:'Fórmula: (glucemia mg/dL × insulina µU/mL) ÷ 405. El punto de corte de 2.5 es el más citado en la literatura, pero varía bastante según la población estudiada y el ensayo de insulina usado por cada laboratorio, así que conviene interpretarlo junto al contexto clínico.',
-       pt:'Fórmula: (glicemia mg/dL × insulina µU/mL) ÷ 405. O ponto de corte de 2.5 é o mais citado na literatura, mas varia bastante conforme a população estudada e o ensaio de insulina usado por cada laboratório, então convém interpretá-lo junto ao contexto clínico.'}
+       pt:'Fórmula: (glicemia mg/dL × insulina µU/mL) ÷ 405. O ponto de corte de 2.5 é o mais citado na literatura, mas varia bastante conforme a população estudada e o ensaio de insulina usado por cada laboratório, então convém interpretá-lo junto ao contexto clínico.'},
+  source:{es:'Matthews DR, et al. "Homeostasis model assessment: insulin resistance and beta-cell function from fasting plasma glucose and insulin concentrations in man." Diabetologia, 1985.', pt:'Matthews DR, et al. "Homeostasis model assessment: insulin resistance and beta-cell function from fasting plasma glucose and insulin concentrations in man." Diabetologia, 1985.'},
+  reviewedAt:'2026-07'
 },
 
 { id:'sofa', cat:'emergencia', tag:'SOFA',
@@ -818,7 +874,9 @@ const CALCS = [
     return {value:val, unit:'/ 24', band, text:txt};
   },
   how:{es:'Suma de 6 subescalas de 0 a 4 puntos cada una. Un aumento de ≥2 puntos respecto al basal, en presencia de infección sospechada o confirmada, es parte de la definición actual (Sepsis-3) de sepsis.',
-       pt:'Soma de 6 subescalas de 0 a 4 pontos cada uma. Um aumento de ≥2 pontos em relação ao basal, na presença de infecção suspeita ou confirmada, faz parte da definição atual (Sepsis-3) de sepse.'}
+       pt:'Soma de 6 subescalas de 0 a 4 pontos cada uma. Um aumento de ≥2 pontos em relação ao basal, na presença de infecção suspeita ou confirmada, faz parte da definição atual (Sepsis-3) de sepse.'},
+  source:{es:'Vincent JL, et al. "The SOFA (Sepsis-related Organ Failure Assessment) score to describe organ dysfunction/failure." Intensive Care Medicine, 1996.', pt:'Vincent JL, et al. "The SOFA (Sepsis-related Organ Failure Assessment) score to describe organ dysfunction/failure." Intensive Care Medicine, 1996.'},
+  reviewedAt:'2026-07'
 },
 
 { id:'news2', cat:'emergencia', tag:'NEWS2',
@@ -849,7 +907,9 @@ const CALCS = [
     return {value:val, unit:'puntos', band, text:txt};
   },
   how:{es:'Suma de 7 parámetros. Un solo parámetro puntuado con 3 ya activa una alerta de riesgo medio, independientemente del total, porque una desviación extrema en un solo sistema puede ser tan peligrosa como varias desviaciones leves combinadas.',
-       pt:'Soma de 7 parâmetros. Um único parâmetro pontuado com 3 já ativa um alerta de risco médio, independentemente do total, porque um desvio extremo em um único sistema pode ser tão perigoso quanto vários desvios leves combinados.'}
+       pt:'Soma de 7 parâmetros. Um único parâmetro pontuado com 3 já ativa um alerta de risco médio, independentemente do total, porque um desvio extremo em um único sistema pode ser tão perigoso quanto vários desvios leves combinados.'},
+  source:{es:'Royal College of Physicians (Reino Unido). "National Early Warning Score (NEWS) 2." 2017. Adoptado por el NHS para el deterioro clínico precoz.', pt:'Royal College of Physicians (Reino Unido). "National Early Warning Score (NEWS) 2." 2017. Adotado pelo NHS para deterioração clínica precoce.'},
+  reviewedAt:'2026-07'
 },
 
 { id:'timi', cat:'cardiologia', tag:'TIMI',
@@ -876,7 +936,9 @@ const CALCS = [
     return {value:score, unit:'/ 7', band, text:txt};
   },
   how:{es:'Cada ítem vale 1 punto (rango 0-7). A diferencia de GRACE, que usa variables continuas ponderadas, TIMI simplifica todo a variables binarias para poder calcularse mentalmente al lado de la cama, a costa de algo de precisión estadística.',
-       pt:'Cada item vale 1 ponto (faixa 0-7). Diferente do GRACE, que usa variáveis contínuas ponderadas, o TIMI simplifica tudo em variáveis binárias para poder ser calculado mentalmente à beira do leito, ao custo de alguma precisão estatística.'}
+       pt:'Cada item vale 1 ponto (faixa 0-7). Diferente do GRACE, que usa variáveis contínuas ponderadas, o TIMI simplifica tudo em variáveis binárias para poder ser calculado mentalmente à beira do leito, ao custo de alguma precisão estatística.'},
+  source:{es:'Antman EM, et al. "The TIMI risk score for unstable angina/non-ST elevation MI." JAMA, 2000.', pt:'Antman EM, et al. "The TIMI risk score for unstable angina/non-ST elevation MI." JAMA, 2000.'},
+  reviewedAt:'2026-07'
 },
 
 { id:'spesi', cat:'cardiologia', tag:'sPESI',
@@ -901,7 +963,9 @@ const CALCS = [
     return {value:score, unit:'/ 6', band, text:txt};
   },
   how:{es:'Cada ítem vale 1 punto. Un puntaje de 0 identifica pacientes de bajo riesgo con alta seguridad (alto valor predictivo negativo); basta un solo ítem positivo para reclasificar como alto riesgo.',
-       pt:'Cada item vale 1 ponto. Um escore de 0 identifica pacientes de baixo risco com alta segurança (alto valor preditivo negativo); basta um único item positivo para reclassificar como alto risco.'}
+       pt:'Cada item vale 1 ponto. Um escore de 0 identifica pacientes de baixo risco com alta segurança (alto valor preditivo negativo); basta um único item positivo para reclassificar como alto risco.'},
+  source:{es:'Jiménez D, et al. "Simplification of the pulmonary embolism severity index for prognostication in patients with acute symptomatic pulmonary embolism." Archives of Internal Medicine, 2010.', pt:'Jiménez D, et al. "Simplification of the pulmonary embolism severity index for prognostication in patients with acute symptomatic pulmonary embolism." Archives of Internal Medicine, 2010.'},
+  reviewedAt:'2026-07'
 },
 
 { id:'killip', cat:'cardiologia', tag:'Killip',
@@ -927,7 +991,9 @@ const CALCS = [
     return {value:'Killip '+({1:'I',2:'II',3:'III',4:'IV'}[v.clase]), unit:'', band:r.band, text:{es:`Mortalidad hospitalaria histórica aproximada: ${r.mort}. ${r.txt.es}`, pt:`Mortalidade hospitalar histórica aproximada: ${r.mort}. ${r.txt.pt}`}};
   },
   how:{es:'Clasificación descriptiva (no una suma de puntos): cada clase representa un escalón de gravedad hemodinámica creciente, validado originalmente por Killip y Kimball en 1967 con datos de mortalidad hospitalaria por infarto, antes de la era de la reperfusión.',
-       pt:'Classificação descritiva (não uma soma de pontos): cada classe representa um degrau de gravidade hemodinâmica crescente, validado originalmente por Killip e Kimball em 1967 com dados de mortalidade hospitalar por infarto, antes da era da reperfusão.'}
+       pt:'Classificação descritiva (não uma soma de pontos): cada classe representa um degrau de gravidade hemodinâmica crescente, validado originalmente por Killip e Kimball em 1967 com dados de mortalidade hospitalar por infarto, antes da era da reperfusão.'},
+  source:{es:'Killip T, Kimball JT. "Treatment of myocardial infarction in a coronary care unit." American Journal of Cardiology, 1967.', pt:'Killip T, Kimball JT. "Treatment of myocardial infarction in a coronary care unit." American Journal of Cardiology, 1967.'},
+  reviewedAt:'2026-07'
 },
 
 { id:'curb65', cat:'emergencia', tag:'CURB-65',
@@ -952,7 +1018,9 @@ const CALCS = [
     return {value:score, unit:'/ 5', band, text:txt};
   },
   how:{es:'Cada ítem vale 1 punto (rango 0-5). Es una versión simplificada del CURB-65 completo (que además pondera la oxigenación y hallazgos radiológicos), pensada para poder aplicarse en minutos en la guardia.',
-       pt:'Cada item vale 1 ponto (faixa 0-5). É uma versão simplificada do CURB-65 completo (que também pondera a oxigenação e achados radiológicos), pensada para poder ser aplicada em minutos na emergência.'}
+       pt:'Cada item vale 1 ponto (faixa 0-5). É uma versão simplificada do CURB-65 completo (que também pondera a oxigenação e achados radiológicos), pensada para poder ser aplicada em minutos na emergência.'},
+  source:{es:'Lim WS, et al. "Defining community acquired pneumonia severity on presentation to hospital." Thorax, 2003.', pt:'Lim WS, et al. "Defining community acquired pneumonia severity on presentation to hospital." Thorax, 2003.'},
+  reviewedAt:'2026-07'
 },
 
 { id:'alvarado', cat:'emergencia', tag:'Alvarado',
@@ -980,7 +1048,9 @@ const CALCS = [
     return {value:score, unit:'/ 10', band, text:txt};
   },
   how:{es:'Los ítems más específicos (dolor localizado y leucocitosis) valen 2 puntos cada uno, mientras que los síntomas más inespecíficos valen 1, reflejando su distinto peso estadístico en el estudio original de Alvarado (1986).',
-       pt:'Os itens mais específicos (dor localizada e leucocitose) valem 2 pontos cada um, enquanto os sintomas mais inespecíficos valem 1, refletindo seu peso estatístico diferente no estudo original de Alvarado (1986).'}
+       pt:'Os itens mais específicos (dor localizada e leucocitose) valem 2 pontos cada um, enquanto os sintomas mais inespecíficos valem 1, refletindo seu peso estatístico diferente no estudo original de Alvarado (1986).'},
+  source:{es:'Alvarado A. "A practical score for the early diagnosis of acute appendicitis." Annals of Emergency Medicine, 1986.', pt:'Alvarado A. "A practical score for the early diagnosis of acute appendicitis." Annals of Emergency Medicine, 1986.'},
+  reviewedAt:'2026-07'
 },
 
 { id:'kdigo', cat:'nefrologia', tag:'KDIGO',
@@ -1003,7 +1073,9 @@ const CALCS = [
     return {value:estadio===0?'—':estadio, unit:estadio===0?'':'estadio', band, text:txt};
   },
   how:{es:'Esta calculadora usa solo el criterio de creatinina (razón actual/basal y delta absoluto). KDIGO también estadifica por diuresis (mL/kg/h sostenidos en el tiempo), que no está incluido acá porque requiere seguimiento continuo, no un valor puntual.',
-       pt:'Esta calculadora usa apenas o critério de creatinina (razão atual/basal e delta absoluto). O KDIGO também estadia pela diurese (mL/kg/h sustentados ao longo do tempo), que não está incluído aqui porque requer acompanhamento contínuo, não um valor pontual.'}
+       pt:'Esta calculadora usa apenas o critério de creatinina (razão atual/basal e delta absoluto). O KDIGO também estadia pela diurese (mL/kg/h sustentados ao longo do tempo), que não está incluído aqui porque requer acompanhamento contínuo, não um valor pontual.'},
+  source:{es:'KDIGO Clinical Practice Guideline for Acute Kidney Injury. Kidney International Supplements, 2012.', pt:'KDIGO Clinical Practice Guideline for Acute Kidney Injury. Kidney International Supplements, 2012.'},
+  reviewedAt:'2026-07'
 },
 
 { id:'asa', cat:'geral', tag:'ASA',
@@ -1025,7 +1097,9 @@ const CALCS = [
     return {value:'ASA '+({1:'I',2:'II',3:'III',4:'IV',5:'V',6:'VI'}[v.clase]), unit:'', band, text:{es:'Clasificación según estado físico preoperatorio. Se le agrega una "E" cuando la cirugía es de emergencia.',pt:'Classificação conforme estado físico pré-operatório. Adiciona-se um "E" quando a cirurgia é de emergência.'}};
   },
   how:{es:'Es una clasificación clínica (no una suma de puntos), basada en el juicio del anestesiólogo sobre el estado general del paciente. Aunque es subjetiva, se correlaciona consistentemente con la mortalidad y morbilidad perioperatoria en estudios grandes.',
-       pt:'É uma classificação clínica (não uma soma de pontos), baseada no julgamento do anestesiologista sobre o estado geral do paciente. Embora seja subjetiva, se correlaciona consistentemente com a mortalidade e morbidade perioperatória em estudos grandes.'}
+       pt:'É uma classificação clínica (não uma soma de pontos), baseada no julgamento do anestesiologista sobre o estado geral do paciente. Embora seja subjetiva, se correlaciona consistentemente com a mortalidade e morbidade perioperatória em estudos grandes.'},
+  source:{es:'American Society of Anesthesiologists (ASA). Sistema de clasificación de estado físico, originado en 1963 y actualizado periódicamente por la sociedad.', pt:'American Society of Anesthesiologists (ASA). Sistema de classificação de estado físico, originado em 1963 e atualizado periodicamente pela sociedade.'},
+  reviewedAt:'2026-07'
 },
 
 { id:'caprini', cat:'geral', tag:'Caprini',
@@ -1069,7 +1143,9 @@ const CALCS = [
     return {value:score, unit:'puntos', band, text:txt};
   },
   how:{es:'Versión 2005, la más usada en la práctica y la validada en más estudios. Los ítems de mayor peso (5 puntos) son eventos agudos de muy alto riesgo trombótico documentado (fractura de cadera, ACV reciente, lesión medular), mientras que factores crónicos leves como venas varicosas valen apenas 1 punto.',
-       pt:'Versão 2005, a mais usada na prática e a validada em mais estudos. Os itens de maior peso (5 pontos) são eventos agudos de risco trombótico documentado muito alto (fratura de quadril, AVC recente, lesão medular), enquanto fatores crônicos leves como veias varicosas valem apenas 1 ponto.'}
+       pt:'Versão 2005, a mais usada na prática e a validada em mais estudos. Os itens de maior peso (5 pontos) são eventos agudos de risco trombótico documentado muito alto (fratura de quadril, AVC recente, lesão medular), enquanto fatores crônicos leves como veias varicosas valem apenas 1 ponto.'},
+  source:{es:'Caprini JA. "Thrombosis risk assessment as a guide to quality patient care." Disease-a-Month, 2005.', pt:'Caprini JA. "Thrombosis risk assessment as a guide to quality patient care." Disease-a-Month, 2005.'},
+  reviewedAt:'2026-07'
 },
 
 { id:'apgar', cat:'geral', tag:'APGAR',
@@ -1098,7 +1174,9 @@ const CALCS = [
     return {value:val, unit:'/ 10', band, text:txt};
   },
   how:{es:'Suma de 5 categorías de 0 a 2 puntos. Se evalúa tradicionalmente al minuto 1 (refleja tolerancia al parto) y al minuto 5 (mejor predictor de evolución); si sigue bajo, se repite cada 5 minutos.',
-       pt:'Soma de 5 categorias de 0 a 2 pontos. É avaliado tradicionalmente no minuto 1 (reflete tolerância ao parto) e no minuto 5 (melhor preditor de evolução); se continuar baixo, repete-se a cada 5 minutos.'}
+       pt:'Soma de 5 categorias de 0 a 2 pontos. É avaliado tradicionalmente no minuto 1 (reflete tolerância ao parto) e no minuto 5 (melhor preditor de evolução); se continuar baixo, repete-se a cada 5 minutos.'},
+  source:{es:'Apgar V. "A proposal for a new method of evaluation of the newborn infant." Current Researches in Anesthesia & Analgesia, 1953.', pt:'Apgar V. "A proposal for a new method of evaluation of the newborn infant." Current Researches in Anesthesia & Analgesia, 1953.'},
+  reviewedAt:'2026-07'
 },
 
 { id:'bishop', cat:'geral', tag:'Bishop',
@@ -1127,7 +1205,9 @@ const CALCS = [
     return {value:val, unit:'/ 13', band, text:txt};
   },
   how:{es:'Suma de 5 componentes (rango 0-13). Un puntaje ≥8 se asocia a una probabilidad de parto vaginal exitoso tras inducción similar a la de un trabajo de parto que comienza espontáneamente.',
-       pt:'Soma de 5 componentes (faixa 0-13). Um escore ≥8 se associa a uma probabilidade de parto vaginal bem-sucedido após indução semelhante à de um trabalho de parto que começa espontaneamente.'}
+       pt:'Soma de 5 componentes (faixa 0-13). Um escore ≥8 se associa a uma probabilidade de parto vaginal bem-sucedido após indução semelhante à de um trabalho de parto que começa espontaneamente.'},
+  source:{es:'Bishop EH. "Pelvic scoring for elective induction." Obstetrics & Gynecology, 1964.', pt:'Bishop EH. "Pelvic scoring for elective induction." Obstetrics & Gynecology, 1964.'},
+  reviewedAt:'2026-07'
 },
 
 { id:'nihss', cat:'emergencia', tag:'NIHSS',
@@ -1178,7 +1258,9 @@ const CALCS = [
     return {value:val, unit:'/ 42', band, text:txt};
   },
   how:{es:'Suma de 15 ítems que evalúan distintas funciones neurológicas (conciencia, lenguaje, campos visuales, motor, sensibilidad, entre otras), con rango total de 0 a 42. Es la escala estándar para cuantificar severidad de ACV isquémico agudo y guiar decisiones de reperfusión.',
-       pt:'Soma de 15 itens que avaliam diferentes funções neurológicas (consciência, linguagem, campos visuais, motor, sensibilidade, entre outras), com faixa total de 0 a 42. É a escala padrão para quantificar a severidade do AVC isquêmico agudo e guiar decisões de reperfusão.'}
+       pt:'Soma de 15 itens que avaliam diferentes funções neurológicas (consciência, linguagem, campos visuais, motor, sensibilidade, entre outras), com faixa total de 0 a 42. É a escala padrão para quantificar a severidade do AVC isquêmico agudo e guiar decisões de reperfusão.'},
+  source:{es:'Brott T, et al. "Measurements of acute cerebral infarction: a clinical examination scale." Stroke, 1989. Estándar internacional para la evaluación del ACV agudo.', pt:'Brott T, et al. "Measurements of acute cerebral infarction: a clinical examination scale." Stroke, 1989. Padrão internacional para avaliação de AVC agudo.'},
+  reviewedAt:'2026-07'
 },
 
 { id:'apache2', cat:'emergencia', tag:'APACHE II',
@@ -1231,7 +1313,9 @@ const CALCS = [
     return {value:val, unit:'/ 71', band, text:txt};
   },
   how:{es:'Suma de la Puntuación de Fisiología Aguda (12 variables, 0-4 puntos cada una, usando el peor valor de las primeras 24 h) + puntos de edad (0-6) + puntos de salud crónica (0, 2 o 5). Los puntos de creatinina se duplican si hay falla renal aguda, porque a igual valor numérico, un riñón que falló agudamente representa mayor gravedad que uno con daño crónico ya compensado. Esta calculadora usa PaO₂ (asume FiO₂ < 0.5); con FiO₂ ≥ 0.5 el cálculo original usa el gradiente A-aDO₂, no incluido aquí.',
-       pt:'Soma da Pontuação de Fisiologia Aguda (12 variáveis, 0-4 pontos cada, usando o pior valor das primeiras 24 h) + pontos de idade (0-6) + pontos de saúde crônica (0, 2 ou 5). Os pontos de creatinina são duplicados se houver falência renal aguda, porque para o mesmo valor numérico, um rim que falhou agudamente representa maior gravidade do que um com dano crônico já compensado. Esta calculadora usa PaO₂ (assume FiO₂ < 0.5); com FiO₂ ≥ 0.5 o cálculo original usa o gradiente A-aDO₂, não incluído aqui.'}
+       pt:'Soma da Pontuação de Fisiologia Aguda (12 variáveis, 0-4 pontos cada, usando o pior valor das primeiras 24 h) + pontos de idade (0-6) + pontos de saúde crônica (0, 2 ou 5). Os pontos de creatinina são duplicados se houver falência renal aguda, porque para o mesmo valor numérico, um rim que falhou agudamente representa maior gravidade do que um com dano crônico já compensado. Esta calculadora usa PaO₂ (assume FiO₂ < 0.5); com FiO₂ ≥ 0.5 o cálculo original usa o gradiente A-aDO₂, não incluído aqui.'},
+  source:{es:'Knaus WA, et al. "APACHE II: a severity of disease classification system." Critical Care Medicine, 1985.', pt:'Knaus WA, et al. "APACHE II: a severity of disease classification system." Critical Care Medicine, 1985.'},
+  reviewedAt:'2026-07'
 }
 ];
 
@@ -1345,6 +1429,32 @@ function openDetail(id, silent){
     <div class="result" id="resultBox"></div>
     <button class="howbtn" id="howbtnEl" onclick="toggleHow()">▸ <span id="howbtnLabel">${t.how}</span></button>
     <div class="howtext" id="howtext">${c.how[LANG]}</div>
+
+    <div class="trust">
+      <button class="trustbtn" id="trustbtnEl" onclick="toggleTrust()">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/></svg>
+        <span id="trustbtnLabel">▸ ${t.trustToggle}</span>
+      </button>
+      <div class="trustbody" id="trustbody">
+        <div class="trust-item">
+          <div class="trust-icon">📖</div>
+          <div class="trust-txt"><b>${t.trustSource}</b><span>${c.source[LANG]}</span></div>
+        </div>
+        <div class="trust-item">
+          <div class="trust-icon">🗓️</div>
+          <div class="trust-txt"><b>${t.trustReview}</b><span>${c.reviewedAt}</span></div>
+        </div>
+        <div class="trust-item">
+          <div class="trust-icon">🔒</div>
+          <div class="trust-txt"><b>${t.trustPrivacy}</b><span>${t.trustPrivacyText}</span></div>
+        </div>
+        <div class="trust-item">
+          <div class="trust-icon">👤</div>
+          <div class="trust-txt"><b>${t.trustAbout}</b><span>${t.trustAboutText}</span></div>
+        </div>
+      </div>
+    </div>
+
     <p class="disclaimer">${t.disclaimer}</p>
   `;
   if(silent) window.scrollTo(0,window.scrollY);
@@ -1358,6 +1468,14 @@ function toggleHow(){
   const btn = document.getElementById('howbtnEl');
   el.classList.toggle('show');
   btn.firstChild.textContent = el.classList.contains('show') ? '▾ ' : '▸ ';
+}
+
+function toggleTrust(){
+  const el = document.getElementById('trustbody');
+  const label = document.getElementById('trustbtnLabel');
+  const t = UI[LANG];
+  el.classList.toggle('show');
+  label.textContent = (el.classList.contains('show') ? '▾ ' : '▸ ') + t.trustToggle;
 }
 
 function runCalc(){

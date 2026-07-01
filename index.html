@@ -644,6 +644,572 @@ const CALCS = [
   },
   how:{es:'Fórmula: 3.78×ln(bilirrubina) + 11.2×ln(INR) + 9.57×ln(creatinina) + 6.43. Los valores se acotan (mínimo 1, creatinina máximo 4, o 4 fijo si dializa) para evitar que valores extremos distorsionen el puntaje.',
        pt:'Fórmula: 3.78×ln(bilirrubina) + 11.2×ln(INR) + 9.57×ln(creatinina) + 6.43. Os valores são limitados (mínimo 1, creatinina máximo 4, ou 4 fixo se dialisa) para evitar que valores extremos distorçam o escore.'}
+},
+
+{ id:'meldna', cat:'geral', tag:'MELD-Na',
+  title:{es:'MELD-Na', pt:'MELD-Na'},
+  sub:{es:'MELD ajustado por sodio', pt:'MELD ajustado pelo sódio'},
+  why:{es:'El MELD original no incluye el sodio, pero la hiponatremia es, por sí sola, un predictor independiente de mortalidad en cirrosis (refleja activación neurohormonal severa por vasodilatación esplácnica). MELD-Na incorpora una penalización cuando el sodio está bajo, mejorando la predicción de mortalidad en lista de espera.',
+       pt:'O MELD original não inclui o sódio, mas a hiponatremia é, por si só, um preditor independente de mortalidade na cirrose (reflete ativação neuro-hormonal severa por vasodilatação esplâncnica). O MELD-Na incorpora uma penalização quando o sódio está baixo, melhorando a predição de mortalidade em lista de espera.'},
+  inputs:[
+    {id:'bili', type:'number', label:{es:'Bilirrubina total (mg/dL)', pt:'Bilirrubina total (mg/dL)'}},
+    {id:'inr', type:'number', label:{es:'INR', pt:'INR'}},
+    {id:'creat', type:'number', label:{es:'Creatinina (mg/dL)', pt:'Creatinina (mg/dL)'}},
+    {id:'na', type:'number', label:{es:'Sodio sérico (mEq/L)', pt:'Sódio sérico (mEq/L)'}},
+    {id:'dialisis', type:'bool', label:{es:'Diálisis ≥ 2 veces en la última semana', pt:'Diálise ≥ 2 vezes na última semana'}}
+  ],
+  compute:(v)=>{
+    let bili = Math.max(v.bili,1);
+    let inr = Math.max(v.inr,1);
+    let creat = v.dialisis ? 4.0 : Math.min(Math.max(v.creat,1),4);
+    let meld = 3.78*Math.log(bili) + 11.2*Math.log(inr) + 9.57*Math.log(creat) + 6.43;
+    meld = Math.max(6, Math.round(meld));
+    let na = Math.min(Math.max(v.na,125),137);
+    let val = meld + 1.32*(137-na) - (0.033*meld*(137-na));
+    val = Math.round(val);
+    if(val<6) val=6;
+    if(val>40) val=40;
+    let band, txt;
+    if(val<10){band='low'; txt={es:'Riesgo bajo a corto plazo.',pt:'Risco baixo a curto prazo.'};}
+    else if(val<20){band='mid'; txt={es:'Riesgo intermedio. Enfermedad hepática avanzada.',pt:'Risco intermediário. Doença hepática avançada.'};}
+    else{band='high'; txt={es:'Riesgo alto a corto plazo. Prioridad elevada en lista de trasplante.',pt:'Risco alto a curto prazo. Prioridade elevada em lista de transplante.'};}
+    return {value:val, unit:'puntos', band, text:txt};
+  },
+  how:{es:'Fórmula (OPTN/UNOS): MELD-Na = MELD + 1.32×(137−Na) − [0.033×MELD×(137−Na)], con el sodio acotado entre 125 y 137 mEq/L para evitar que valores extremos distorsionen el ajuste.',
+       pt:'Fórmula (OPTN/UNOS): MELD-Na = MELD + 1.32×(137−Na) − [0.033×MELD×(137−Na)], com o sódio limitado entre 125 e 137 mEq/L para evitar que valores extremos distorçam o ajuste.'}
+},
+
+{ id:'pam', cat:'geral', tag:'PAM',
+  title:{es:'Presión arterial media (PAM)', pt:'Pressão arterial média (PAM)'},
+  sub:{es:'Presión de perfusión de los órganos', pt:'Pressão de perfusão dos órgãos'},
+  why:{es:'La presión que realmente perfunde los órganos durante todo el ciclo cardíaco no es la sistólica ni la diastólica, sino un promedio ponderado entre ambas. Como el corazón pasa más tiempo en diástole que en sístole, la diastólica pesa el doble en la fórmula. Es la presión que se usa como objetivo en shock y sepsis.',
+       pt:'A pressão que realmente perfunde os órgãos durante todo o ciclo cardíaco não é a sistólica nem a diastólica, mas uma média ponderada entre as duas. Como o coração passa mais tempo em diástole do que em sístole, a diastólica pesa o dobro na fórmula. É a pressão usada como meta em choque e sepse.'},
+  inputs:[
+    {id:'pas', type:'number', label:{es:'Presión arterial sistólica (mmHg)', pt:'Pressão arterial sistólica (mmHg)'}},
+    {id:'pad', type:'number', label:{es:'Presión arterial diastólica (mmHg)', pt:'Pressão arterial diastólica (mmHg)'}}
+  ],
+  compute:(v)=>{
+    const val = (v.pas + 2*v.pad)/3;
+    let band, txt;
+    if(val<65){band='high'; txt={es:'Por debajo del objetivo habitual de perfusión (65 mmHg). Considerar soporte hemodinámico según contexto.',pt:'Abaixo da meta habitual de perfusão (65 mmHg). Considerar suporte hemodinâmico conforme o contexto.'};}
+    else if(val<=110){band='low'; txt={es:'Dentro de rango habitual de perfusión orgánica.',pt:'Dentro da faixa habitual de perfusão orgânica.'};}
+    else{band='mid'; txt={es:'Elevada. Evaluar contexto de hipertensión o emergencia hipertensiva.',pt:'Elevada. Avaliar contexto de hipertensão ou emergência hipertensiva.'};}
+    return {value:val.toFixed(0), unit:'mmHg', band, text:txt};
+  },
+  how:{es:'Fórmula: [PAS + (2 × PAD)] ÷ 3. El objetivo de ≥65 mmHg en shock séptico viene del estudio SEPSISPAM y guías de Surviving Sepsis, por ser el umbral por debajo del cual se compromete la autorregulación de la perfusión renal y cerebral en la mayoría de las personas.',
+       pt:'Fórmula: [PAS + (2 × PAD)] ÷ 3. A meta de ≥65 mmHg em choque séptico vem do estudo SEPSISPAM e das diretrizes Surviving Sepsis, por ser o limiar abaixo do qual se compromete a autorregulação da perfusão renal e cerebral na maioria das pessoas.'}
+},
+
+{ id:'qtc', cat:'cardiologia', tag:'QTc',
+  title:{es:'QT corregido (Bazett)', pt:'QT corrigido (Bazett)'},
+  sub:{es:'Riesgo de arritmia ventricular por QT prolongado', pt:'Risco de arritmia ventricular por QT prolongado'},
+  why:{es:'El intervalo QT se acorta naturalmente cuando el corazón late más rápido, así que un QT medido en 90 lpm no es comparable a uno medido en 60 lpm. Bazett corrige ese efecto dividiendo por la raíz cuadrada del intervalo R-R (en segundos), para poder comparar el QT entre personas con distinta frecuencia cardíaca y detectar riesgo real de arritmias como torsade de pointes.',
+       pt:'O intervalo QT se encurta naturalmente quando o coração bate mais rápido, então um QT medido a 90 bpm não é comparável a um medido a 60 bpm. Bazett corrige esse efeito dividindo pela raiz quadrada do intervalo R-R (em segundos), para poder comparar o QT entre pessoas com frequência cardíaca diferente e detectar risco real de arritmias como torsade de pointes.'},
+  inputs:[
+    {id:'qt', type:'number', label:{es:'Intervalo QT medido (ms)', pt:'Intervalo QT medido (ms)'}},
+    {id:'fc', type:'number', label:{es:'Frecuencia cardíaca (lpm)', pt:'Frequência cardíaca (bpm)'}},
+    {id:'sexo', type:'bool', label:{es:'Sexo', pt:'Sexo'}, trueLabel:{es:'Mujer',pt:'Mulher'}, falseLabel:{es:'Hombre',pt:'Homem'}}
+  ],
+  compute:(v)=>{
+    const rr = 60/v.fc;
+    const val = v.qt / Math.sqrt(rr);
+    const limite = v.sexo ? 460 : 440;
+    let band, txt;
+    if(val<limite){band='low'; txt={es:'QTc dentro de rango normal.',pt:'QTc dentro da faixa normal.'};}
+    else if(val<500){band='mid'; txt={es:'QTc limítrofe/prolongado. Revisar fármacos que prolongan el QT y electrolitos (K, Mg, Ca).',pt:'QTc limítrofe/prolongado. Revisar fármacos que prolongam o QT e eletrólitos (K, Mg, Ca).'};}
+    else{band='high'; txt={es:'QTc muy prolongado (≥500 ms). Riesgo aumentado de torsade de pointes; revisar causas reversibles con urgencia.',pt:'QTc muito prolongado (≥500 ms). Risco aumentado de torsade de pointes; revisar causas reversíveis com urgência.'};}
+    return {value:val.toFixed(0), unit:'ms', band, text:txt};
+  },
+  how:{es:'Fórmula de Bazett: QTc = QT ÷ √(RR), donde RR = 60 ÷ frecuencia cardíaca (en segundos). Es la fórmula más usada en la práctica clínica diaria, aunque sobrecorrige a frecuencias muy altas o muy bajas (ahí otras fórmulas como Fridericia son más precisas).',
+       pt:'Fórmula de Bazett: QTc = QT ÷ √(RR), onde RR = 60 ÷ frequência cardíaca (em segundos). É a fórmula mais usada na prática clínica diária, embora supercorrija em frequências muito altas ou muito baixas (nesses casos, outras fórmulas como Fridericia são mais precisas).'}
+},
+
+{ id:'pesoideal', cat:'geral', tag:'PIdeal',
+  title:{es:'Peso corporal ideal (Devine)', pt:'Peso corporal ideal (Devine)'},
+  sub:{es:'Referencia para dosificación de fármacos', pt:'Referência para dosagem de fármacos'},
+  why:{es:'Muchos fármacos (sedantes, algunos antibióticos, volumen corriente en ventilación mecánica) se dosifican según el peso ideal y no el peso real, porque el exceso de tejido adiposo no aumenta proporcionalmente el volumen de distribución de esos fármacos ni el tamaño funcional del pulmón. La fórmula de Devine estima ese peso "de referencia" a partir de la altura.',
+       pt:'Muitos fármacos (sedativos, alguns antibióticos, volume corrente em ventilação mecânica) são dosados pelo peso ideal e não pelo peso real, porque o excesso de tecido adiposo não aumenta proporcionalmente o volume de distribuição desses fármacos nem o tamanho funcional do pulmão. A fórmula de Devine estima esse peso "de referência" a partir da altura.'},
+  inputs:[
+    {id:'altura', type:'number', label:{es:'Altura (cm)', pt:'Altura (cm)'}},
+    {id:'sexo', type:'bool', label:{es:'Sexo', pt:'Sexo'}, trueLabel:{es:'Mujer',pt:'Mulher'}, falseLabel:{es:'Hombre',pt:'Homem'}}
+  ],
+  compute:(v)=>{
+    const inches = v.altura/2.54;
+    const base = v.sexo ? 45.5 : 50;
+    let val = base + 2.3*(inches-60);
+    if(val<0) val=base;
+    return {value:val.toFixed(1), unit:'kg', band:'low', text:{es:'Peso ideal estimado según altura y sexo.',pt:'Peso ideal estimado conforme altura e sexo.'}};
+  },
+  how:{es:'Fórmula de Devine: hombres = 50 + 2.3 × (altura en pulgadas − 60); mujeres = 45.5 + 2.3 × (altura en pulgadas − 60). Cada pulgada por encima de 60 (152 cm) agrega 2.3 kg al peso de referencia.',
+       pt:'Fórmula de Devine: homens = 50 + 2.3 × (altura em polegadas − 60); mulheres = 45.5 + 2.3 × (altura em polegadas − 60). Cada polegada acima de 60 (152 cm) soma 2.3 kg ao peso de referência.'}
+},
+
+{ id:'homair', cat:'geral', tag:'HOMA-IR',
+  title:{es:'HOMA-IR', pt:'HOMA-IR'},
+  sub:{es:'Estimación de resistencia a la insulina', pt:'Estimativa de resistência à insulina'},
+  why:{es:'En ayunas, la glucemia se mantiene estable gracias a un equilibrio entre la insulina secretada y la sensibilidad de los tejidos a ella. Si hacen falta niveles de insulina más altos de lo esperado para mantener la glucemia normal en ayunas, eso sugiere que los tejidos están resistiendo su efecto. HOMA-IR aproxima esa relación multiplicando ambos valores.',
+       pt:'Em jejum, a glicemia se mantém estável graças a um equilíbrio entre a insulina secretada e a sensibilidade dos tecidos a ela. Se são necessários níveis de insulina mais altos do que o esperado para manter a glicemia normal em jejum, isso sugere que os tecidos estão resistindo ao seu efeito. O HOMA-IR aproxima essa relação multiplicando os dois valores.'},
+  inputs:[
+    {id:'glu', type:'number', label:{es:'Glucemia en ayunas (mg/dL)', pt:'Glicemia em jejum (mg/dL)'}},
+    {id:'ins', type:'number', label:{es:'Insulina en ayunas (µU/mL)', pt:'Insulina em jejum (µU/mL)'}}
+  ],
+  compute:(v)=>{
+    const val = (v.glu*v.ins)/405;
+    let band, txt;
+    if(val<2.5){band='low'; txt={es:'Sin evidencia de resistencia a la insulina significativa.',pt:'Sem evidência de resistência à insulina significativa.'};}
+    else{band='high'; txt={es:'Sugiere resistencia a la insulina. El punto de corte varía según la población y el laboratorio.',pt:'Sugere resistência à insulina. O ponto de corte varia conforme a população e o laboratório.'};}
+    return {value:val.toFixed(2), unit:'', band, text:txt};
+  },
+  how:{es:'Fórmula: (glucemia mg/dL × insulina µU/mL) ÷ 405. El punto de corte de 2.5 es el más citado en la literatura, pero varía bastante según la población estudiada y el ensayo de insulina usado por cada laboratorio, así que conviene interpretarlo junto al contexto clínico.',
+       pt:'Fórmula: (glicemia mg/dL × insulina µU/mL) ÷ 405. O ponto de corte de 2.5 é o mais citado na literatura, mas varia bastante conforme a população estudada e o ensaio de insulina usado por cada laboratório, então convém interpretá-lo junto ao contexto clínico.'}
+},
+
+{ id:'sofa', cat:'emergencia', tag:'SOFA',
+  title:{es:'SOFA', pt:'SOFA'},
+  sub:{es:'Disfunción orgánica secuencial en sepsis', pt:'Disfunção orgânica sequencial em sepse'},
+  why:{es:'La sepsis se define hoy como una disfunción orgánica potencialmente mortal causada por una respuesta desregulada del cuerpo a una infección. SOFA cuantifica esa disfunción evaluando seis sistemas por separado (respiratorio, coagulación, hígado, cardiovascular, sistema nervioso central y renal), porque cada órgano puede fallar de forma independiente y en distinto grado.',
+       pt:'A sepse é definida hoje como uma disfunção orgânica potencialmente fatal causada por uma resposta desregulada do corpo a uma infecção. O SOFA quantifica essa disfunção avaliando seis sistemas separadamente (respiratório, coagulação, fígado, cardiovascular, sistema nervoso central e renal), porque cada órgão pode falhar de forma independente e em grau diferente.'},
+  inputs:[
+    {id:'resp', type:'select', label:{es:'Respiratorio — PaO₂/FiO₂ (mmHg)', pt:'Respiratório — PaO₂/FiO₂ (mmHg)'}, options:[
+      {v:0,l:{es:'≥ 400',pt:'≥ 400'}},{v:1,l:{es:'< 400',pt:'< 400'}},{v:2,l:{es:'< 300',pt:'< 300'}},
+      {v:3,l:{es:'< 200 con soporte respiratorio',pt:'< 200 com suporte respiratório'}},{v:4,l:{es:'< 100 con soporte respiratorio',pt:'< 100 com suporte respiratório'}}]},
+    {id:'coag', type:'select', label:{es:'Coagulación — Plaquetas (×10³/µL)', pt:'Coagulação — Plaquetas (×10³/µL)'}, options:[
+      {v:0,l:{es:'≥ 150',pt:'≥ 150'}},{v:1,l:{es:'< 150',pt:'< 150'}},{v:2,l:{es:'< 100',pt:'< 100'}},{v:3,l:{es:'< 50',pt:'< 50'}},{v:4,l:{es:'< 20',pt:'< 20'}}]},
+    {id:'higado', type:'select', label:{es:'Hígado — Bilirrubina (mg/dL)', pt:'Fígado — Bilirrubina (mg/dL)'}, options:[
+      {v:0,l:{es:'< 1.2',pt:'< 1.2'}},{v:1,l:{es:'1.2–1.9',pt:'1.2–1.9'}},{v:2,l:{es:'2.0–5.9',pt:'2.0–5.9'}},{v:3,l:{es:'6.0–11.9',pt:'6.0–11.9'}},{v:4,l:{es:'≥ 12.0',pt:'≥ 12.0'}}]},
+    {id:'cardio', type:'select', label:{es:'Cardiovascular', pt:'Cardiovascular'}, options:[
+      {v:0,l:{es:'PAM ≥ 70 mmHg',pt:'PAM ≥ 70 mmHg'}},{v:1,l:{es:'PAM < 70 mmHg',pt:'PAM < 70 mmHg'}},
+      {v:2,l:{es:'Dopamina ≤5 o dobutamina (cualquier dosis)',pt:'Dopamina ≤5 ou dobutamina (qualquer dose)'}},
+      {v:3,l:{es:'Dopamina >5, o epinefrina/norepinefrina ≤0.1',pt:'Dopamina >5, ou epinefrina/norepinefrina ≤0.1'}},
+      {v:4,l:{es:'Dopamina >15, o epinefrina/norepinefrina >0.1',pt:'Dopamina >15, ou epinefrina/norepinefrina >0.1'}}]},
+    {id:'scn', type:'select', label:{es:'Sistema nervioso central — Glasgow', pt:'Sistema nervoso central — Glasgow'}, options:[
+      {v:0,l:{es:'15',pt:'15'}},{v:1,l:{es:'13–14',pt:'13–14'}},{v:2,l:{es:'10–12',pt:'10–12'}},{v:3,l:{es:'6–9',pt:'6–9'}},{v:4,l:{es:'< 6',pt:'< 6'}}]},
+    {id:'renal', type:'select', label:{es:'Renal — Creatinina (mg/dL)', pt:'Renal — Creatinina (mg/dL)'}, options:[
+      {v:0,l:{es:'< 1.2',pt:'< 1.2'}},{v:1,l:{es:'1.2–1.9',pt:'1.2–1.9'}},{v:2,l:{es:'2.0–3.4',pt:'2.0–3.4'}},{v:3,l:{es:'3.5–4.9',pt:'3.5–4.9'}},{v:4,l:{es:'≥ 5.0',pt:'≥ 5.0'}}]}
+  ],
+  compute:(v)=>{
+    const val = (v.resp||0)+(v.coag||0)+(v.higado||0)+(v.cardio||0)+(v.scn||0)+(v.renal||0);
+    let band, txt;
+    if(val<=1){band='low'; txt={es:'Disfunción orgánica mínima o ausente.',pt:'Disfunção orgânica mínima ou ausente.'};}
+    else if(val<=6){band='mid'; txt={es:'Disfunción orgánica presente. Mortalidad estimada aumenta con el puntaje.',pt:'Disfunção orgânica presente. Mortalidade estimada aumenta com o escore.'};}
+    else{band='high'; txt={es:'Disfunción orgánica severa/multiorgánica. Mortalidad estimada significativamente elevada.',pt:'Disfunção orgânica severa/multiorgânica. Mortalidade estimada significativamente elevada.'};}
+    return {value:val, unit:'/ 24', band, text:txt};
+  },
+  how:{es:'Suma de 6 subescalas de 0 a 4 puntos cada una. Un aumento de ≥2 puntos respecto al basal, en presencia de infección sospechada o confirmada, es parte de la definición actual (Sepsis-3) de sepsis.',
+       pt:'Soma de 6 subescalas de 0 a 4 pontos cada uma. Um aumento de ≥2 pontos em relação ao basal, na presença de infecção suspeita ou confirmada, faz parte da definição atual (Sepsis-3) de sepse.'}
+},
+
+{ id:'news2', cat:'emergencia', tag:'NEWS2',
+  title:{es:'NEWS2', pt:'NEWS2'},
+  sub:{es:'Deterioro clínico agudo (signos vitales)', pt:'Deterioração clínica aguda (sinais vitais)'},
+  why:{es:'NEWS2 fue diseñado para detectar deterioro clínico temprano en cualquier paciente hospitalizado, no solo en sospecha de infección. Usa seis signos vitales de rutina, cada uno puntuado según qué tan lejos está de lo normal, para generar una alarma temprana y objetiva antes de que el paciente se descompense de forma evidente.',
+       pt:'O NEWS2 foi desenhado para detectar deterioração clínica precoce em qualquer paciente internado, não só em suspeita de infecção. Usa seis sinais vitais de rotina, cada um pontuado conforme o quão longe está do normal, para gerar um alarme precoce e objetivo antes que o paciente se descompense de forma evidente.'},
+  inputs:[
+    {id:'fr', type:'select', label:{es:'Frecuencia respiratoria (rpm)', pt:'Frequência respiratória (rpm)'}, options:[
+      {v:3,l:{es:'≤ 8',pt:'≤ 8'}},{v:1,l:{es:'9–11',pt:'9–11'}},{v:0,l:{es:'12–20',pt:'12–20'}},{v:2,l:{es:'21–24',pt:'21–24'}},{v:3,l:{es:'≥ 25',pt:'≥ 25'}}]},
+    {id:'spo2', type:'select', label:{es:'Saturación de O₂ (%)', pt:'Saturação de O₂ (%)'}, options:[
+      {v:3,l:{es:'≤ 91',pt:'≤ 91'}},{v:2,l:{es:'92–93',pt:'92–93'}},{v:1,l:{es:'94–95',pt:'94–95'}},{v:0,l:{es:'≥ 96',pt:'≥ 96'}}]},
+    {id:'o2sup', type:'bool', points:2, label:{es:'Requiere oxígeno suplementario', pt:'Necessita de oxigênio suplementar'}},
+    {id:'pas', type:'select', label:{es:'Presión arterial sistólica (mmHg)', pt:'Pressão arterial sistólica (mmHg)'}, options:[
+      {v:3,l:{es:'≤ 90',pt:'≤ 90'}},{v:2,l:{es:'91–100',pt:'91–100'}},{v:1,l:{es:'101–110',pt:'101–110'}},{v:0,l:{es:'111–219',pt:'111–219'}},{v:3,l:{es:'≥ 220',pt:'≥ 220'}}]},
+    {id:'fc', type:'select', label:{es:'Frecuencia cardíaca (lpm)', pt:'Frequência cardíaca (bpm)'}, options:[
+      {v:3,l:{es:'≤ 40',pt:'≤ 40'}},{v:1,l:{es:'41–50',pt:'41–50'}},{v:0,l:{es:'51–90',pt:'51–90'}},{v:1,l:{es:'91–110',pt:'91–110'}},{v:2,l:{es:'111–130',pt:'111–130'}},{v:3,l:{es:'≥ 131',pt:'≥ 131'}}]},
+    {id:'consciencia', type:'bool', points:3, label:{es:'Alteración de conciencia (nueva confusión, responde solo a voz/dolor, o no responde)', pt:'Alteração de consciência (nova confusão, responde só a voz/dor, ou não responde)'}},
+    {id:'temp', type:'select', label:{es:'Temperatura (°C)', pt:'Temperatura (°C)'}, options:[
+      {v:3,l:{es:'≤ 35.0',pt:'≤ 35.0'}},{v:1,l:{es:'35.1–36.0',pt:'35.1–36.0'}},{v:0,l:{es:'36.1–38.0',pt:'36.1–38.0'}},{v:1,l:{es:'38.1–39.0',pt:'38.1–39.0'}},{v:2,l:{es:'≥ 39.1',pt:'≥ 39.1'}}]}
+  ],
+  compute:(v)=>{
+    const val = (v.fr||0)+(v.spo2||0)+(v.o2sup?2:0)+(v.pas||0)+(v.fc||0)+(v.consciencia?3:0)+(v.temp||0);
+    let band, txt;
+    if(val<=4){band='low'; txt={es:'Riesgo bajo. Monitoreo de rutina.',pt:'Risco baixo. Monitoramento de rotina.'};}
+    else if(val<=6){band='mid'; txt={es:'Riesgo medio. Aumentar frecuencia de monitoreo y avisar al equipo responsable.',pt:'Risco médio. Aumentar frequência de monitoramento e avisar a equipe responsável.'};}
+    else{band='high'; txt={es:'Riesgo alto. Evaluación urgente, considerar traslado a un nivel de mayor monitoreo.',pt:'Risco alto. Avaliação urgente, considerar transferência para nível de maior monitoramento.'};}
+    return {value:val, unit:'puntos', band, text:txt};
+  },
+  how:{es:'Suma de 7 parámetros. Un solo parámetro puntuado con 3 ya activa una alerta de riesgo medio, independientemente del total, porque una desviación extrema en un solo sistema puede ser tan peligrosa como varias desviaciones leves combinadas.',
+       pt:'Soma de 7 parâmetros. Um único parâmetro pontuado com 3 já ativa um alerta de risco médio, independentemente do total, porque um desvio extremo em um único sistema pode ser tão perigoso quanto vários desvios leves combinados.'}
+},
+
+{ id:'timi', cat:'cardiologia', tag:'TIMI',
+  title:{es:'TIMI risk score (SCA sin elevación del ST)', pt:'TIMI risk score (SCA sem supra de ST)'},
+  sub:{es:'Riesgo en angina inestable / IAM sin elevación del ST', pt:'Risco em angina instável / IAM sem supra de ST'},
+  why:{es:'Una vez diagnosticado un síndrome coronario agudo sin elevación del ST, TIMI ayuda a decidir la urgencia de una estrategia invasiva sumando siete factores clínicos y de laboratorio simples, disponibles apenas la persona llega, sin esperar estudios complejos.',
+       pt:'Uma vez diagnosticada uma síndrome coronariana aguda sem supra de ST, o TIMI ajuda a decidir a urgência de uma estratégia invasiva somando sete fatores clínicos e laboratoriais simples, disponíveis assim que a pessoa chega, sem esperar exames complexos.'},
+  inputs:[
+    {id:'edad', type:'bool', points:1, label:{es:'Edad ≥ 65 años', pt:'Idade ≥ 65 anos'}},
+    {id:'factores', type:'bool', points:1, label:{es:'≥ 3 factores de riesgo para enfermedad coronaria', pt:'≥ 3 fatores de risco para doença coronariana'}},
+    {id:'ecc', type:'bool', points:1, label:{es:'Enfermedad coronaria conocida (estenosis ≥ 50%)', pt:'Doença coronariana conhecida (estenose ≥ 50%)'}},
+    {id:'aas', type:'bool', points:1, label:{es:'Uso de aspirina en los últimos 7 días', pt:'Uso de aspirina nos últimos 7 dias'}},
+    {id:'angina', type:'bool', points:1, label:{es:'≥ 2 episodios de angina en las últimas 24 h', pt:'≥ 2 episódios de angina nas últimas 24 h'}},
+    {id:'st', type:'bool', points:1, label:{es:'Desviación del ST ≥ 0.5 mm', pt:'Desvio do ST ≥ 0.5 mm'}},
+    {id:'marcadores', type:'bool', points:1, label:{es:'Marcadores cardíacos elevados', pt:'Marcadores cardíacos elevados'}}
+  ],
+  compute:(v, inputs)=>{
+    let score=0;
+    inputs.forEach(inp=>{ if(v[inp.id]) score+=inp.points; });
+    let band, txt;
+    if(score<=2){band='low'; txt={es:'Riesgo bajo (≈5–8% de eventos a 14 días).',pt:'Risco baixo (≈5–8% de eventos em 14 dias).'};}
+    else if(score<=4){band='mid'; txt={es:'Riesgo intermedio (≈13–20% de eventos a 14 días).',pt:'Risco intermediário (≈13–20% de eventos em 14 dias).'};}
+    else{band='high'; txt={es:'Riesgo alto (≈26–41% de eventos a 14 días). Considerar estrategia invasiva temprana.',pt:'Risco alto (≈26–41% de eventos em 14 dias). Considerar estratégia invasiva precoce.'};}
+    return {value:score, unit:'/ 7', band, text:txt};
+  },
+  how:{es:'Cada ítem vale 1 punto (rango 0-7). A diferencia de GRACE, que usa variables continuas ponderadas, TIMI simplifica todo a variables binarias para poder calcularse mentalmente al lado de la cama, a costa de algo de precisión estadística.',
+       pt:'Cada item vale 1 ponto (faixa 0-7). Diferente do GRACE, que usa variáveis contínuas ponderadas, o TIMI simplifica tudo em variáveis binárias para poder ser calculado mentalmente à beira do leito, ao custo de alguma precisão estatística.'}
+},
+
+{ id:'spesi', cat:'cardiologia', tag:'sPESI',
+  title:{es:'sPESI', pt:'sPESI'},
+  sub:{es:'Riesgo de mortalidad en embolia pulmonar confirmada', pt:'Risco de mortalidade em embolia pulmonar confirmada'},
+  why:{es:'Una vez confirmada la embolia pulmonar, la pregunta clínica cambia: ¿esta persona puede tratarse ambulatoriamente o necesita internación? sPESI simplifica el PESI original a seis variables binarias fáciles de obtener, para tomar esa decisión de forma rápida y reproducible.',
+       pt:'Uma vez confirmada a embolia pulmonar, a pergunta clínica muda: essa pessoa pode ser tratada ambulatorialmente ou precisa de internação? O sPESI simplifica o PESI original para seis variáveis binárias fáceis de obter, para tomar essa decisão de forma rápida e reprodutível.'},
+  inputs:[
+    {id:'edad', type:'bool', points:1, label:{es:'Edad > 80 años', pt:'Idade > 80 anos'}},
+    {id:'cancer', type:'bool', points:1, label:{es:'Cáncer activo', pt:'Câncer ativo'}},
+    {id:'epoc', type:'bool', points:1, label:{es:'Enfermedad cardiopulmonar crónica', pt:'Doença cardiopulmonar crônica'}},
+    {id:'fc', type:'bool', points:1, label:{es:'Frecuencia cardíaca ≥ 110/min', pt:'Frequência cardíaca ≥ 110/min'}},
+    {id:'pas', type:'bool', points:1, label:{es:'Presión arterial sistólica < 100 mmHg', pt:'Pressão arterial sistólica < 100 mmHg'}},
+    {id:'sat', type:'bool', points:1, label:{es:'Saturación de O₂ < 90%', pt:'Saturação de O₂ < 90%'}}
+  ],
+  compute:(v, inputs)=>{
+    let score=0;
+    inputs.forEach(inp=>{ if(v[inp.id]) score+=inp.points; });
+    let band, txt;
+    if(score===0){band='low'; txt={es:'Riesgo bajo (mortalidad a 30 días ≈1%). Puede considerarse manejo ambulatorio en un contexto adecuado.',pt:'Risco baixo (mortalidade em 30 dias ≈1%). Pode-se considerar manejo ambulatorial em um contexto adequado.'};}
+    else{band='high'; txt={es:'Riesgo alto (mortalidad a 30 días ≈10%). Se recomienda internación.',pt:'Risco alto (mortalidade em 30 dias ≈10%). Recomenda-se internação.'};}
+    return {value:score, unit:'/ 6', band, text:txt};
+  },
+  how:{es:'Cada ítem vale 1 punto. Un puntaje de 0 identifica pacientes de bajo riesgo con alta seguridad (alto valor predictivo negativo); basta un solo ítem positivo para reclasificar como alto riesgo.',
+       pt:'Cada item vale 1 ponto. Um escore de 0 identifica pacientes de baixo risco com alta segurança (alto valor preditivo negativo); basta um único item positivo para reclassificar como alto risco.'}
+},
+
+{ id:'killip', cat:'cardiologia', tag:'Killip',
+  title:{es:'Clasificación de Killip-Kimball', pt:'Classificação de Killip-Kimball'},
+  sub:{es:'Gravedad clínica en infarto agudo de miocardio', pt:'Gravidade clínica no infarto agudo do miocárdio'},
+  why:{es:'Antes de tener acceso a laboratorio o hemodinamia invasiva, Killip-Kimball clasifica al paciente con infarto solamente por el examen físico (auscultación pulmonar y cardíaca, signos de shock), porque esos hallazgos reflejan directamente cuánto músculo cardíaco está fallando como bomba.',
+       pt:'Antes de ter acesso a laboratório ou hemodinâmica invasiva, o Killip-Kimball classifica o paciente com infarto apenas pelo exame físico (ausculta pulmonar e cardíaca, sinais de choque), porque esses achados refletem diretamente quanto músculo cardíaco está falhando como bomba.'},
+  inputs:[
+    {id:'clase', type:'select', label:{es:'Clase clínica', pt:'Classe clínica'}, options:[
+      {v:1,l:{es:'I — Sin signos de insuficiencia cardíaca',pt:'I — Sem sinais de insuficiência cardíaca'}},
+      {v:2,l:{es:'II — Estertores basales o ingurgitación yugular / tercer ruido',pt:'II — Estertores basais ou turgência jugular / terceira bulha'}},
+      {v:3,l:{es:'III — Edema agudo de pulmón',pt:'III — Edema agudo de pulmão'}},
+      {v:4,l:{es:'IV — Shock cardiogénico',pt:'IV — Choque cardiogênico'}}]}
+  ],
+  compute:(v)=>{
+    const map = {
+      1:{band:'low', mort:'≈6%', txt:{es:'Sin insuficiencia cardíaca clínica.',pt:'Sem insuficiência cardíaca clínica.'}},
+      2:{band:'mid', mort:'≈17%', txt:{es:'Insuficiencia cardíaca leve a moderada.',pt:'Insuficiência cardíaca leve a moderada.'}},
+      3:{band:'high', mort:'≈38%', txt:{es:'Edema pulmonar franco.',pt:'Edema pulmonar franco.'}},
+      4:{band:'high', mort:'≈81%', txt:{es:'Shock cardiogénico.',pt:'Choque cardiogênico.'}}
+    };
+    const r = map[v.clase];
+    return {value:'Killip '+({1:'I',2:'II',3:'III',4:'IV'}[v.clase]), unit:'', band:r.band, text:{es:`Mortalidad hospitalaria histórica aproximada: ${r.mort}. ${r.txt.es}`, pt:`Mortalidade hospitalar histórica aproximada: ${r.mort}. ${r.txt.pt}`}};
+  },
+  how:{es:'Clasificación descriptiva (no una suma de puntos): cada clase representa un escalón de gravedad hemodinámica creciente, validado originalmente por Killip y Kimball en 1967 con datos de mortalidad hospitalaria por infarto, antes de la era de la reperfusión.',
+       pt:'Classificação descritiva (não uma soma de pontos): cada classe representa um degrau de gravidade hemodinâmica crescente, validado originalmente por Killip e Kimball em 1967 com dados de mortalidade hospitalar por infarto, antes da era da reperfusão.'}
+},
+
+{ id:'curb65', cat:'emergencia', tag:'CURB-65',
+  title:{es:'CURB-65', pt:'CURB-65'},
+  sub:{es:'Gravedad de la neumonía adquirida en la comunidad', pt:'Gravidade da pneumonia adquirida na comunidade'},
+  why:{es:'CURB-65 ayuda a decidir si una neumonía puede tratarse en casa o necesita internación (o incluso UCI), combinando cinco datos rápidos de obtener: confusión mental, función renal, frecuencia respiratoria, presión arterial y edad, cada uno reflejando un ángulo distinto de qué tan comprometido está el paciente.',
+       pt:'O CURB-65 ajuda a decidir se uma pneumonia pode ser tratada em casa ou precisa de internação (ou até UTI), combinando cinco dados rápidos de obter: confusão mental, função renal, frequência respiratória, pressão arterial e idade, cada um refletindo um ângulo diferente do quão comprometido está o paciente.'},
+  inputs:[
+    {id:'confusion', type:'bool', points:1, label:{es:'Confusión mental de nueva aparición', pt:'Confusão mental de início recente'}},
+    {id:'urea', type:'bool', points:1, label:{es:'Urea > 19 mg/dL (o BUN > 19)', pt:'Ureia > 19 mg/dL (ou BUN > 19)'}},
+    {id:'fr', type:'bool', points:1, label:{es:'Frecuencia respiratoria ≥ 30/min', pt:'Frequência respiratória ≥ 30/min'}},
+    {id:'pa', type:'bool', points:1, label:{es:'Presión arterial: sistólica < 90 o diastólica ≤ 60 mmHg', pt:'Pressão arterial: sistólica < 90 ou diastólica ≤ 60 mmHg'}},
+    {id:'edad', type:'bool', points:1, label:{es:'Edad ≥ 65 años', pt:'Idade ≥ 65 anos'}}
+  ],
+  compute:(v, inputs)=>{
+    let score=0;
+    inputs.forEach(inp=>{ if(v[inp.id]) score+=inp.points; });
+    let band, txt;
+    if(score<=1){band='low'; txt={es:'Riesgo bajo. Razonable manejo ambulatorio.',pt:'Risco baixo. Razoável manejo ambulatorial.'};}
+    else if(score===2){band='mid'; txt={es:'Riesgo intermedio. Considerar internación breve o supervisión estrecha.',pt:'Risco intermediário. Considerar internação breve ou supervisão estreita.'};}
+    else{band='high'; txt={es:'Riesgo alto. Se recomienda internación; con 4-5 puntos, considerar UCI.',pt:'Risco alto. Recomenda-se internação; com 4-5 pontos, considerar UTI.'};}
+    return {value:score, unit:'/ 5', band, text:txt};
+  },
+  how:{es:'Cada ítem vale 1 punto (rango 0-5). Es una versión simplificada del CURB-65 completo (que además pondera la oxigenación y hallazgos radiológicos), pensada para poder aplicarse en minutos en la guardia.',
+       pt:'Cada item vale 1 ponto (faixa 0-5). É uma versão simplificada do CURB-65 completo (que também pondera a oxigenação e achados radiológicos), pensada para poder ser aplicada em minutos na emergência.'}
+},
+
+{ id:'alvarado', cat:'emergencia', tag:'Alvarado',
+  title:{es:'Escala de Alvarado', pt:'Escore de Alvarado'},
+  sub:{es:'Probabilidad clínica de apendicitis aguda', pt:'Probabilidade clínica de apendicite aguda'},
+  why:{es:'La apendicitis se diagnostica clásicamente por una combinación de síntomas, signos y laboratorio simple, sin necesidad de imágenes en los casos típicos. Alvarado combina esos hallazgos (migración del dolor, anorexia, náuseas, dolor localizado, rebote, fiebre y leucocitosis) en un puntaje que ayuda a decidir entre observación, imágenes o cirugía.',
+       pt:'A apendicite é diagnosticada classicamente por uma combinação de sintomas, sinais e laboratório simples, sem necessidade de imagem nos casos típicos. O Alvarado combina esses achados (migração da dor, anorexia, náuseas, dor localizada, descompressão dolorosa, febre e leucocitose) em um escore que ajuda a decidir entre observação, imagem ou cirurgia.'},
+  inputs:[
+    {id:'migracion', type:'bool', points:1, label:{es:'Migración del dolor a fosa ilíaca derecha', pt:'Migração da dor para fossa ilíaca direita'}},
+    {id:'anorexia', type:'bool', points:1, label:{es:'Anorexia', pt:'Anorexia'}},
+    {id:'nauseas', type:'bool', points:1, label:{es:'Náuseas o vómitos', pt:'Náuseas ou vômitos'}},
+    {id:'dolor', type:'bool', points:2, label:{es:'Dolor a la palpación en fosa ilíaca derecha', pt:'Dor à palpação em fossa ilíaca direita'}},
+    {id:'rebote', type:'bool', points:1, label:{es:'Dolor de rebote (Blumberg)', pt:'Dor de rebote (Blumberg)'}},
+    {id:'temp', type:'bool', points:1, label:{es:'Temperatura ≥ 37.3 °C', pt:'Temperatura ≥ 37.3 °C'}},
+    {id:'leuco', type:'bool', points:2, label:{es:'Leucocitosis > 10.000/mm³', pt:'Leucocitose > 10.000/mm³'}},
+    {id:'desviacion', type:'bool', points:1, label:{es:'Desviación a la izquierda (neutrofilia > 75%)', pt:'Desvio à esquerda (neutrofilia > 75%)'}}
+  ],
+  compute:(v, inputs)=>{
+    let score=0;
+    inputs.forEach(inp=>{ if(v[inp.id]) score+=inp.points; });
+    let band, txt;
+    if(score<=4){band='low'; txt={es:'Apendicitis poco probable. Considerar diagnósticos alternativos.',pt:'Apendicite pouco provável. Considerar diagnósticos alternativos.'};}
+    else if(score<=6){band='mid'; txt={es:'Apendicitis posible. Considerar observación seriada o imágenes.',pt:'Apendicite possível. Considerar observação seriada ou imagem.'};}
+    else{band='high'; txt={es:'Apendicitis probable. Considerar evaluación quirúrgica.',pt:'Apendicite provável. Considerar avaliação cirúrgica.'};}
+    return {value:score, unit:'/ 10', band, text:txt};
+  },
+  how:{es:'Los ítems más específicos (dolor localizado y leucocitosis) valen 2 puntos cada uno, mientras que los síntomas más inespecíficos valen 1, reflejando su distinto peso estadístico en el estudio original de Alvarado (1986).',
+       pt:'Os itens mais específicos (dor localizada e leucocitose) valem 2 pontos cada um, enquanto os sintomas mais inespecíficos valem 1, refletindo seu peso estatístico diferente no estudo original de Alvarado (1986).'}
+},
+
+{ id:'kdigo', cat:'nefrologia', tag:'KDIGO',
+  title:{es:'KDIGO — Estadificación de lesión renal aguda', pt:'KDIGO — Estadiamento de lesão renal aguda'},
+  sub:{es:'Clasificación de severidad por creatinina', pt:'Classificação de severidade pela creatinina'},
+  why:{es:'KDIGO estandarizó la definición de lesión renal aguda para que distintos hospitales e investigadores hablen del mismo fenómeno. Esta versión compara la creatinina actual contra el valor basal de la persona, porque un mismo valor absoluto de creatinina puede representar normalidad para algunos pacientes y una caída dramática de la función renal para otros.',
+       pt:'O KDIGO padronizou a definição de lesão renal aguda para que diferentes hospitais e pesquisadores falem do mesmo fenômeno. Esta versão compara a creatinina atual contra o valor basal da pessoa, porque um mesmo valor absoluto de creatinina pode representar normalidade para alguns pacientes e uma queda dramática da função renal para outros.'},
+  inputs:[
+    {id:'basal', type:'number', label:{es:'Creatinina basal (mg/dL)', pt:'Creatinina basal (mg/dL)'}},
+    {id:'actual', type:'number', label:{es:'Creatinina actual (mg/dL)', pt:'Creatinina atual (mg/dL)'}}
+  ],
+  compute:(v)=>{
+    const ratio = v.actual/v.basal;
+    const delta = v.actual - v.basal;
+    let band, txt, estadio;
+    if(ratio>=3 || v.actual>=4.0){estadio=3; band='high'; txt={es:'Estadio 3: creatinina ≥3× el basal, o ≥4.0 mg/dL, o inicio de terapia de reemplazo renal.',pt:'Estágio 3: creatinina ≥3× o basal, ou ≥4.0 mg/dL, ou início de terapia de substituição renal.'};}
+    else if(ratio>=2){estadio=2; band='high'; txt={es:'Estadio 2: creatinina entre 2 y 2.9× el valor basal.',pt:'Estágio 2: creatinina entre 2 e 2.9× o valor basal.'};}
+    else if(ratio>=1.5 || delta>=0.3){estadio=1; band='mid'; txt={es:'Estadio 1: creatinina 1.5-1.9× el basal, o aumento ≥0.3 mg/dL en 48 h.',pt:'Estágio 1: creatinina 1.5-1.9× o basal, ou aumento ≥0.3 mg/dL em 48 h.'};}
+    else{estadio=0; band='low'; txt={es:'No cumple criterios de lesión renal aguda por creatinina.',pt:'Não preenche critérios de lesão renal aguda pela creatinina.'};}
+    return {value:estadio===0?'—':estadio, unit:estadio===0?'':'estadio', band, text:txt};
+  },
+  how:{es:'Esta calculadora usa solo el criterio de creatinina (razón actual/basal y delta absoluto). KDIGO también estadifica por diuresis (mL/kg/h sostenidos en el tiempo), que no está incluido acá porque requiere seguimiento continuo, no un valor puntual.',
+       pt:'Esta calculadora usa apenas o critério de creatinina (razão atual/basal e delta absoluto). O KDIGO também estadia pela diurese (mL/kg/h sustentados ao longo do tempo), que não está incluído aqui porque requer acompanhamento contínuo, não um valor pontual.'}
+},
+
+{ id:'asa', cat:'geral', tag:'ASA',
+  title:{es:'Clasificación ASA', pt:'Classificação ASA'},
+  sub:{es:'Estado físico preoperatorio', pt:'Estado físico pré-operatório'},
+  why:{es:'Antes de una cirugía, el anestesiólogo necesita una forma rápida y estandarizada de comunicar qué tan enfermo está el paciente en general, independientemente del procedimiento a realizar. La clasificación ASA agrupa a los pacientes en 6 categorías según la presencia y severidad de enfermedad sistémica, y se asocia con el riesgo perioperatorio.',
+       pt:'Antes de uma cirurgia, o anestesiologista precisa de uma forma rápida e padronizada de comunicar quão doente está o paciente em geral, independentemente do procedimento a ser realizado. A classificação ASA agrupa os pacientes em 6 categorias conforme a presença e severidade de doença sistêmica, e se associa ao risco perioperatório.'},
+  inputs:[
+    {id:'clase', type:'select', label:{es:'Clase ASA', pt:'Classe ASA'}, options:[
+      {v:1,l:{es:'I — Paciente sano',pt:'I — Paciente saudável'}},
+      {v:2,l:{es:'II — Enfermedad sistémica leve, sin limitación funcional',pt:'II — Doença sistêmica leve, sem limitação funcional'}},
+      {v:3,l:{es:'III — Enfermedad sistémica severa, con limitación funcional',pt:'III — Doença sistêmica severa, com limitação funcional'}},
+      {v:4,l:{es:'IV — Enfermedad sistémica severa que amenaza la vida constantemente',pt:'IV — Doença sistêmica severa que ameaça a vida constantemente'}},
+      {v:5,l:{es:'V — Moribundo, no se espera que sobreviva sin la cirugía',pt:'V — Moribundo, não se espera que sobreviva sem a cirurgia'}},
+      {v:6,l:{es:'VI — Muerte cerebral declarada, donante de órganos',pt:'VI — Morte encefálica declarada, doador de órgãos'}}]}
+  ],
+  compute:(v)=>{
+    const band = v.clase<=2 ? 'low' : (v.clase<=3 ? 'mid' : 'high');
+    return {value:'ASA '+({1:'I',2:'II',3:'III',4:'IV',5:'V',6:'VI'}[v.clase]), unit:'', band, text:{es:'Clasificación según estado físico preoperatorio. Se le agrega una "E" cuando la cirugía es de emergencia.',pt:'Classificação conforme estado físico pré-operatório. Adiciona-se um "E" quando a cirurgia é de emergência.'}};
+  },
+  how:{es:'Es una clasificación clínica (no una suma de puntos), basada en el juicio del anestesiólogo sobre el estado general del paciente. Aunque es subjetiva, se correlaciona consistentemente con la mortalidad y morbilidad perioperatoria en estudios grandes.',
+       pt:'É uma classificação clínica (não uma soma de pontos), baseada no julgamento do anestesiologista sobre o estado geral do paciente. Embora seja subjetiva, se correlaciona consistentemente com a mortalidade e morbidade perioperatória em estudos grandes.'}
+},
+
+{ id:'caprini', cat:'geral', tag:'Caprini',
+  title:{es:'Escala de Caprini (2005)', pt:'Escore de Caprini (2005)'},
+  sub:{es:'Riesgo de tromboembolismo venoso perioperatorio', pt:'Risco de tromboembolismo venoso perioperatório'},
+  why:{es:'Caprini suma factores de riesgo de trombosis con distinto peso (1, 2, 3 o 5 puntos) según qué tan fuertemente se asocian a eventos trombóticos en la evidencia original, para decidir qué tipo de profilaxis (mecánica, farmacológica o ambas) necesita cada paciente quirúrgico.',
+       pt:'O Caprini soma fatores de risco de trombose com peso diferente (1, 2, 3 ou 5 pontos) conforme o quão fortemente se associam a eventos trombóticos na evidência original, para decidir que tipo de profilaxia (mecânica, farmacológica ou ambas) cada paciente cirúrgico precisa.'},
+  inputs:[
+    {id:'edad4160', type:'bool', points:1, label:{es:'Edad 41–60 años', pt:'Idade 41–60 anos'}},
+    {id:'cirmenor', type:'bool', points:1, label:{es:'Cirugía menor planeada', pt:'Cirurgia menor planejada'}},
+    {id:'imc25', type:'bool', points:1, label:{es:'IMC > 25', pt:'IMC > 25'}},
+    {id:'varices', type:'bool', points:1, label:{es:'Venas varicosas', pt:'Veias varicosas'}},
+    {id:'eii', type:'bool', points:1, label:{es:'Enfermedad inflamatoria intestinal', pt:'Doença inflamatória intestinal'}},
+    {id:'edemapiernas', type:'bool', points:1, label:{es:'Edema de piernas actual', pt:'Edema de pernas atual'}},
+    {id:'sepsis1m', type:'bool', points:1, label:{es:'Sepsis (< 1 mes)', pt:'Sepse (< 1 mês)'}},
+    {id:'pulmonar1m', type:'bool', points:1, label:{es:'Enfermedad pulmonar seria, incl. neumonía (< 1 mes)', pt:'Doença pulmonar séria, incl. pneumonia (< 1 mês)'}},
+    {id:'reposomedico', type:'bool', points:1, label:{es:'Paciente médico actualmente en reposo en cama', pt:'Paciente clínico atualmente em repouso no leito'}},
+    {id:'edad6074', type:'bool', points:2, label:{es:'Edad 60–74 años', pt:'Idade 60–74 anos'}},
+    {id:'cirmayor', type:'bool', points:2, label:{es:'Cirugía mayor (> 45 min)', pt:'Cirurgia maior (> 45 min)'}},
+    {id:'laparoscopica', type:'bool', points:2, label:{es:'Cirugía laparoscópica (> 45 min)', pt:'Cirurgia laparoscópica (> 45 min)'}},
+    {id:'malignidad', type:'bool', points:2, label:{es:'Malignidad (presente o previa)', pt:'Malignidade (presente ou prévia)'}},
+    {id:'confinado72', type:'bool', points:2, label:{es:'Confinado a cama > 72 h', pt:'Confinado ao leito > 72 h'}},
+    {id:'yeso', type:'bool', points:2, label:{es:'Yeso inmovilizador (< 1 mes)', pt:'Gesso imobilizador (< 1 mês)'}},
+    {id:'catetervenoso', type:'bool', points:2, label:{es:'Acceso venoso central', pt:'Acesso venoso central'}},
+    {id:'edad75', type:'bool', points:3, label:{es:'Edad ≥ 75 años', pt:'Idade ≥ 75 anos'}},
+    {id:'tvpprevia', type:'bool', points:3, label:{es:'Historia personal de TVP/TEP', pt:'História pessoal de TVP/TEP'}},
+    {id:'famtrombosis', type:'bool', points:3, label:{es:'Historia familiar de trombosis', pt:'História familiar de trombose'}},
+    {id:'trombofilia', type:'bool', points:3, label:{es:'Trombofilia conocida (factor V Leiden, anticuerpos antifosfolípido, etc.)', pt:'Trombofilia conhecida (fator V Leiden, anticorpos antifosfolípide, etc.)'}},
+    {id:'artroplastia', type:'bool', points:5, label:{es:'Artroplastia electiva de miembro inferior', pt:'Artroplastia eletiva de membro inferior'}},
+    {id:'fractura', type:'bool', points:5, label:{es:'Fractura de cadera, pelvis o pierna (< 1 mes)', pt:'Fratura de quadril, pelve ou perna (< 1 mês)'}},
+    {id:'acv1m', type:'bool', points:5, label:{es:'ACV (< 1 mes)', pt:'AVC (< 1 mês)'}},
+    {id:'lesionmedular', type:'bool', points:5, label:{es:'Lesión medular aguda / parálisis (< 1 mes)', pt:'Lesão medular aguda / paralisia (< 1 mês)'}}
+  ],
+  compute:(v, inputs)=>{
+    let score=0;
+    inputs.forEach(inp=>{ if(v[inp.id]) score+=inp.points; });
+    let band, txt;
+    if(score<=1){band='low'; txt={es:'Riesgo bajo. Deambulación precoz frecuente ± profilaxis mecánica.',pt:'Risco baixo. Deambulação precoce frequente ± profilaxia mecânica.'};}
+    else if(score<=4){band='mid'; txt={es:'Riesgo moderado. Profilaxis mecánica ± farmacológica según contexto.',pt:'Risco moderado. Profilaxia mecânica ± farmacológica conforme o contexto.'};}
+    else{band='high'; txt={es:'Riesgo alto. Considerar profilaxis mecánica y farmacológica combinada, evaluando siempre el riesgo de sangrado.',pt:'Risco alto. Considerar profilaxia mecânica e farmacológica combinada, avaliando sempre o risco de sangramento.'};}
+    return {value:score, unit:'puntos', band, text:txt};
+  },
+  how:{es:'Versión 2005, la más usada en la práctica y la validada en más estudios. Los ítems de mayor peso (5 puntos) son eventos agudos de muy alto riesgo trombótico documentado (fractura de cadera, ACV reciente, lesión medular), mientras que factores crónicos leves como venas varicosas valen apenas 1 punto.',
+       pt:'Versão 2005, a mais usada na prática e a validada em mais estudos. Os itens de maior peso (5 pontos) são eventos agudos de risco trombótico documentado muito alto (fratura de quadril, AVC recente, lesão medular), enquanto fatores crônicos leves como veias varicosas valem apenas 1 ponto.'}
+},
+
+{ id:'apgar', cat:'geral', tag:'APGAR',
+  title:{es:'Puntaje de APGAR', pt:'Escore de APGAR'},
+  sub:{es:'Estado clínico del recién nacido', pt:'Estado clínico do recém-nascido'},
+  why:{es:'APGAR fue diseñado para dar, en segundos y sin equipo especial, una primera impresión objetiva de cómo está tolerando el recién nacido la transición a la vida fuera del útero. Evalúa cinco signos simples que reflejan función cardiorrespiratoria y neurológica básica, típicamente al minuto 1 y al minuto 5 de vida.',
+       pt:'O APGAR foi desenhado para dar, em segundos e sem equipamento especial, uma primeira impressão objetiva de como o recém-nascido está tolerando a transição para a vida fora do útero. Avalia cinco sinais simples que refletem função cardiorrespiratória e neurológica básica, tipicamente no minuto 1 e no minuto 5 de vida.'},
+  inputs:[
+    {id:'color', type:'select', label:{es:'Apariencia / color', pt:'Aparência / cor'}, options:[
+      {v:0,l:{es:'Cianosis o palidez generalizada',pt:'Cianose ou palidez generalizada'}},{v:1,l:{es:'Cuerpo rosado, extremidades cianóticas',pt:'Corpo rosado, extremidades cianóticas'}},{v:2,l:{es:'Rosado en todo el cuerpo',pt:'Rosado em todo o corpo'}}]},
+    {id:'fc', type:'select', label:{es:'Frecuencia cardíaca', pt:'Frequência cardíaca'}, options:[
+      {v:0,l:{es:'Ausente',pt:'Ausente'}},{v:1,l:{es:'< 100 lpm',pt:'< 100 bpm'}},{v:2,l:{es:'≥ 100 lpm',pt:'≥ 100 bpm'}}]},
+    {id:'reflejos', type:'select', label:{es:'Irritabilidad refleja', pt:'Irritabilidade reflexa'}, options:[
+      {v:0,l:{es:'Sin respuesta',pt:'Sem resposta'}},{v:1,l:{es:'Mueca o quejido leve',pt:'Careta ou gemido leve'}},{v:2,l:{es:'Llanto vigoroso, tos o estornudo',pt:'Choro vigoroso, tosse ou espirro'}}]},
+    {id:'tono', type:'select', label:{es:'Tono muscular / actividad', pt:'Tônus muscular / atividade'}, options:[
+      {v:0,l:{es:'Flácido',pt:'Flácido'}},{v:1,l:{es:'Alguna flexión de extremidades',pt:'Alguma flexão de extremidades'}},{v:2,l:{es:'Movimiento activo',pt:'Movimento ativo'}}]},
+    {id:'resp', type:'select', label:{es:'Respiración', pt:'Respiração'}, options:[
+      {v:0,l:{es:'Ausente',pt:'Ausente'}},{v:1,l:{es:'Lenta o irregular',pt:'Lenta ou irregular'}},{v:2,l:{es:'Llanto fuerte, respiración regular',pt:'Choro forte, respiração regular'}}]}
+  ],
+  compute:(v)=>{
+    const val = (v.color||0)+(v.fc||0)+(v.reflejos||0)+(v.tono||0)+(v.resp||0);
+    let band, txt;
+    if(val>=7){band='low'; txt={es:'Transición normal.',pt:'Transição normal.'};}
+    else if(val>=4){band='mid'; txt={es:'Depresión moderada. Puede requerir estimulación o soporte respiratorio.',pt:'Depressão moderada. Pode necessitar de estimulação ou suporte respiratório.'};}
+    else{band='high'; txt={es:'Depresión severa. Requiere reanimación neonatal inmediata.',pt:'Depressão severa. Requer reanimação neonatal imediata.'};}
+    return {value:val, unit:'/ 10', band, text:txt};
+  },
+  how:{es:'Suma de 5 categorías de 0 a 2 puntos. Se evalúa tradicionalmente al minuto 1 (refleja tolerancia al parto) y al minuto 5 (mejor predictor de evolución); si sigue bajo, se repite cada 5 minutos.',
+       pt:'Soma de 5 categorias de 0 a 2 pontos. É avaliado tradicionalmente no minuto 1 (reflete tolerância ao parto) e no minuto 5 (melhor preditor de evolução); se continuar baixo, repete-se a cada 5 minutos.'}
+},
+
+{ id:'bishop', cat:'geral', tag:'Bishop',
+  title:{es:'Puntaje de Bishop', pt:'Escore de Bishop'},
+  sub:{es:'Favorabilidad cervical para inducción del parto', pt:'Favorabilidade cervical para indução do parto'},
+  why:{es:'Antes de inducir un parto, importa saber si el cuello uterino está "listo" para el proceso, porque inducir sobre un cuello desfavorable aumenta el riesgo de fracaso de inducción y cesárea. Bishop combina hallazgos del examen físico (dilatación, borramiento, altura de la presentación, consistencia y posición del cuello) en un puntaje que estima esa probabilidad de éxito.',
+       pt:'Antes de induzir um parto, importa saber se o colo uterino está "pronto" para o processo, porque induzir sobre um colo desfavorável aumenta o risco de falha de indução e cesárea. O Bishop combina achados do exame físico (dilatação, apagamento, altura da apresentação, consistência e posição do colo) em um escore que estima essa probabilidade de sucesso.'},
+  inputs:[
+    {id:'dilatacion', type:'select', label:{es:'Dilatación (cm)', pt:'Dilatação (cm)'}, options:[
+      {v:0,l:{es:'Cerrado',pt:'Fechado'}},{v:1,l:{es:'1–2',pt:'1–2'}},{v:2,l:{es:'3–4',pt:'3–4'}},{v:3,l:{es:'≥ 5',pt:'≥ 5'}}]},
+    {id:'borramiento', type:'select', label:{es:'Borramiento (%)', pt:'Apagamento (%)'}, options:[
+      {v:0,l:{es:'0–30',pt:'0–30'}},{v:1,l:{es:'40–50',pt:'40–50'}},{v:2,l:{es:'60–70',pt:'60–70'}},{v:3,l:{es:'≥ 80',pt:'≥ 80'}}]},
+    {id:'altura', type:'select', label:{es:'Altura de la presentación (estación)', pt:'Altura da apresentação (estação)'}, options:[
+      {v:0,l:{es:'-3',pt:'-3'}},{v:1,l:{es:'-2',pt:'-2'}},{v:2,l:{es:'-1 / 0',pt:'-1 / 0'}},{v:3,l:{es:'+1 / +2',pt:'+1 / +2'}}]},
+    {id:'consistencia', type:'select', label:{es:'Consistencia cervical', pt:'Consistência cervical'}, options:[
+      {v:0,l:{es:'Firme',pt:'Firme'}},{v:1,l:{es:'Media',pt:'Média'}},{v:2,l:{es:'Blanda',pt:'Amolecida'}}]},
+    {id:'posicion', type:'select', label:{es:'Posición cervical', pt:'Posição cervical'}, options:[
+      {v:0,l:{es:'Posterior',pt:'Posterior'}},{v:1,l:{es:'Media',pt:'Média'}},{v:2,l:{es:'Anterior',pt:'Anterior'}}]}
+  ],
+  compute:(v)=>{
+    const val = (v.dilatacion||0)+(v.borramiento||0)+(v.altura||0)+(v.consistencia||0)+(v.posicion||0);
+    let band, txt;
+    if(val>=8){band='low'; txt={es:'Cuello favorable. Alta probabilidad de éxito de inducción, similar a trabajo de parto espontáneo.',pt:'Colo favorável. Alta probabilidade de sucesso de indução, semelhante a trabalho de parto espontâneo.'};}
+    else if(val>=6){band='mid'; txt={es:'Cuello intermedio. Puede necesitar maduración cervical antes de la inducción.',pt:'Colo intermediário. Pode necessitar de maturação cervical antes da indução.'};}
+    else{band='high'; txt={es:'Cuello desfavorable. Mayor riesgo de fracaso de inducción; considerar maduración cervical.',pt:'Colo desfavorável. Maior risco de falha de indução; considerar maturação cervical.'};}
+    return {value:val, unit:'/ 13', band, text:txt};
+  },
+  how:{es:'Suma de 5 componentes (rango 0-13). Un puntaje ≥8 se asocia a una probabilidad de parto vaginal exitoso tras inducción similar a la de un trabajo de parto que comienza espontáneamente.',
+       pt:'Soma de 5 componentes (faixa 0-13). Um escore ≥8 se associa a uma probabilidade de parto vaginal bem-sucedido após indução semelhante à de um trabalho de parto que começa espontaneamente.'}
+},
+
+{ id:'nihss', cat:'emergencia', tag:'NIHSS',
+  title:{es:'NIHSS', pt:'NIHSS'},
+  sub:{es:'Severidad del déficit neurológico en ACV isquémico', pt:'Severidade do déficit neurológico no AVC isquêmico'},
+  why:{es:'NIHSS estandariza el examen neurológico en ACV agudo en un puntaje numérico único, para poder comparar objetivamente la severidad entre pacientes, decidir elegibilidad para trombólisis o trombectomía, y detectar empeoramiento o mejoría durante la evolución con exámenes repetidos.',
+       pt:'O NIHSS padroniza o exame neurológico no AVC agudo em um escore numérico único, para poder comparar objetivamente a severidade entre pacientes, decidir elegibilidade para trombólise ou trombectomia, e detectar piora ou melhora durante a evolução com exames repetidos.'},
+  inputs:[
+    {id:'consciencia', type:'select', label:{es:'1a. Nivel de conciencia', pt:'1a. Nível de consciência'}, options:[
+      {v:0,l:{es:'Alerta',pt:'Alerta'}},{v:1,l:{es:'Somnoliento, despierta con mínimo estímulo',pt:'Sonolento, desperta com mínimo estímulo'}},{v:2,l:{es:'Obnubilado, requiere estímulo repetido/doloroso',pt:'Obnubilado, requer estímulo repetido/doloroso'}},{v:3,l:{es:'Coma (sin respuesta o solo reflejos)',pt:'Coma (sem resposta ou apenas reflexos)'}}]},
+    {id:'preguntas', type:'select', label:{es:'1b. Preguntas orientadas (mes y edad)', pt:'1b. Perguntas orientadas (mês e idade)'}, options:[
+      {v:0,l:{es:'Responde ambas correctamente',pt:'Responde ambas corretamente'}},{v:1,l:{es:'Responde una correctamente',pt:'Responde uma corretamente'}},{v:2,l:{es:'Ninguna correcta',pt:'Nenhuma correta'}}]},
+    {id:'ordenes', type:'select', label:{es:'1c. Órdenes (abrir/cerrar ojos, mano)', pt:'1c. Ordens (abrir/fechar olhos, mão)'}, options:[
+      {v:0,l:{es:'Ejecuta ambas',pt:'Executa ambas'}},{v:1,l:{es:'Ejecuta una',pt:'Executa uma'}},{v:2,l:{es:'Ninguna',pt:'Nenhuma'}}]},
+    {id:'mirada', type:'select', label:{es:'2. Mirada conjugada', pt:'2. Olhar conjugado'}, options:[
+      {v:0,l:{es:'Normal',pt:'Normal'}},{v:1,l:{es:'Parálisis parcial de la mirada',pt:'Paralisia parcial do olhar'}},{v:2,l:{es:'Desviación forzada',pt:'Desvio forçado'}}]},
+    {id:'campos', type:'select', label:{es:'3. Campos visuales', pt:'3. Campos visuais'}, options:[
+      {v:0,l:{es:'Sin defecto',pt:'Sem defeito'}},{v:1,l:{es:'Hemianopsia parcial',pt:'Hemianopsia parcial'}},{v:2,l:{es:'Hemianopsia completa',pt:'Hemianopsia completa'}},{v:3,l:{es:'Ceguera bilateral',pt:'Cegueira bilateral'}}]},
+    {id:'facial', type:'select', label:{es:'4. Paresia facial', pt:'4. Paresia facial'}, options:[
+      {v:0,l:{es:'Normal',pt:'Normal'}},{v:1,l:{es:'Leve (asimetría al sonreír)',pt:'Leve (assimetria ao sorrir)'}},{v:2,l:{es:'Parcial (parálisis inferior)',pt:'Parcial (paralisia inferior)'}},{v:3,l:{es:'Completa (uni o bilateral)',pt:'Completa (uni ou bilateral)'}}]},
+    {id:'brazoi', type:'select', label:{es:'5a. Motor brazo izquierdo', pt:'5a. Motor braço esquerdo'}, options:[
+      {v:0,l:{es:'Sin caída en 10 s',pt:'Sem queda em 10 s'}},{v:1,l:{es:'Cae antes de 10 s, sin tocar la cama',pt:'Cai antes de 10 s, sem tocar a cama'}},{v:2,l:{es:'Esfuerzo contra gravedad, cae a la cama',pt:'Esforço contra gravidade, cai na cama'}},{v:3,l:{es:'Sin esfuerzo contra gravedad',pt:'Sem esforço contra gravidade'}},{v:4,l:{es:'Sin movimiento',pt:'Sem movimento'}}]},
+    {id:'brazod', type:'select', label:{es:'5b. Motor brazo derecho', pt:'5b. Motor braço direito'}, options:[
+      {v:0,l:{es:'Sin caída en 10 s',pt:'Sem queda em 10 s'}},{v:1,l:{es:'Cae antes de 10 s, sin tocar la cama',pt:'Cai antes de 10 s, sem tocar a cama'}},{v:2,l:{es:'Esfuerzo contra gravedad, cae a la cama',pt:'Esforço contra gravidade, cai na cama'}},{v:3,l:{es:'Sin esfuerzo contra gravedad',pt:'Sem esforço contra gravidade'}},{v:4,l:{es:'Sin movimiento',pt:'Sem movimento'}}]},
+    {id:'piernai', type:'select', label:{es:'6a. Motor pierna izquierda', pt:'6a. Motor perna esquerda'}, options:[
+      {v:0,l:{es:'Sin caída en 5 s',pt:'Sem queda em 5 s'}},{v:1,l:{es:'Cae antes de 5 s, sin tocar la cama',pt:'Cai antes de 5 s, sem tocar a cama'}},{v:2,l:{es:'Esfuerzo contra gravedad, cae a la cama',pt:'Esforço contra gravidade, cai na cama'}},{v:3,l:{es:'Sin esfuerzo contra gravedad',pt:'Sem esforço contra gravidade'}},{v:4,l:{es:'Sin movimiento',pt:'Sem movimento'}}]},
+    {id:'piernad', type:'select', label:{es:'6b. Motor pierna derecha', pt:'6b. Motor perna direita'}, options:[
+      {v:0,l:{es:'Sin caída en 5 s',pt:'Sem queda em 5 s'}},{v:1,l:{es:'Cae antes de 5 s, sin tocar la cama',pt:'Cai antes de 5 s, sem tocar a cama'}},{v:2,l:{es:'Esfuerzo contra gravedad, cae a la cama',pt:'Esforço contra gravidade, cai na cama'}},{v:3,l:{es:'Sin esfuerzo contra gravedad',pt:'Sem esforço contra gravidade'}},{v:4,l:{es:'Sin movimiento',pt:'Sem movimento'}}]},
+    {id:'ataxia', type:'select', label:{es:'7. Ataxia de miembros', pt:'7. Ataxia de membros'}, options:[
+      {v:0,l:{es:'Ausente',pt:'Ausente'}},{v:1,l:{es:'Presente en 1 miembro',pt:'Presente em 1 membro'}},{v:2,l:{es:'Presente en 2 miembros',pt:'Presente em 2 membros'}}]},
+    {id:'sensibilidad', type:'select', label:{es:'8. Sensibilidad', pt:'8. Sensibilidade'}, options:[
+      {v:0,l:{es:'Normal',pt:'Normal'}},{v:1,l:{es:'Pérdida leve a moderada',pt:'Perda leve a moderada'}},{v:2,l:{es:'Pérdida severa o total',pt:'Perda severa ou total'}}]},
+    {id:'lenguaje', type:'select', label:{es:'9. Lenguaje (afasia)', pt:'9. Linguagem (afasia)'}, options:[
+      {v:0,l:{es:'Normal',pt:'Normal'}},{v:1,l:{es:'Afasia leve a moderada',pt:'Afasia leve a moderada'}},{v:2,l:{es:'Afasia severa',pt:'Afasia severa'}},{v:3,l:{es:'Mudo o afasia global',pt:'Mudo ou afasia global'}}]},
+    {id:'disartria', type:'select', label:{es:'10. Disartria', pt:'10. Disartria'}, options:[
+      {v:0,l:{es:'Normal',pt:'Normal'}},{v:1,l:{es:'Leve a moderada',pt:'Leve a moderada'}},{v:2,l:{es:'Severa o anartria',pt:'Severa ou anartria'}}]},
+    {id:'extincion', type:'select', label:{es:'11. Extinción / inatención', pt:'11. Extinção / inatenção'}, options:[
+      {v:0,l:{es:'Ausente',pt:'Ausente'}},{v:1,l:{es:'Inatención parcial (una modalidad)',pt:'Inatenção parcial (uma modalidade)'}},{v:2,l:{es:'Inatención severa (más de una modalidad)',pt:'Inatenção severa (mais de uma modalidade)'}}]}
+  ],
+  compute:(v)=>{
+    const val = (v.consciencia||0)+(v.preguntas||0)+(v.ordenes||0)+(v.mirada||0)+(v.campos||0)+(v.facial||0)+(v.brazoi||0)+(v.brazod||0)+(v.piernai||0)+(v.piernad||0)+(v.ataxia||0)+(v.sensibilidad||0)+(v.lenguaje||0)+(v.disartria||0)+(v.extincion||0);
+    let band, txt;
+    if(val===0){band='low'; txt={es:'Sin déficit neurológico detectable con esta escala.',pt:'Sem déficit neurológico detectável com esta escala.'};}
+    else if(val<=4){band='low'; txt={es:'ACV leve.',pt:'AVC leve.'};}
+    else if(val<=15){band='mid'; txt={es:'ACV moderado.',pt:'AVC moderado.'};}
+    else if(val<=20){band='mid'; txt={es:'ACV moderado a severo.',pt:'AVC moderado a severo.'};}
+    else{band='high'; txt={es:'ACV severo.',pt:'AVC severo.'};}
+    return {value:val, unit:'/ 42', band, text:txt};
+  },
+  how:{es:'Suma de 15 ítems que evalúan distintas funciones neurológicas (conciencia, lenguaje, campos visuales, motor, sensibilidad, entre otras), con rango total de 0 a 42. Es la escala estándar para cuantificar severidad de ACV isquémico agudo y guiar decisiones de reperfusión.',
+       pt:'Soma de 15 itens que avaliam diferentes funções neurológicas (consciência, linguagem, campos visuais, motor, sensibilidade, entre outras), com faixa total de 0 a 42. É a escala padrão para quantificar a severidade do AVC isquêmico agudo e guiar decisões de reperfusão.'}
+},
+
+{ id:'apache2', cat:'emergencia', tag:'APACHE II',
+  title:{es:'APACHE II', pt:'APACHE II'},
+  sub:{es:'Gravedad y mortalidad estimada en UCI', pt:'Gravidade e mortalidade estimada em UTI'},
+  why:{es:'APACHE II resume qué tan lejos están 12 variables fisiológicas de rutina de sus valores normales, en las peores mediciones de las primeras 24 horas, y le suma edad y salud crónica previa. La lógica es que la magnitud total de la desviación fisiológica, sumada entre múltiples sistemas, predice mejor el riesgo de muerte que cualquier variable aislada.',
+       pt:'O APACHE II resume o quão longe estão 12 variáveis fisiológicas de rotina de seus valores normais, nas piores medições das primeiras 24 horas, e soma idade e saúde crônica prévia. A lógica é que a magnitude total do desvio fisiológico, somada entre múltiplos sistemas, prediz melhor o risco de morte do que qualquer variável isolada.'},
+  inputs:[
+    {id:'temp', type:'select', label:{es:'Temperatura central (°C)', pt:'Temperatura central (°C)'}, options:[
+      {v:4,l:{es:'≥ 41 o ≤ 29.9',pt:'≥ 41 ou ≤ 29.9'}},{v:3,l:{es:'39–40.9 o 30–31.9',pt:'39–40.9 ou 30–31.9'}},{v:2,l:{es:'32–33.9',pt:'32–33.9'}},
+      {v:1,l:{es:'38.5–38.9 o 34–35.9',pt:'38.5–38.9 ou 34–35.9'}},{v:0,l:{es:'36–38.4',pt:'36–38.4'}}]},
+    {id:'map', type:'select', label:{es:'Presión arterial media (mmHg)', pt:'Pressão arterial média (mmHg)'}, options:[
+      {v:4,l:{es:'≥ 160 o ≤ 49',pt:'≥ 160 ou ≤ 49'}},{v:3,l:{es:'130–159',pt:'130–159'}},{v:2,l:{es:'110–129 o 50–69',pt:'110–129 ou 50–69'}},{v:0,l:{es:'70–109',pt:'70–109'}}]},
+    {id:'fc', type:'select', label:{es:'Frecuencia cardíaca (lpm)', pt:'Frequência cardíaca (bpm)'}, options:[
+      {v:4,l:{es:'≥ 180 o ≤ 39',pt:'≥ 180 ou ≤ 39'}},{v:3,l:{es:'140–179 o 40–54',pt:'140–179 ou 40–54'}},{v:2,l:{es:'110–139 o 55–69',pt:'110–139 ou 55–69'}},{v:0,l:{es:'70–109',pt:'70–109'}}]},
+    {id:'fr', type:'select', label:{es:'Frecuencia respiratoria (rpm)', pt:'Frequência respiratória (rpm)'}, options:[
+      {v:4,l:{es:'≥ 50 o ≤ 5',pt:'≥ 50 ou ≤ 5'}},{v:3,l:{es:'35–49',pt:'35–49'}},{v:2,l:{es:'6–9',pt:'6–9'}},{v:1,l:{es:'25–34 o 10–11',pt:'25–34 ou 10–11'}},{v:0,l:{es:'12–24',pt:'12–24'}}]},
+    {id:'oxig', type:'select', label:{es:'Oxigenación — PaO₂ (mmHg, con FiO₂ < 0.5)', pt:'Oxigenação — PaO₂ (mmHg, com FiO₂ < 0.5)'}, options:[
+      {v:0,l:{es:'> 70',pt:'> 70'}},{v:1,l:{es:'61–70',pt:'61–70'}},{v:3,l:{es:'55–60',pt:'55–60'}},{v:4,l:{es:'< 55',pt:'< 55'}}]},
+    {id:'ph', type:'select', label:{es:'pH arterial', pt:'pH arterial'}, options:[
+      {v:4,l:{es:'≥ 7.7 o < 7.15',pt:'≥ 7.7 ou < 7.15'}},{v:3,l:{es:'7.6–7.69 o 7.15–7.24',pt:'7.6–7.69 ou 7.15–7.24'}},{v:2,l:{es:'7.25–7.32',pt:'7.25–7.32'}},{v:1,l:{es:'7.5–7.59',pt:'7.5–7.59'}},{v:0,l:{es:'7.33–7.49',pt:'7.33–7.49'}}]},
+    {id:'na', type:'select', label:{es:'Sodio sérico (mEq/L)', pt:'Sódio sérico (mEq/L)'}, options:[
+      {v:4,l:{es:'≥ 180 o < 110',pt:'≥ 180 ou < 110'}},{v:3,l:{es:'160–179 o 111–119',pt:'160–179 ou 111–119'}},{v:2,l:{es:'155–159 o 120–129',pt:'155–159 ou 120–129'}},{v:1,l:{es:'150–154',pt:'150–154'}},{v:0,l:{es:'130–149',pt:'130–149'}}]},
+    {id:'k', type:'select', label:{es:'Potasio sérico (mEq/L)', pt:'Potássio sérico (mEq/L)'}, options:[
+      {v:4,l:{es:'≥ 7 o < 2.5',pt:'≥ 7 ou < 2.5'}},{v:3,l:{es:'6–6.9',pt:'6–6.9'}},{v:2,l:{es:'2.5–2.9',pt:'2.5–2.9'}},{v:1,l:{es:'5.5–5.9 o 3–3.4',pt:'5.5–5.9 ou 3–3.4'}},{v:0,l:{es:'3.5–5.4',pt:'3.5–5.4'}}]},
+    {id:'creat', type:'select', label:{es:'Creatinina sérica (mg/dL)', pt:'Creatinina sérica (mg/dL)'}, options:[
+      {v:4,l:{es:'≥ 3.5',pt:'≥ 3.5'}},{v:3,l:{es:'2.0–3.4',pt:'2.0–3.4'}},{v:2,l:{es:'1.5–1.9 o < 0.6',pt:'1.5–1.9 ou < 0.6'}},{v:0,l:{es:'0.6–1.4',pt:'0.6–1.4'}}]},
+    {id:'ira', type:'bool', label:{es:'Falla renal aguda presente', pt:'Falência renal aguda presente'}},
+    {id:'hto', type:'select', label:{es:'Hematocrito (%)', pt:'Hematócrito (%)'}, options:[
+      {v:4,l:{es:'≥ 60 o < 20',pt:'≥ 60 ou < 20'}},{v:2,l:{es:'50–59.9 o 20–29.9',pt:'50–59.9 ou 20–29.9'}},{v:1,l:{es:'46–49.9',pt:'46–49.9'}},{v:0,l:{es:'30–45.9',pt:'30–45.9'}}]},
+    {id:'wbc', type:'select', label:{es:'Leucocitos (×1000/mm³)', pt:'Leucócitos (×1000/mm³)'}, options:[
+      {v:4,l:{es:'≥ 40 o < 1',pt:'≥ 40 ou < 1'}},{v:2,l:{es:'20–39.9 o 1–2.9',pt:'20–39.9 ou 1–2.9'}},{v:1,l:{es:'15–19.9',pt:'15–19.9'}},{v:0,l:{es:'3–14.9',pt:'3–14.9'}}]},
+    {id:'gcs', type:'number', label:{es:'Escala de coma de Glasgow (3–15)', pt:'Escala de coma de Glasgow (3–15)'}},
+    {id:'edad', type:'select', label:{es:'Edad', pt:'Idade'}, options:[
+      {v:0,l:{es:'< 45',pt:'< 45'}},{v:2,l:{es:'45–54',pt:'45–54'}},{v:3,l:{es:'55–64',pt:'55–64'}},{v:5,l:{es:'65–74',pt:'65–74'}},{v:6,l:{es:'≥ 75',pt:'≥ 75'}}]},
+    {id:'cronico', type:'select', label:{es:'Salud crónica previa', pt:'Saúde crônica prévia'}, options:[
+      {v:0,l:{es:'Sin insuficiencia orgánica severa',pt:'Sem insuficiência orgânica severa'}},
+      {v:2,l:{es:'Insuficiencia orgánica severa + postoperatorio electivo',pt:'Insuficiência orgânica severa + pós-operatório eletivo'}},
+      {v:5,l:{es:'Insuficiencia orgánica severa, no operado o postop. de urgencia',pt:'Insuficiência orgânica severa, não operado ou pós-op. de urgência'}}]}
+  ],
+  compute:(v)=>{
+    const gcsPts = 15 - Math.min(Math.max(v.gcs,3),15);
+    const creatPts = v.ira ? (v.creat*2) : v.creat;
+    const val = (v.temp||0)+(v.map||0)+(v.fc||0)+(v.fr||0)+(v.oxig||0)+(v.ph||0)+(v.na||0)+(v.k||0)+creatPts+(v.hto||0)+(v.wbc||0)+gcsPts+(v.edad||0)+(v.cronico||0);
+    let band, txt;
+    if(val<10){band='low'; txt={es:'Gravedad leve. Mortalidad hospitalaria estimada ≈4%.',pt:'Gravidade leve. Mortalidade hospitalar estimada ≈4%.'};}
+    else if(val<20){band='mid'; txt={es:'Gravedad moderada. Mortalidad hospitalaria estimada ≈15%.',pt:'Gravidade moderada. Mortalidade hospitalar estimada ≈15%.'};}
+    else if(val<30){band='high'; txt={es:'Gravedad alta. Mortalidad hospitalaria estimada ≈30–40%.',pt:'Gravidade alta. Mortalidade hospitalar estimada ≈30–40%.'};}
+    else{band='high'; txt={es:'Gravedad muy alta. Mortalidad hospitalaria estimada >50%.',pt:'Gravidade muito alta. Mortalidade hospitalar estimada >50%.'};}
+    return {value:val, unit:'/ 71', band, text:txt};
+  },
+  how:{es:'Suma de la Puntuación de Fisiología Aguda (12 variables, 0-4 puntos cada una, usando el peor valor de las primeras 24 h) + puntos de edad (0-6) + puntos de salud crónica (0, 2 o 5). Los puntos de creatinina se duplican si hay falla renal aguda, porque a igual valor numérico, un riñón que falló agudamente representa mayor gravedad que uno con daño crónico ya compensado. Esta calculadora usa PaO₂ (asume FiO₂ < 0.5); con FiO₂ ≥ 0.5 el cálculo original usa el gradiente A-aDO₂, no incluido aquí.',
+       pt:'Soma da Pontuação de Fisiologia Aguda (12 variáveis, 0-4 pontos cada, usando o pior valor das primeiras 24 h) + pontos de idade (0-6) + pontos de saúde crônica (0, 2 ou 5). Os pontos de creatinina são duplicados se houver falência renal aguda, porque para o mesmo valor numérico, um rim que falhou agudamente representa maior gravidade do que um com dano crônico já compensado. Esta calculadora usa PaO₂ (assume FiO₂ < 0.5); com FiO₂ ≥ 0.5 o cálculo original usa o gradiente A-aDO₂, não incluído aqui.'}
 }
 ];
 

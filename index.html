@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="C. do Cruz">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0A1210">
+<meta name="description" content="Calculadora do Cruz — calculadoras clínicas de bolsillo / bolso.">
+<title>Calculadora do Cruz</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0A1210;
+    --bg-grad: radial-gradient(1200px 600px at 20% -10%, rgba(27,199,154,0.14), transparent 60%), radial-gradient(900px 500px at 100% 0%, rgba(242,169,59,0.08), transparent 55%), #0A1210;
+    --paper:#101B18;
+    --paper-hi:#142420;
+    --ink:#F4F1E6;
+    --ink-soft:#9BB0A8;
+    --ink-faint:#61756E;
+    --teal:#1BC79A;
+    --teal-dark:#0A4F48;
+    --amber:#F2A93B;
+    --red:#F0656B;
+    --green:#42D68A;
+    --line:rgba(244,241,230,0.10);
+    --line-hi:rgba(244,241,230,0.18);
+    --shadow: 0 1px 0 rgba(255,255,255,0.03) inset, 0 14px 34px -18px rgba(0,0,0,0.65);
+    --radius:18px;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; padding:0; background:var(--bg); color:var(--ink); font-family:'Inter',sans-serif; -webkit-font-smoothing:antialiased;}
+  body{background:var(--bg-grad); padding-bottom:env(safe-area-inset-bottom); min-height:100vh;}
+  .app{max-width:560px; margin:0 auto; min-height:100vh; position:relative;}
+
+  /* ---- Header ---- */
+  header.top{padding:calc(env(safe-area-inset-top) + 20px) 20px 14px; position:sticky; top:0; z-index:20; background:linear-gradient(180deg, var(--bg) 74%, transparent);}
+  .brand-row{display:flex; align-items:center; justify-content:space-between; gap:12px;}
+  .brand{display:flex; align-items:center; gap:11px;}
+  .logo-mark{width:38px; height:38px; border-radius:11px; flex-shrink:0; box-shadow:var(--shadow);}
+  .brand h1{font-family:'Manrope',sans-serif; font-weight:800; font-size:19px; margin:0; letter-spacing:-0.01em; color:var(--ink); line-height:1.15;}
+  .brand p{margin:1px 0 0; font-size:10.5px; color:var(--ink-faint); font-family:'JetBrains Mono',monospace; letter-spacing:0.09em; text-transform:uppercase;}
+  .langsw{display:flex; border:1px solid var(--line); border-radius:999px; overflow:hidden; background:var(--paper); flex-shrink:0;}
+  .langsw button{border:none; background:transparent; padding:7px 13px; font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:600; color:var(--ink-soft); cursor:pointer; letter-spacing:0.03em;}
+  .langsw button.active{background:var(--teal); color:#04231D;}
+
+  .pulse-wrap{margin-top:14px; height:22px; overflow:hidden;}
+  .pulse{width:200%; height:22px; animation: slide 7s linear infinite;}
+  @media (prefers-reduced-motion: reduce){ .pulse{animation:none;} }
+  @keyframes slide{ from{transform:translateX(0);} to{transform:translateX(-50%);} }
+
+  .search{margin-top:14px; position:relative;}
+  .search input{width:100%; padding:13px 14px 13px 40px; border-radius:13px; border:1px solid var(--line); background:var(--paper); font-size:15px; font-family:'Inter',sans-serif; color:var(--ink); box-shadow:var(--shadow);}
+  .search input::placeholder{color:var(--ink-faint);}
+  .search input:focus{outline:2px solid var(--teal); outline-offset:1px;}
+  .search svg{position:absolute; left:13px; top:50%; transform:translateY(-50%); width:16px; height:16px; stroke:var(--ink-faint);}
+
+  .cats{display:flex; gap:8px; margin-top:12px; overflow-x:auto; padding-bottom:2px; scrollbar-width:none;}
+  .cats::-webkit-scrollbar{display:none;}
+  .cat-chip{flex-shrink:0; padding:7px 14px; border-radius:999px; border:1px solid var(--line); background:var(--paper); font-size:12.5px; font-weight:500; color:var(--ink-soft); cursor:pointer; white-space:nowrap; font-family:'Inter',sans-serif;}
+  .cat-chip.active{background:var(--ink); color:var(--bg); border-color:var(--ink); font-weight:700;}
+
+  /* ---- List ---- */
+  main{padding:6px 20px 40px;}
+  .list{display:flex; flex-direction:column; gap:10px; margin-top:8px;}
+  .card{background:var(--paper); border:1px solid var(--line); border-radius:16px; padding:15px 16px; display:flex; align-items:center; gap:14px; cursor:pointer; box-shadow:var(--shadow); transition:transform .12s ease, border-color .12s ease;}
+  .card:active{transform:scale(0.98);}
+  .card:hover{border-color:var(--line-hi);}
+  .tag{font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; color:var(--teal); background:rgba(27,199,154,0.10); border:1px solid rgba(27,199,154,0.25); border-radius:9px; padding:7px 8px; min-width:56px; text-align:center; letter-spacing:0.01em;}
+  .card-txt{flex:1; min-width:0;}
+  .card-txt h3{margin:0 0 2px; font-family:'Manrope',sans-serif; font-size:16px; font-weight:700; color:var(--ink);}
+  .card-txt p{margin:0; font-size:12.5px; color:var(--ink-soft); line-height:1.4;}
+  .chev{width:16px; height:16px; stroke:var(--ink-faint); flex-shrink:0;}
+
+  .install-hint{margin-top:18px; border:1px dashed var(--line-hi); border-radius:16px; padding:15px; background:rgba(242,169,59,0.06); font-size:12.5px; color:var(--ink-soft); line-height:1.55;}
+  .install-hint b{color:var(--ink);}
+
+  /* ---- Detail view ---- */
+  .detail{display:none; padding:calc(env(safe-area-inset-top) + 18px) 20px 60px;}
+  .detail.show{display:block;}
+  .app.detail-open main, .app.detail-open header.top{display:none;}
+  .backbtn{display:flex; align-items:center; gap:6px; background:none; border:none; color:var(--teal); font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:600; padding:0 0 18px; cursor:pointer;}
+  .backbtn svg{width:15px; height:15px; stroke:var(--teal);}
+
+  .dtitle{display:flex; align-items:center; gap:10px; margin-bottom:3px;}
+  .dtag{font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; color:var(--teal); background:rgba(27,199,154,0.10); border:1px solid rgba(27,199,154,0.25); border-radius:8px; padding:4px 8px;}
+  .dtitle h2{font-family:'Manrope',sans-serif; font-size:22px; font-weight:800; margin:0; color:var(--ink);}
+  .dsub{font-size:13.5px; color:var(--ink-soft); margin:6px 0 16px; line-height:1.5;}
+
+  .why{background:var(--paper); border:1px solid var(--line); border-left:3px solid var(--teal); border-radius:0 14px 14px 0; padding:14px 16px; font-size:13px; color:var(--ink-soft); line-height:1.6; margin-bottom:18px;}
+  .why b{color:var(--ink); font-family:'Manrope',sans-serif; font-weight:700;}
+
+  .field{margin-bottom:14px;}
+  .field label{display:block; font-size:12px; font-weight:600; color:var(--ink-soft); margin-bottom:7px; letter-spacing:0.01em;}
+  .field input[type=number]{width:100%; padding:13px 13px; border-radius:12px; border:1px solid var(--line); background:var(--paper); font-family:'JetBrains Mono',monospace; font-size:16px; color:var(--ink);}
+  .field input[type=number]:focus{outline:2px solid var(--teal); outline-offset:1px;}
+  .boolrow{display:flex; gap:8px;}
+  .boolrow button, .selrow button{flex:1; padding:12px 10px; border-radius:12px; border:1px solid var(--line); background:var(--paper); font-size:13.5px; font-weight:500; color:var(--ink); cursor:pointer; text-align:left; line-height:1.3; font-family:'Inter',sans-serif;}
+  .boolrow button.sel, .selrow button.sel{background:var(--teal); border-color:var(--teal); color:#04231D; font-weight:700;}
+  .selrow{display:flex; flex-direction:column; gap:6px;}
+
+  .calcbtn{width:100%; margin-top:8px; padding:16px; border-radius:14px; border:none; background:linear-gradient(135deg, var(--teal), var(--teal-dark)); color:#04231D; font-size:15.5px; font-weight:800; font-family:'Manrope',sans-serif; cursor:pointer; box-shadow:0 12px 26px -12px rgba(27,199,154,0.55);}
+  .calcbtn:active{transform:scale(0.985);}
+
+  .result{margin-top:20px; border-radius:18px; padding:19px; border:1px solid var(--line); display:none;}
+  .result.show{display:block;}
+  .result.low{background:rgba(66,214,138,0.08); border-color:rgba(66,214,138,0.3);}
+  .result.mid{background:rgba(242,169,59,0.08); border-color:rgba(242,169,59,0.3);}
+  .result.high{background:rgba(240,101,107,0.08); border-color:rgba(240,101,107,0.3);}
+  .result .rlabel{font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.08em; color:var(--ink-faint); margin:0 0 4px;}
+  .result .rvalue{font-family:'Manrope',sans-serif; font-size:34px; font-weight:800; margin:0 0 8px; color:var(--ink);}
+  .result .rband{display:inline-block; font-size:12px; font-weight:700; padding:5px 11px; border-radius:999px; margin-bottom:10px;}
+  .result.low .rband{background:var(--green); color:#04231D;}
+  .result.mid .rband{background:var(--amber); color:#251503;}
+  .result.high .rband{background:var(--red); color:#2A0709;}
+  .result .rtext{font-size:13.5px; color:var(--ink-soft); line-height:1.55; margin:0;}
+
+  .howbtn{margin-top:14px; background:none; border:none; color:var(--teal); font-size:13px; font-weight:600; font-family:'JetBrains Mono',monospace; padding:0; cursor:pointer; display:flex; align-items:center; gap:5px;}
+  .howtext{display:none; margin-top:10px; font-size:13px; color:var(--ink-soft); line-height:1.6; background:var(--paper); border:1px solid var(--line); border-radius:14px; padding:14px 16px;}
+  .howtext.show{display:block;}
+
+  .disclaimer{margin-top:22px; font-size:11.5px; color:var(--ink-faint); text-align:center; line-height:1.5; padding:0 6px;}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+
+  <header class="top">
+    <div class="brand-row">
+      <div class="brand">
+        <svg class="logo-mark" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+          <defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1BC79A"/><stop offset="1" stop-color="#0A4F48"/></linearGradient></defs>
+          <rect width="200" height="200" rx="46" fill="url(#lg)"/>
+          <path d="M86 28 H114 V86 H172 V114 H114 V172 H86 V114 H28 V86 H86 Z" fill="#F5F1E6"/>
+          <polyline points="108,100 132,100 141,74 152,126 161,100 186,100" fill="none" stroke="#F2A93B" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="186" cy="100" r="6.5" fill="#F2A93B"/>
+        </svg>
+        <div>
+          <h1>Calculadora do Cruz</h1>
+          <p id="tagline">REFERENCIA CLÍNICA</p>
+        </div>
+      </div>
+      <div class="langsw">
+        <button id="btn-es" class="active" onclick="setLang('es')">ES</button>
+        <button id="btn-pt" onclick="setLang('pt')">PT</button>
+      </div>
+    </div>
+    <div class="pulse-wrap">
+      <svg class="pulse" viewBox="0 0 800 20" preserveAspectRatio="none"><polyline points="0,10 130,10 145,2 158,18 172,10 400,10 530,10 545,2 558,18 572,10 800,10" fill="none" stroke="#1BC79A" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="search">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke-width="2"/><path d="M20 20l-3.5-3.5" stroke-width="2" stroke-linecap="round"/></svg>
+      <input id="searchbox" type="text" placeholder="Buscar calculadora..." oninput="renderList()">
+    </div>
+    <div class="cats" id="cats"></div>
+  </header>
+
+  <main>
+    <div class="list" id="list"></div>
+    <div class="install-hint" id="installhint"></div>
+  </main>
+
+  <div class="detail" id="detail">
+    <button class="backbtn" onclick="closeDetail()"><svg viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span id="backlabel">Volver</span></button>
+    <div id="detailBody"></div>
+  </div>
+
+</div>
+
+<script>
+/* ============ IDIOMA ============ */
+let LANG = 'es';
+const UI = {
+  es:{ tagline:'REFERENCIA CLÍNICA DE BOLSILLO', search:'Buscar calculadora...', back:'Volver',
+       cats:{all:'Todas', emergencia:'Emergencias', cardiologia:'Cardiología', nefrologia:'Nefrología', geral:'General'},
+       calc:'Calcular', result:'Resultado', how:'Por qué funciona así', hide:'Ocultar explicación',
+       disclaimer:'Herramienta de apoyo educativo, basada en escalas y fórmulas publicadas en la literatura médica. No reemplaza el juicio clínico ni la evaluación de un profesional de salud.',
+       install:'<b>Instalar en tu iPhone:</b> abrí este link en Safari, tocá el ícono de compartir (⬆️) y elegí "Agregar a pantalla de inicio".' },
+  pt:{ tagline:'REFERÊNCIA CLÍNICA DE BOLSO', search:'Buscar calculadora...', back:'Voltar',
+       cats:{all:'Todas', emergencia:'Emergência', cardiologia:'Cardiologia', nefrologia:'Nefrologia', geral:'Geral'},
+       calc:'Calcular', result:'Resultado', how:'Por que funciona assim', hide:'Ocultar explicação',
+       disclaimer:'Ferramenta de apoio educativo, baseada em escalas e fórmulas publicadas na literatura médica. Não substitui o julgamento clínico nem a avaliação de um profissional de saúde.',
+       install:'<b>Instalar no seu iPhone:</b> abra este link no Safari, toque no ícone de compartilhar (⬆️) e escolha "Adicionar à Tela de Início".' }
+};
+
+let activeCat = 'all';
+let currentCalc = null;
+let currentValues = {};
+
+/* ============ CALCULADORAS ============ */
+const CALCS = [
+{ id:'imc', cat:'geral', tag:'IMC',
+  title:{es:'Índice de masa corporal', pt:'Índice de massa corporal'},
+  sub:{es:'Clasificación del estado nutricional', pt:'Classificação do estado nutricional'},
+  why:{es:'El IMC compara el peso con el cuadrado de la altura porque, dentro de una población, el peso corporal tiende a variar aproximadamente con el cuadrado de la estatura en personas de proporciones similares. No mide grasa corporal directamente, pero es un buen estimador poblacional y barato de obtener.',
+       pt:'O IMC compara o peso com o quadrado da altura porque, dentro de uma população, o peso corporal tende a variar aproximadamente com o quadrado da estatura em pessoas de proporções semelhantes. Não mede gordura corporal diretamente, mas é um bom estimador populacional e barato de obter.'},
+  inputs:[
+    {id:'peso', type:'number', label:{es:'Peso (kg)', pt:'Peso (kg)'}},
+    {id:'altura', type:'number', label:{es:'Altura (cm)', pt:'Altura (cm)'}}
+  ],
+  compute:(v)=>{
+    const h = v.altura/100;
+    const val = v.peso / (h*h);
+    let band='low', txt={es:'',pt:''};
+    if(val<18.5){band='mid'; txt={es:'Bajo peso.',pt:'Baixo peso.'};}
+    else if(val<25){band='low'; txt={es:'Peso normal.',pt:'Peso normal.'};}
+    else if(val<30){band='mid'; txt={es:'Sobrepeso.',pt:'Sobrepeso.'};}
+    else if(val<35){band='high'; txt={es:'Obesidad grado I.',pt:'Obesidade grau I.'};}
+    else if(val<40){band='high'; txt={es:'Obesidad grado II.',pt:'Obesidade grau II.'};}
+    else{band='high'; txt={es:'Obesidad grado III (mórbida).',pt:'Obesidade grau III (mórbida).'};}
+    return {value:val.toFixed(1), unit:'kg/m²', band, text:txt};
+  },
+  how:{es:'Fórmula: peso (kg) ÷ altura² (m). Los puntos de corte (18.5 / 25 / 30 / 35 / 40) son los adoptados por la OMS para adultos.',
+       pt:'Fórmula: peso (kg) ÷ altura² (m). Os pontos de corte (18.5 / 25 / 30 / 35 / 40) são os adotados pela OMS para adultos.'}
+},
+
+{ id:'crcl', cat:'nefrologia', tag:'CrCl',
+  title:{es:'Clearance de creatinina (Cockcroft-Gault)', pt:'Clearance de creatinina (Cockcroft-Gault)'},
+  sub:{es:'Estimación de la función renal por peso', pt:'Estimativa da função renal por peso'},
+  why:{es:'La creatinina sérica sola no refleja bien la función renal porque depende también de la masa muscular. Cockcroft-Gault corrige por edad, peso y sexo para estimar cuánto plasma el riñón depura por minuto, algo esencial para ajustar dosis de medicamentos.',
+       pt:'A creatinina sérica sozinha não reflete bem a função renal porque depende também da massa muscular. Cockcroft-Gault corrige por idade, peso e sexo para estimar quanto plasma o rim depura por minuto, algo essencial para ajustar dose de medicamentos.'},
+  inputs:[
+    {id:'edad', type:'number', label:{es:'Edad (años)', pt:'Idade (anos)'}},
+    {id:'peso', type:'number', label:{es:'Peso (kg)', pt:'Peso (kg)'}},
+    {id:'creat', type:'number', label:{es:'Creatinina sérica (mg/dL)', pt:'Creatinina sérica (mg/dL)'}},
+    {id:'sexo', type:'bool', label:{es:'Sexo', pt:'Sexo'}, trueLabel:{es:'Mujer',pt:'Mulher'}, falseLabel:{es:'Hombre',pt:'Homem'}}
+  ],
+  compute:(v)=>{
+    let val = ((140-v.edad)*v.peso)/(72*v.creat);
+    if(v.sexo) val *= 0.85;
+    let band='low', txt;
+    if(val>=90){band='low'; txt={es:'Función renal normal.',pt:'Função renal normal.'};}
+    else if(val>=60){band='low'; txt={es:'Reducción leve.',pt:'Redução leve.'};}
+    else if(val>=30){band='mid'; txt={es:'Reducción moderada. Revisar ajuste de dosis de fármacos.',pt:'Redução moderada. Revisar ajuste de dose de fármacos.'};}
+    else if(val>=15){band='high'; txt={es:'Reducción severa.',pt:'Redução severa.'};}
+    else{band='high'; txt={es:'Falla renal. Considerar terapia de reemplazo renal según contexto clínico.',pt:'Falência renal. Considerar terapia de substituição renal conforme o contexto clínico.'};}
+    return {value:val.toFixed(0), unit:'mL/min', band, text:txt};
+  },
+  how:{es:'Fórmula: [(140−edad) × peso] ÷ (72 × creatinina), ×0.85 si es mujer (menor masa muscular promedio).',
+       pt:'Fórmula: [(140−idade) × peso] ÷ (72 × creatinina), ×0.85 se mulher (menor massa muscular média).'}
+},
+
+{ id:'egfr', cat:'nefrologia', tag:'eGFR',
+  title:{es:'TFG estimada (CKD-EPI 2021)', pt:'TFG estimada (CKD-EPI 2021)'},
+  sub:{es:'Filtrado glomerular sin variable racial', pt:'Filtrado glomerular sem variável racial'},
+  why:{es:'A diferencia de Cockcroft-Gault (que estima un clearance a partir del peso), CKD-EPI estima directamente la tasa de filtración glomerular usando solo edad, sexo y creatinina, con una curva que se ajusta mejor en personas con función renal casi normal. Es la ecuación que recomiendan las guías actuales (KDIGO) para reportar la TFG de rutina.',
+       pt:'Diferente de Cockcroft-Gault (que estima um clearance a partir do peso), o CKD-EPI estima diretamente a taxa de filtração glomerular usando apenas idade, sexo e creatinina, com uma curva que se ajusta melhor em pessoas com função renal quase normal. É a equação recomendada pelas diretrizes atuais (KDIGO) para reportar a TFG de rotina.'},
+  inputs:[
+    {id:'edad', type:'number', label:{es:'Edad (años)', pt:'Idade (anos)'}},
+    {id:'creat', type:'number', label:{es:'Creatinina sérica (mg/dL)', pt:'Creatinina sérica (mg/dL)'}},
+    {id:'sexo', type:'bool', label:{es:'Sexo', pt:'Sexo'}, trueLabel:{es:'Mujer',pt:'Mulher'}, falseLabel:{es:'Hombre',pt:'Homem'}}
+  ],
+  compute:(v)=>{
+    const scr = v.creat;
+    let val;
+    if(v.sexo){
+      const k=0.7, a = scr<=k ? -0.241 : -1.200;
+      val = 142 * Math.pow(scr/k, a) * Math.pow(0.9938, v.edad) * 1.012;
+    } else {
+      const k=0.9, a = scr<=k ? -0.302 : -1.200;
+      val = 142 * Math.pow(scr/k, a) * Math.pow(0.9938, v.edad);
+    }
+    let band, txt;
+    if(val>=90){band='low'; txt={es:'TFG normal (o alta).',pt:'TFG normal (ou alta).'};}
+    else if(val>=60){band='low'; txt={es:'Levemente disminuida.',pt:'Levemente diminuída.'};}
+    else if(val>=30){band='mid'; txt={es:'Enfermedad renal crónica moderada (G3).',pt:'Doença renal crônica moderada (G3).'};}
+    else if(val>=15){band='high'; txt={es:'Enfermedad renal crónica severa (G4).',pt:'Doença renal crônica severa (G4).'};}
+    else{band='high'; txt={es:'Falla renal (G5). Considerar diálisis según contexto.',pt:'Falência renal (G5). Considerar diálise conforme o contexto.'};}
+    return {value:val.toFixed(0), unit:'mL/min/1.73m²', band, text:txt};
+  },
+  how:{es:'Ecuación CKD-EPI 2021 (sin coeficiente racial): usa una función potencia de la creatinina normalizada, distinta según esté por debajo o encima de un valor de corte (0.7 en mujeres, 0.9 en hombres), multiplicada por un factor exponencial de edad. Fue re-derivada en 2021 para eliminar el ajuste por raza.',
+       pt:'Equação CKD-EPI 2021 (sem coeficiente racial): usa uma função potência da creatinina normalizada, diferente conforme esteja abaixo ou acima de um valor de corte (0.7 em mulheres, 0.9 em homens), multiplicada por um fator exponencial de idade. Foi re-derivada em 2021 para eliminar o ajuste por raça.'}
+},
+
+{ id:'fena', cat:'nefrologia', tag:'FeNa',
+  title:{es:'Fracción excretada de sodio (FeNa)', pt:'Fração excretada de sódio (FeNa)'},
+  sub:{es:'Diferencia causa prerrenal de necrosis tubular aguda', pt:'Diferencia causa pré-renal de necrose tubular aguda'},
+  why:{es:'Ante una falla renal aguda, importa saber si el riñón está "hipoperfundido pero sano" (prerrenal, retiene sodio con avidez) o si el túbulo está dañado (necrosis tubular aguda, pierde sodio). La FeNa compara cuánto sodio se filtra contra cuánto se termina eliminando, normalizado por la creatinina, para estimar ese porcentaje de reabsorción.',
+       pt:'Diante de uma falência renal aguda, importa saber se o rim está "hipoperfundido mas saudável" (pré-renal, retém sódio com avidez) ou se o túbulo está lesado (necrose tubular aguda, perde sódio). O FeNa compara quanto sódio é filtrado contra quanto acaba sendo eliminado, normalizado pela creatinina, para estimar esse percentual de reabsorção.'},
+  inputs:[
+    {id:'una', type:'number', label:{es:'Sodio urinario (mEq/L)', pt:'Sódio urinário (mEq/L)'}},
+    {id:'pna', type:'number', label:{es:'Sodio plasmático (mEq/L)', pt:'Sódio plasmático (mEq/L)'}},
+    {id:'ucr', type:'number', label:{es:'Creatinina urinaria (mg/dL)', pt:'Creatinina urinária (mg/dL)'}},
+    {id:'pcr', type:'number', label:{es:'Creatinina plasmática (mg/dL)', pt:'Creatinina plasmática (mg/dL)'}}
+  ],
+  compute:(v)=>{
+    const val = (v.una*v.pcr)/(v.pna*v.ucr)*100;
+    let band, txt;
+    if(val<1){band='low'; txt={es:'Sugiere causa prerrenal (hipoperfusión): el riñón retiene sodio activamente.',pt:'Sugere causa pré-renal (hipoperfusão): o rim retém sódio ativamente.'};}
+    else if(val<=2){band='mid'; txt={es:'Zona indeterminada entre prerrenal y necrosis tubular aguda.',pt:'Zona indeterminada entre pré-renal e necrose tubular aguda.'};}
+    else{band='high'; txt={es:'Sugiere necrosis tubular aguda: el túbulo dañado pierde la capacidad de reabsorber sodio.',pt:'Sugere necrose tubular aguda: o túbulo lesado perde a capacidade de reabsorver sódio.'};}
+    return {value:val.toFixed(2), unit:'%', band, text:txt};
+  },
+  how:{es:'Fórmula: (Na urinario × creatinina plasmática) ÷ (Na plasmático × creatinina urinaria) × 100. Solo es interpretable en falla renal aguda oligúrica y pierde validez si el paciente recibió diuréticos recientemente (en ese caso se prefiere la fracción excretada de urea).',
+       pt:'Fórmula: (Na urinário × creatinina plasmática) ÷ (Na plasmático × creatinina urinária) × 100. Só é interpretável em falência renal aguda oligúrica e perde validade se o paciente recebeu diuréticos recentemente (nesse caso prefere-se a fração excretada de ureia).'}
+},
+
+{ id:'anion', cat:'nefrologia', tag:'AG',
+  title:{es:'Anion gap (brecha aniónica)', pt:'Anion gap (ânion gap)'},
+  sub:{es:'Diferenciación del tipo de acidosis metabólica', pt:'Diferenciação do tipo de acidose metabólica'},
+  why:{es:'La suma de cationes y aniones en el plasma debe ser eléctricamente neutra. Como no medimos todos los aniones de rutina, el "gap" representa los aniones no medidos. Un gap elevado sugiere acumulación de un ácido no medido, como en cetoacidosis o acidosis láctica.',
+       pt:'A soma de cátions e ânions no plasma deve ser eletricamente neutra. Como não medimos todos os ânions de rotina, o "gap" representa os ânions não medidos. Um gap elevado sugere acúmulo de um ácido não medido, como em cetoacidose ou acidose láctica.'},
+  inputs:[
+    {id:'na', type:'number', label:{es:'Sodio (mEq/L)', pt:'Sódio (mEq/L)'}},
+    {id:'cl', type:'number', label:{es:'Cloro (mEq/L)', pt:'Cloro (mEq/L)'}},
+    {id:'hco3', type:'number', label:{es:'Bicarbonato (mEq/L)', pt:'Bicarbonato (mEq/L)'}}
+  ],
+  compute:(v)=>{
+    const val = v.na - (v.cl+v.hco3);
+    let band='low', txt;
+    if(val<=12){band='low'; txt={es:'Gap normal (8–12). Si hay acidosis, pensar en causas hiperclorémicas.',pt:'Gap normal (8–12). Se houver acidose, pensar em causas hiperclorêmicas.'};}
+    else{band='high'; txt={es:'Gap elevado. Sugiere acumulación de ácido no medido: cetoacidosis, acidosis láctica, toxinas o uremia.',pt:'Gap elevado. Sugere acúmulo de ácido não medido: cetoacidose, acidose láctica, toxinas ou uremia.'};}
+    return {value:val.toFixed(1), unit:'mEq/L', band, text:txt};
+  },
+  how:{es:'Fórmula: Na⁺ − (Cl⁻ + HCO₃⁻). En hipoalbuminemia se puede corregir sumando 2.5 por cada g/dL que la albúmina esté por debajo de 4.',
+       pt:'Fórmula: Na⁺ − (Cl⁻ + HCO₃⁻). Na hipoalbuminemia pode-se corrigir somando 2.5 para cada g/dL que a albumina estiver abaixo de 4.'}
+},
+
+{ id:'nacorr', cat:'nefrologia', tag:'Na⁺c',
+  title:{es:'Sodio corregido por glucemia', pt:'Sódio corrigido pela glicemia'},
+  sub:{es:'Natremia real en hiperglucemia', pt:'Natremia real na hiperglicemia'},
+  why:{es:'La glucosa elevada arrastra agua desde el espacio intracelular al plasma por ósmosis, diluyendo el sodio medido. El sodio "corregido" estima cuál sería el sodio si la glucemia estuviera en 100 mg/dL.',
+       pt:'A glicose elevada puxa água do espaço intracelular para o plasma por osmose, diluindo o sódio medido. O sódio "corrigido" estima qual seria o sódio se a glicemia estivesse em 100 mg/dL.'},
+  inputs:[
+    {id:'na', type:'number', label:{es:'Sodio medido (mEq/L)', pt:'Sódio medido (mEq/L)'}},
+    {id:'glu', type:'number', label:{es:'Glucemia (mg/dL)', pt:'Glicemia (mg/dL)'}}
+  ],
+  compute:(v)=>{
+    const val = v.na + 1.6*((v.glu-100)/100);
+    let band='low', txt={es:'Sodio corregido calculado.',pt:'Sódio corrigido calculado.'};
+    if(val<135){band='mid'; txt={es:'Hiponatremia real, incluso corrigiendo por la glucemia.',pt:'Hiponatremia real, mesmo corrigindo pela glicemia.'};}
+    else if(val>145){band='mid'; txt={es:'Hipernatremia real.',pt:'Hipernatremia real.'};}
+    else{band='low'; txt={es:'Dentro de rango normal una vez corregido.',pt:'Dentro da faixa normal após correção.'};}
+    return {value:val.toFixed(1), unit:'mEq/L', band, text:txt};
+  },
+  how:{es:'Fórmula clásica (Katz): Na corregido = Na medido + 1.6 × [(glucemia − 100) / 100].',
+       pt:'Fórmula clássica (Katz): Na corrigido = Na medido + 1.6 × [(glicemia − 100) / 100].'}
+},
+
+{ id:'cha2ds2', cat:'cardiologia', tag:'CHA₂DS₂',
+  title:{es:'CHA₂DS₂-VASc', pt:'CHA₂DS₂-VASc'},
+  sub:{es:'Riesgo de ACV en fibrilación auricular', pt:'Risco de AVC na fibrilação atrial'},
+  why:{es:'En fibrilación auricular, la sangre puede estancarse en la aurícula y formar coágulos que viajan al cerebro. Este puntaje suma factores que aumentan ese riesgo para decidir si el beneficio de anticoagular supera el riesgo de sangrado.',
+       pt:'Na fibrilação atrial, o sangue pode estagnar no átrio e formar coágulos que viajam ao cérebro. Esse escore soma fatores que aumentam esse risco para decidir se o benefício de anticoagular supera o risco de sangramento.'},
+  inputs:[
+    {id:'icc', type:'bool', points:1, label:{es:'Insuficiencia cardíaca / disfunción de VI', pt:'Insuficiência cardíaca / disfunção de VE'}},
+    {id:'has', type:'bool', points:1, label:{es:'Hipertensión arterial', pt:'Hipertensão arterial'}},
+    {id:'edad75', type:'bool', points:2, label:{es:'Edad ≥ 75 años', pt:'Idade ≥ 75 anos'}},
+    {id:'dm', type:'bool', points:1, label:{es:'Diabetes mellitus', pt:'Diabetes mellitus'}},
+    {id:'acv', type:'bool', points:2, label:{es:'ACV / AIT / tromboembolismo previo', pt:'AVC / AIT / tromboembolismo prévio'}},
+    {id:'vasc', type:'bool', points:1, label:{es:'Enfermedad vascular (IAM, EAP, placa aórtica)', pt:'Doença vascular (IAM, DAP, placa aórtica)'}},
+    {id:'edad65', type:'bool', points:1, label:{es:'Edad 65–74 años', pt:'Idade 65–74 anos'}},
+    {id:'mujer', type:'bool', points:1, label:{es:'Sexo femenino', pt:'Sexo feminino'}}
+  ],
+  compute:(v, inputs)=>{
+    let score=0;
+    inputs.forEach(inp=>{ if(v[inp.id]) score+=inp.points; });
+    let band='low', txt;
+    if(score===0){band='low'; txt={es:'Riesgo bajo. En general no se recomienda anticoagulación.',pt:'Risco baixo. Em geral, não se recomenda anticoagulação.'};}
+    else if(score===1){band='mid'; txt={es:'Riesgo intermedio. Considerar anticoagulación según preferencias y contexto.',pt:'Risco intermediário. Considerar anticoagulação conforme preferências e contexto.'};}
+    else{band='high'; txt={es:'Riesgo significativo de ACV. Generalmente se recomienda anticoagulación oral, salvo contraindicación.',pt:'Risco significativo de AVC. Geralmente se recomenda anticoagulação oral, salvo contraindicação.'};}
+    return {value:score, unit:'puntos', band, text:txt};
+  },
+  how:{es:'Cada letra vale puntos: C(1) H(1) A₂(2) D(1) S₂(2) V(1) A(1) Sc(1). Los ítems con "2" pesan más porque son predictores más fuertes de ACV.',
+       pt:'Cada letra vale pontos: C(1) H(1) A₂(2) D(1) S₂(2) V(1) A(1) Sc(1). Os itens com "2" pesam mais porque são preditores mais fortes de AVC.'}
+},
+
+{ id:'wells', cat:'cardiologia', tag:'Wells',
+  title:{es:'Escala de Wells (TEP)', pt:'Escore de Wells (TEP)'},
+  sub:{es:'Probabilidad clínica de embolia pulmonar', pt:'Probabilidade clínica de embolia pulmonar'},
+  why:{es:'Antes de pedir estudios de imagen para embolia pulmonar, conviene estimar la probabilidad pre-test: eso decide si conviene empezar por un dímero-D o ir directo a angioTC.',
+       pt:'Antes de pedir exames de imagem para embolia pulmonar, convém estimar a probabilidade pré-teste: isso decide se convém começar pelo D-dímero ou ir direto para angioTC.'},
+  inputs:[
+    {id:'tvp', type:'bool', points:3, label:{es:'Signos clínicos de TVP', pt:'Sinais clínicos de TVP'}},
+    {id:'altdiag', type:'bool', points:3, label:{es:'Diagnóstico alternativo menos probable que TEP', pt:'Diagnóstico alternativo menos provável que TEP'}},
+    {id:'fc', type:'bool', points:1.5, label:{es:'Frecuencia cardíaca > 100/min', pt:'Frequência cardíaca > 100/min'}},
+    {id:'inmov', type:'bool', points:1.5, label:{es:'Inmovilización o cirugía en las últimas 4 semanas', pt:'Imobilização ou cirurgia nas últimas 4 semanas'}},
+    {id:'prev', type:'bool', points:1.5, label:{es:'TVP/TEP previo', pt:'TVP/TEP prévio'}},
+    {id:'hemop', type:'bool', points:1, label:{es:'Hemoptisis', pt:'Hemoptise'}},
+    {id:'cancer', type:'bool', points:1, label:{es:'Cáncer activo', pt:'Câncer ativo'}}
+  ],
+  compute:(v, inputs)=>{
+    let score=0;
+    inputs.forEach(inp=>{ if(v[inp.id]) score+=inp.points; });
+    let band='low', txt;
+    if(score<=4){band='low'; txt={es:'TEP poco probable. Razonable iniciar con dímero-D antes de imágenes.',pt:'TEP pouco provável. Razoável iniciar com D-dímero antes de imagem.'};}
+    else{band='high'; txt={es:'TEP probable. Considerar angioTC de tórax directamente.',pt:'TEP provável. Considerar angioTC de tórax diretamente.'};}
+    return {value:score, unit:'puntos', band, text:txt};
+  },
+  how:{es:'Versión dicotomizada (≤4 vs >4). Los ítems de 3 puntos mostraron mayor asociación estadística con el diagnóstico final confirmado de TEP.',
+       pt:'Versão dicotomizada (≤4 vs >4). Os itens de 3 pontos mostraram maior associação estatística com o diagnóstico final confirmado de TEP.'}
+},
+
+{ id:'heart', cat:'cardiologia', tag:'HEART',
+  title:{es:'HEART score', pt:'HEART score'},
+  sub:{es:'Riesgo de evento cardíaco en dolor torácico', pt:'Risco de evento cardíaco em dor torácica'},
+  why:{es:'La mayoría de los pacientes que llegan a urgencias con dolor de pecho no tienen un síndrome coronario agudo. HEART combina cinco datos disponibles en los primeros minutos (historia clínica, ECG, edad, factores de riesgo y troponina) para separar de forma rápida a quién se puede dar de alta y a quién hay que internar u observar.',
+       pt:'A maioria dos pacientes que chegam à emergência com dor no peito não tem uma síndrome coronariana aguda. O HEART combina cinco dados disponíveis nos primeiros minutos (história clínica, ECG, idade, fatores de risco e troponina) para separar rapidamente quem pode ter alta e quem precisa ser internado ou observado.'},
+  inputs:[
+    {id:'h', type:'select', label:{es:'Historia clínica (History)', pt:'História clínica (History)'}, options:[
+      {v:0,l:{es:'Poco sugestiva',pt:'Pouco sugestiva'}},{v:1,l:{es:'Moderadamente sugestiva',pt:'Moderadamente sugestiva'}},{v:2,l:{es:'Altamente sugestiva',pt:'Altamente sugestiva'}}]},
+    {id:'e', type:'select', label:{es:'ECG', pt:'ECG'}, options:[
+      {v:0,l:{es:'Normal',pt:'Normal'}},{v:1,l:{es:'Alteración inespecífica de la repolarización',pt:'Alteração inespecífica da repolarização'}},{v:2,l:{es:'Descenso significativo del ST',pt:'Descenso significativo do ST'}}]},
+    {id:'a', type:'select', label:{es:'Edad (Age)', pt:'Idade (Age)'}, options:[
+      {v:0,l:{es:'< 45 años',pt:'< 45 anos'}},{v:1,l:{es:'45–64 años',pt:'45–64 anos'}},{v:2,l:{es:'≥ 65 años',pt:'≥ 65 anos'}}]},
+    {id:'r', type:'select', label:{es:'Factores de riesgo (Risk factors)', pt:'Fatores de risco (Risk factors)'}, options:[
+      {v:0,l:{es:'Ninguno',pt:'Nenhum'}},{v:1,l:{es:'1–2 factores',pt:'1–2 fatores'}},{v:2,l:{es:'≥3 factores o enfermedad aterosclerótica conocida',pt:'≥3 fatores ou doença aterosclerótica conhecida'}}]},
+    {id:'t', type:'select', label:{es:'Troponina', pt:'Troponina'}, options:[
+      {v:0,l:{es:'≤ límite normal',pt:'≤ limite normal'}},{v:1,l:{es:'1–3× el límite normal',pt:'1–3× o limite normal'}},{v:2,l:{es:'> 3× el límite normal',pt:'> 3× o limite normal'}}]}
+  ],
+  compute:(v)=>{
+    const val = (v.h||0)+(v.e||0)+(v.a||0)+(v.r||0)+(v.t||0);
+    let band, txt;
+    if(val<=3){band='low'; txt={es:'Riesgo bajo (≈1–2% de eventos a 6 semanas). Razonable considerar alta con seguimiento ambulatorio.',pt:'Risco baixo (≈1–2% de eventos em 6 semanas). Razoável considerar alta com seguimento ambulatorial.'};}
+    else if(val<=6){band='mid'; txt={es:'Riesgo intermedio (≈12–17%). Considerar observación clínica e investigación adicional.',pt:'Risco intermediário (≈12–17%). Considerar observação clínica e investigação adicional.'};}
+    else{band='high'; txt={es:'Riesgo alto (≈50–65%). Considerar evaluación invasiva temprana.',pt:'Risco alto (≈50–65%). Considerar avaliação invasiva precoce.'};}
+    return {value:val, unit:'/ 10', band, text:txt};
+  },
+  how:{es:'Cada una de las 5 categorías vale 0, 1 o 2 puntos (rango total 0-10). A diferencia de GRACE, no fue diseñado a partir de pacientes ya diagnosticados con síndrome coronario agudo, sino de cualquiera que consulta por dolor torácico, que es exactamente la pregunta clínica en la puerta de urgencias.',
+       pt:'Cada uma das 5 categorias vale 0, 1 ou 2 pontos (faixa total 0-10). Diferente do GRACE, não foi desenhado a partir de pacientes já diagnosticados com síndrome coronariana aguda, mas de qualquer um que procura atendimento por dor torácica, que é exatamente a pergunta clínica na porta da emergência.'}
+},
+
+{ id:'grace', cat:'cardiologia', tag:'GRACE',
+  title:{es:'GRACE score', pt:'GRACE score'},
+  sub:{es:'Mortalidad intrahospitalaria en síndrome coronario agudo', pt:'Mortalidade intra-hospitalar em síndrome coronariana aguda'},
+  why:{es:'Una vez confirmado un síndrome coronario agudo, GRACE ayuda a decidir la urgencia de la estrategia invasiva (cateterismo) estimando el riesgo de morir durante la internación. Combina variables hemodinámicas (presión, frecuencia cardíaca, Killip), función renal (creatinina), edad y hallazgos de gravedad (paro cardíaco, cambios del ST, enzimas elevadas) porque cada una refleja, desde un ángulo distinto, cuánto estrés está soportando el corazón.',
+       pt:'Uma vez confirmada uma síndrome coronariana aguda, o GRACE ajuda a decidir a urgência da estratégia invasiva (cateterismo) estimando o risco de morte durante a internação. Combina variáveis hemodinâmicas (pressão, frequência cardíaca, Killip), função renal (creatinina), idade e achados de gravidade (parada cardíaca, alterações do ST, enzimas elevadas) porque cada uma reflete, de um ângulo diferente, quanto estresse o coração está suportando.'},
+  inputs:[
+    {id:'edad', type:'select', label:{es:'Edad', pt:'Idade'}, options:[
+      {v:0,l:{es:'< 30 años',pt:'< 30 anos'}},{v:8,l:{es:'30–39 años',pt:'30–39 anos'}},{v:25,l:{es:'40–49 años',pt:'40–49 anos'}},{v:41,l:{es:'50–59 años',pt:'50–59 anos'}},
+      {v:58,l:{es:'60–69 años',pt:'60–69 anos'}},{v:75,l:{es:'70–79 años',pt:'70–79 anos'}},{v:91,l:{es:'80–89 años',pt:'80–89 anos'}},{v:100,l:{es:'≥ 90 años',pt:'≥ 90 anos'}}]},
+    {id:'fc', type:'select', label:{es:'Frecuencia cardíaca (lpm)', pt:'Frequência cardíaca (bpm)'}, options:[
+      {v:0,l:{es:'< 50',pt:'< 50'}},{v:3,l:{es:'50–69',pt:'50–69'}},{v:9,l:{es:'70–89',pt:'70–89'}},{v:15,l:{es:'90–109',pt:'90–109'}},
+      {v:24,l:{es:'110–149',pt:'110–149'}},{v:38,l:{es:'150–199',pt:'150–199'}},{v:46,l:{es:'≥ 200',pt:'≥ 200'}}]},
+    {id:'pas', type:'select', label:{es:'Presión arterial sistólica (mmHg)', pt:'Pressão arterial sistólica (mmHg)'}, options:[
+      {v:58,l:{es:'< 80',pt:'< 80'}},{v:53,l:{es:'80–99',pt:'80–99'}},{v:43,l:{es:'100–119',pt:'100–119'}},{v:34,l:{es:'120–139',pt:'120–139'}},
+      {v:24,l:{es:'140–159',pt:'140–159'}},{v:10,l:{es:'160–199',pt:'160–199'}},{v:0,l:{es:'≥ 200',pt:'≥ 200'}}]},
+    {id:'creat', type:'select', label:{es:'Creatinina (mg/dL)', pt:'Creatinina (mg/dL)'}, options:[
+      {v:1,l:{es:'< 0.40',pt:'< 0.40'}},{v:4,l:{es:'0.40–0.79',pt:'0.40–0.79'}},{v:7,l:{es:'0.80–1.19',pt:'0.80–1.19'}},{v:10,l:{es:'1.20–1.59',pt:'1.20–1.59'}},
+      {v:13,l:{es:'1.60–1.99',pt:'1.60–1.99'}},{v:21,l:{es:'2.00–3.99',pt:'2.00–3.99'}},{v:28,l:{es:'≥ 4.00',pt:'≥ 4.00'}}]},
+    {id:'killip', type:'select', label:{es:'Clase de Killip', pt:'Classe de Killip'}, options:[
+      {v:0,l:{es:'I — sin insuficiencia cardíaca',pt:'I — sem insuficiência cardíaca'}},{v:20,l:{es:'II — estertores o ingurgitación yugular',pt:'II — estertores ou turgência jugular'}},
+      {v:39,l:{es:'III — edema pulmonar',pt:'III — edema pulmonar'}},{v:59,l:{es:'IV — shock cardiogénico',pt:'IV — choque cardiogênico'}}]},
+    {id:'arresto', type:'bool', points:39, label:{es:'Paro cardíaco al ingreso', pt:'Parada cardíaca na admissão'}},
+    {id:'st', type:'bool', points:28, label:{es:'Desviación del segmento ST', pt:'Desvio do segmento ST'}},
+    {id:'enz', type:'bool', points:14, label:{es:'Enzimas cardíacas elevadas', pt:'Enzimas cardíacas elevadas'}}
+  ],
+  compute:(v)=>{
+    const val = (v.edad||0)+(v.fc||0)+(v.pas||0)+(v.creat||0)+(v.killip||0)+(v.arresto?39:0)+(v.st?28:0)+(v.enz?14:0);
+    let band, txt;
+    if(val<=108){band='low'; txt={es:'Riesgo bajo de mortalidad intrahospitalaria (<1%).',pt:'Risco baixo de mortalidade intra-hospitalar (<1%).'};}
+    else if(val<=140){band='mid'; txt={es:'Riesgo intermedio de mortalidad intrahospitalaria (1–3%).',pt:'Risco intermediário de mortalidade intra-hospitalar (1–3%).'};}
+    else{band='high'; txt={es:'Riesgo alto de mortalidad intrahospitalaria (>3%). Considerar estrategia invasiva temprana.',pt:'Risco alto de mortalidade intra-hospitalar (>3%). Considerar estratégia invasiva precoce.'};}
+    return {value:val, unit:'puntos', band, text:txt};
+  },
+  how:{es:'Ocho variables ponderadas según su fuerza estadística en el estudio original (43.810 pacientes, Fox et al. 2006). Los tres ítems dicotómicos (paro cardíaco, desviación del ST, enzimas elevadas) pesan mucho porque marcan gravedad extrema o daño miocárdico ya establecido, no solo riesgo teórico.',
+       pt:'Oito variáveis ponderadas conforme sua força estatística no estudo original (43.810 pacientes, Fox et al. 2006). Os três itens dicotômicos (parada cardíaca, desvio do ST, enzimas elevadas) pesam muito porque marcam gravidade extrema ou dano miocárdico já estabelecido, não apenas risco teórico.'}
+},
+
+{ id:'qsofa', cat:'emergencia', tag:'qSOFA',
+  title:{es:'qSOFA', pt:'qSOFA'},
+  sub:{es:'Detección rápida de riesgo en sospecha de sepsis', pt:'Detecção rápida de risco em suspeita de sepse'},
+  why:{es:'qSOFA identifica, sin laboratorio, a pacientes con sospecha de infección con mayor riesgo de mal desenlace, usando solo tres signos vitales fáciles de tomar en cualquier lugar.',
+       pt:'O qSOFA identifica, sem laboratório, pacientes com suspeita de infecção com maior risco de desfecho ruim, usando apenas três sinais vitais fáceis de aferir em qualquer lugar.'},
+  inputs:[
+    {id:'pas', type:'bool', points:1, label:{es:'Presión arterial sistólica ≤ 100 mmHg', pt:'Pressão arterial sistólica ≤ 100 mmHg'}},
+    {id:'fr', type:'bool', points:1, label:{es:'Frecuencia respiratoria ≥ 22/min', pt:'Frequência respiratória ≥ 22/min'}},
+    {id:'mental', type:'bool', points:1, label:{es:'Alteración del estado mental (Glasgow < 15)', pt:'Alteração do estado mental (Glasgow < 15)'}}
+  ],
+  compute:(v, inputs)=>{
+    let score=0;
+    inputs.forEach(inp=>{ if(v[inp.id]) score+=inp.points; });
+    let band = score>=2 ? 'high':'low';
+    let txt = score>=2
+      ? {es:'qSOFA positivo (≥2). Mayor riesgo de mal desenlace: considerar evaluación urgente para sepsis.',pt:'qSOFA positivo (≥2). Maior risco de desfecho ruim: considerar avaliação urgente para sepse.'}
+      : {es:'qSOFA negativo. No descarta sepsis por sí solo; seguir evaluando clínicamente.',pt:'qSOFA negativo. Não descarta sepse por si só; seguir avaliando clinicamente.'};
+    return {value:score, unit:'/ 3', band, text:txt};
+  },
+  how:{es:'Cada criterio vale 1 punto. Un puntaje ≥2 se asoció a mayor mortalidad intrahospitalaria en pacientes con sospecha de infección. No reemplaza los criterios formales de sepsis.',
+       pt:'Cada critério vale 1 ponto. Um escore ≥2 se associou a maior mortalidade intra-hospitalar em pacientes com suspeita de infecção. Não substitui os critérios formais de sepse.'}
+},
+
+{ id:'gcs', cat:'emergencia', tag:'GCS',
+  title:{es:'Escala de coma de Glasgow', pt:'Escala de coma de Glasgow'},
+  sub:{es:'Evaluación del nivel de conciencia', pt:'Avaliação do nível de consciência'},
+  why:{es:'Fue creada para dar un lenguaje común y reproducible sobre el nivel de conciencia. Evalúa tres funciones neurológicas independientes: apertura ocular, respuesta verbal y respuesta motora.',
+       pt:'Foi criada para dar uma linguagem comum e reprodutível sobre o nível de consciência. Avalia três funções neurológicas independentes: abertura ocular, resposta verbal e resposta motora.'},
+  inputs:[
+    {id:'ocular', type:'select', label:{es:'Apertura ocular', pt:'Abertura ocular'}, options:[
+      {v:4, l:{es:'Espontánea',pt:'Espontânea'}},{v:3, l:{es:'Al estímulo verbal',pt:'Ao estímulo verbal'}},
+      {v:2, l:{es:'Al dolor',pt:'À dor'}},{v:1, l:{es:'Ninguna',pt:'Nenhuma'}}]},
+    {id:'verbal', type:'select', label:{es:'Respuesta verbal', pt:'Resposta verbal'}, options:[
+      {v:5, l:{es:'Orientada',pt:'Orientada'}},{v:4, l:{es:'Confusa',pt:'Confusa'}},
+      {v:3, l:{es:'Palabras inapropiadas',pt:'Palavras inapropriadas'}},{v:2, l:{es:'Sonidos incomprensibles',pt:'Sons incompreensíveis'}},{v:1, l:{es:'Ninguna',pt:'Nenhuma'}}]},
+    {id:'motora', type:'select', label:{es:'Respuesta motora', pt:'Resposta motora'}, options:[
+      {v:6, l:{es:'Obedece órdenes',pt:'Obedece ordens'}},{v:5, l:{es:'Localiza el dolor',pt:'Localiza a dor'}},
+      {v:4, l:{es:'Retira al dolor',pt:'Retira à dor'}},{v:3, l:{es:'Flexión anormal (decorticación)',pt:'Flexão anormal (decorticação)'}},
+      {v:2, l:{es:'Extensión anormal (descerebración)',pt:'Extensão anormal (descerebração)'}},{v:1, l:{es:'Ninguna',pt:'Nenhuma'}}]}
+  ],
+  compute:(v)=>{
+    const val = (v.ocular||0)+(v.verbal||0)+(v.motora||0);
+    let band, txt;
+    if(val>=13){band='low'; txt={es:'Compromiso leve.',pt:'Comprometimento leve.'};}
+    else if(val>=9){band='mid'; txt={es:'Compromiso moderado.',pt:'Comprometimento moderado.'};}
+    else{band='high'; txt={es:'Compromiso severo. Considerar protección avanzada de la vía aérea (referencia clásica: ≤8).',pt:'Comprometimento severo. Considerar proteção avançada de via aérea (referência clássica: ≤8).'};}
+    return {value:val, unit:'/ 15', band, text:txt};
+  },
+  how:{es:'Suma de tres subescalas: ocular (1-4) + verbal (1-5) + motora (1-6), rango total 3 a 15. La respuesta motora es la que más peso predictivo tiene sobre el pronóstico neurológico.',
+       pt:'Soma de três subescalas: ocular (1-4) + verbal (1-5) + motora (1-6), faixa total 3 a 15. A resposta motora é a que tem mais peso preditivo sobre o prognóstico neurológico.'}
+},
+
+{ id:'meld', cat:'geral', tag:'MELD',
+  title:{es:'MELD', pt:'MELD'},
+  sub:{es:'Gravedad de la enfermedad hepática crónica', pt:'Gravidade da doença hepática crônica'},
+  why:{es:'El MELD se usa para priorizar quién recibe un trasplante hepático primero. Combina tres marcadores de falla hepática y renal en una escala logarítmica, porque el riesgo de muerte aumenta de forma no lineal a medida que estos valores empeoran.',
+       pt:'O MELD é usado para priorizar quem recebe um transplante hepático primeiro. Combina três marcadores de falência hepática e renal em uma escala logarítmica, porque o risco de morte aumenta de forma não linear à medida que esses valores pioram.'},
+  inputs:[
+    {id:'bili', type:'number', label:{es:'Bilirrubina total (mg/dL)', pt:'Bilirrubina total (mg/dL)'}},
+    {id:'inr', type:'number', label:{es:'INR', pt:'INR'}},
+    {id:'creat', type:'number', label:{es:'Creatinina (mg/dL)', pt:'Creatinina (mg/dL)'}},
+    {id:'dialisis', type:'bool', label:{es:'Diálisis ≥ 2 veces en la última semana', pt:'Diálise ≥ 2 vezes na última semana'}}
+  ],
+  compute:(v)=>{
+    let bili = Math.max(v.bili,1);
+    let inr = Math.max(v.inr,1);
+    let creat = v.dialisis ? 4.0 : Math.min(Math.max(v.creat,1),4);
+    let val = 3.78*Math.log(bili) + 11.2*Math.log(inr) + 9.57*Math.log(creat) + 6.43;
+    val = Math.round(val);
+    if(val<6) val=6;
+    let band, txt;
+    if(val<10){band='low'; txt={es:'Riesgo bajo a corto plazo.',pt:'Risco baixo a curto prazo.'};}
+    else if(val<20){band='mid'; txt={es:'Riesgo intermedio. Enfermedad hepática avanzada.',pt:'Risco intermediário. Doença hepática avançada.'};}
+    else{band='high'; txt={es:'Riesgo alto a corto plazo. Prioridad elevada en lista de trasplante.',pt:'Risco alto a curto prazo. Prioridade elevada em lista de transplante.'};}
+    return {value:val, unit:'puntos', band, text:txt};
+  },
+  how:{es:'Fórmula: 3.78×ln(bilirrubina) + 11.2×ln(INR) + 9.57×ln(creatinina) + 6.43. Los valores se acotan (mínimo 1, creatinina máximo 4, o 4 fijo si dializa) para evitar que valores extremos distorsionen el puntaje.',
+       pt:'Fórmula: 3.78×ln(bilirrubina) + 11.2×ln(INR) + 9.57×ln(creatinina) + 6.43. Os valores são limitados (mínimo 1, creatinina máximo 4, ou 4 fixo se dialisa) para evitar que valores extremos distorçam o escore.'}
+}
+];
+
+/* ============ RENDER: LISTA ============ */
+function setLang(l){
+  LANG = l;
+  document.getElementById('btn-es').classList.toggle('active', l==='es');
+  document.getElementById('btn-pt').classList.toggle('active', l==='pt');
+  document.documentElement.lang = l==='es' ? 'es' : 'pt-BR';
+  renderChrome();
+  renderList();
+  if(currentCalc) openDetail(currentCalc.id, true);
+}
+
+function renderChrome(){
+  const t = UI[LANG];
+  document.getElementById('tagline').textContent = t.tagline;
+  document.getElementById('searchbox').placeholder = t.search;
+  document.getElementById('backlabel').textContent = t.back;
+  document.getElementById('installhint').innerHTML = t.install;
+  const catsEl = document.getElementById('cats');
+  catsEl.innerHTML = '';
+  const cats = ['all','emergencia','cardiologia','nefrologia','geral'];
+  cats.forEach(c=>{
+    const chip = document.createElement('div');
+    chip.className = 'cat-chip' + (activeCat===c ? ' active':'');
+    chip.textContent = t.cats[c];
+    chip.onclick = ()=>{ activeCat=c; renderChrome(); renderList(); };
+    catsEl.appendChild(chip);
+  });
+}
+
+function renderList(){
+  const listEl = document.getElementById('list');
+  listEl.innerHTML = '';
+  const q = (document.getElementById('searchbox').value||'').toLowerCase();
+  CALCS.filter(c=>{
+    const matchCat = activeCat==='all' || c.cat===activeCat;
+    const matchQ = !q || c.title[LANG].toLowerCase().includes(q) || c.tag.toLowerCase().includes(q);
+    return matchCat && matchQ;
+  }).forEach(c=>{
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.onclick = ()=>openDetail(c.id);
+    card.innerHTML = `
+      <div class="tag">${c.tag}</div>
+      <div class="card-txt"><h3>${c.title[LANG]}</h3><p>${c.sub[LANG]}</p></div>
+      <svg class="chev" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+    listEl.appendChild(card);
+  });
+}
+
+/* ============ RENDER: DETALHE ============ */
+function openDetail(id, silent){
+  const c = CALCS.find(x=>x.id===id);
+  currentCalc = c;
+  if(!silent) currentValues = {};
+  document.getElementById('app').classList.add('detail-open');
+  document.getElementById('detail').classList.add('show');
+  const t = UI[LANG];
+
+  let inputsHtml = '';
+  c.inputs.forEach(inp=>{
+    if(inp.type==='number'){
+      inputsHtml += `<div class="field"><label>${inp.label[LANG]}</label>
+        <input type="number" inputmode="decimal" id="in-${inp.id}" value="${currentValues[inp.id]??''}" oninput="currentValues['${inp.id}']=parseFloat(this.value)">
+      </div>`;
+    } else if(inp.type==='bool'){
+      const trueL = inp.trueLabel ? inp.trueLabel[LANG] : (LANG==='es'?'Sí':'Sim');
+      const falseL = inp.falseLabel ? inp.falseLabel[LANG] : 'No';
+      const cur = currentValues[inp.id];
+      inputsHtml += `<div class="field"><label>${inp.label[LANG]}</label>
+        <div class="boolrow">
+          <button type="button" class="${cur===true?'sel':''}" onclick="setBool('${inp.id}',true)">${trueL}</button>
+          <button type="button" class="${cur===false?'sel':''}" onclick="setBool('${inp.id}',false)">${falseL}</button>
+        </div>
+      </div>`;
+    } else if(inp.type==='select'){
+      const cur = currentValues[inp.id];
+      let opts = '';
+      inp.options.forEach(o=>{
+        opts += `<button type="button" class="${cur===o.v?'sel':''}" onclick="setSelect('${inp.id}',${o.v})">${o.l[LANG]}</button>`;
+      });
+      inputsHtml += `<div class="field"><label>${inp.label[LANG]}</label><div class="selrow">${opts}</div></div>`;
+    }
+  });
+
+  document.getElementById('detailBody').innerHTML = `
+    <div class="dtitle"><span class="dtag">${c.tag}</span><h2>${c.title[LANG]}</h2></div>
+    <p class="dsub">${c.sub[LANG]}</p>
+    <div class="why"><b>${LANG==='es'?'¿Por qué esta fórmula?':'Por que essa fórmula?'}</b><br>${c.why[LANG]}</div>
+    <div id="inputsWrap">${inputsHtml}</div>
+    <button class="calcbtn" onclick="runCalc()">${t.calc}</button>
+    <div class="result" id="resultBox"></div>
+    <button class="howbtn" id="howbtnEl" onclick="toggleHow()">▸ <span id="howbtnLabel">${t.how}</span></button>
+    <div class="howtext" id="howtext">${c.how[LANG]}</div>
+    <p class="disclaimer">${t.disclaimer}</p>
+  `;
+  if(silent) window.scrollTo(0,window.scrollY);
+}
+
+function setBool(id, val){ currentValues[id]=val; openDetail(currentCalc.id, true); }
+function setSelect(id, val){ currentValues[id]=val; openDetail(currentCalc.id, true); }
+
+function toggleHow(){
+  const el = document.getElementById('howtext');
+  const btn = document.getElementById('howbtnEl');
+  el.classList.toggle('show');
+  btn.firstChild.textContent = el.classList.contains('show') ? '▾ ' : '▸ ';
+}
+
+function runCalc(){
+  const c = currentCalc;
+  const missing = c.inputs.some(inp=>{
+    if(inp.type==='number') return currentValues[inp.id]===undefined || isNaN(currentValues[inp.id]);
+    if(inp.type==='bool') return currentValues[inp.id]===undefined;
+    if(inp.type==='select') return currentValues[inp.id]===undefined;
+  });
+  if(missing){
+    const box = document.getElementById('resultBox');
+    box.className = 'result show mid';
+    box.innerHTML = `<p class="rtext">${LANG==='es'?'Completá todos los campos para calcular.':'Preencha todos os campos para calcular.'}</p>`;
+    return;
+  }
+  const r = c.compute(currentValues, c.inputs);
+  const box = document.getElementById('resultBox');
+  box.className = 'result show ' + r.band;
+  const bandLabel = {low:{es:'Riesgo bajo',pt:'Risco baixo'}, mid:{es:'Riesgo intermedio',pt:'Risco intermediário'}, high:{es:'Riesgo alto',pt:'Risco alto'}}[r.band][LANG];
+  box.innerHTML = `
+    <p class="rlabel">${UI[LANG].result}</p>
+    <p class="rvalue">${r.value} <span style="font-size:16px; font-weight:500; color:var(--ink-soft);">${r.unit}</span></p>
+    <span class="rband">${bandLabel}</span>
+    <p class="rtext">${r.text[LANG]}</p>
+  `;
+  box.scrollIntoView({behavior:'smooth', block:'center'});
+}
+
+function closeDetail(){
+  document.getElementById('app').classList.remove('detail-open');
+  document.getElementById('detail').classList.remove('show');
+  currentCalc = null;
+}
+
+/* ============ INIT ============ */
+renderChrome();
+renderList();
+</script>
+</body>
+</html>

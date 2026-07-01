@@ -257,6 +257,28 @@
 </div>
 
 <script>
+/* ============ AUTO-ATUALIZAÇÃO ============ */
+function forceUpdate(){
+  const url = new URL(location.href);
+  url.searchParams.set('_', Date.now());
+  location.href = url.toString();
+}
+
+(async function checkForUpdate(){
+  try{
+    const res = await fetch('version.json?_=' + Date.now(), {cache:'no-store'});
+    if(!res.ok) return;
+    const data = await res.json();
+    const stored = localStorage.getItem('cdc_version');
+    if(stored && stored !== data.v){
+      localStorage.setItem('cdc_version', data.v);
+      forceUpdate();
+      return;
+    }
+    localStorage.setItem('cdc_version', data.v);
+  }catch(e){ /* offline ou erro de rede — ignora */ }
+})();
+
 /* ============ IDIOMA ============ */
 let LANG = 'es';
 const UI = {

@@ -1,0 +1,26 @@
+name: Atualizar versão do app
+
+on:
+  push:
+    branches:
+      - main   # troque para "master" se o seu repositório usar esse nome de branch
+
+jobs:
+  bump-version:
+    runs-on: ubuntu-latest
+    # evita loop infinito: não roda de novo por causa do próprio commit do bot
+    if: "!contains(github.event.head_commit.message, '[skip version bump]')"
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: Gerar novo número de versão
+        run: echo "{\"v\": \"$(date +%s)\"}" > version.json
+
+      - name: Commitar e enviar a nova versão
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add version.json
+          git diff --quiet --cached || git commit -m "Atualiza version.json [skip version bump]"
+          git push

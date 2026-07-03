@@ -2,1579 +2,594 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="C. do Cruz">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#0A1210">
-<meta name="description" content="Calculadora do Cruz — calculadoras clínicas de bolsillo / bolso.">
-<title>Calculadora do Cruz</title>
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
-<link rel="apple-touch-icon" href="icon-180.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<meta name="apple-mobile-web-app-title" content="Contas">
+<meta name="theme-color" content="#0a0a0f">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='120' fill='%230a0a0f'/><text y='340' x='256' text-anchor='middle' font-size='320'>💰</text></svg>">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contas do Mês</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💰</text></svg>">
 <style>
-  :root{
-    --bg:#0A1210;
-    --bg-grad: radial-gradient(1200px 600px at 20% -10%, rgba(27,199,154,0.14), transparent 60%), radial-gradient(900px 500px at 100% 0%, rgba(242,169,59,0.08), transparent 55%), #0A1210;
-    --paper:#101B18;
-    --paper-hi:#142420;
-    --ink:#F4F1E6;
-    --ink-soft:#9BB0A8;
-    --ink-faint:#61756E;
-    --teal:#1BC79A;
-    --teal-dark:#0A4F48;
-    --amber:#F2A93B;
-    --red:#F0656B;
-    --green:#42D68A;
-    --line:rgba(244,241,230,0.10);
-    --line-hi:rgba(244,241,230,0.18);
-    --shadow: 0 1px 0 rgba(255,255,255,0.03) inset, 0 14px 34px -18px rgba(0,0,0,0.65);
-    --radius:18px;
-  }
-  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
-  html,body{margin:0; padding:0; background:var(--bg); color:var(--ink); font-family:'Inter',sans-serif; -webkit-font-smoothing:antialiased;}
-  body{background:var(--bg-grad); padding-bottom:env(safe-area-inset-bottom); min-height:100vh;}
-  .app{max-width:560px; margin:0 auto; min-height:100vh; position:relative;}
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Syne',sans-serif;background:#0a0a0f;color:#e8e4d8;min-height:100vh;overflow-x:hidden}
+.bg-orbs{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:.35}
+.orb1{width:500px;height:500px;background:radial-gradient(circle,#7c3aed,transparent);top:-100px;left:-100px;animation:drift1 18s ease-in-out infinite}
+.orb2{width:400px;height:400px;background:radial-gradient(circle,#0ea5e9,transparent);top:40%;right:-80px;animation:drift2 22s ease-in-out infinite}
+.orb3{width:350px;height:350px;background:radial-gradient(circle,#10b981,transparent);bottom:-80px;left:30%;animation:drift3 20s ease-in-out infinite}
+.orb4{width:300px;height:300px;background:radial-gradient(circle,#f59e0b,transparent);bottom:10%;left:-60px;animation:drift1 25s ease-in-out infinite reverse}
+@keyframes drift1{0%,100%{transform:translate(0,0)}50%{transform:translate(40px,30px)}}
+@keyframes drift2{0%,100%{transform:translate(0,0)}50%{transform:translate(-30px,40px)}}
+@keyframes drift3{0%,100%{transform:translate(0,0)}50%{transform:translate(20px,-30px)}}
+.grain{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.03;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='512' height='512' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");background-size:200px}
+.lock-screen{position:fixed;inset:0;background:#0a0a0f;z-index:999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1.5rem}
+.lock-screen.hidden{display:none}
+.lock-icon{font-size:2.5rem}
+.lock-title{font-size:.8rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(232,228,216,.3);font-family:'Space Mono',monospace}
+.lock-hint{font-size:.65rem;color:rgba(232,228,216,.18);font-family:'Space Mono',monospace;margin-top:-.75rem}
+.lock-dots{display:flex;gap:.75rem}
+.lock-dot{width:12px;height:12px;border-radius:50%;border:1.5px solid rgba(232,228,216,.2);transition:all .15s}
+.lock-dot.filled{background:#c8f060;border-color:#c8f060}
+.lock-dot.error{background:#e05050;border-color:#e05050;animation:shake .3s ease}
+.lock-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;width:220px}
+.lock-key{background:rgba(232,228,216,.05);border:1px solid rgba(232,228,216,.08);border-radius:10px;padding:.9rem;font-size:1.2rem;font-weight:700;color:#e8e4d8;font-family:'Syne',sans-serif;cursor:pointer;transition:all .15s;text-align:center}
+.lock-key:hover{background:rgba(232,228,216,.1);border-color:rgba(232,228,216,.2)}
+.lock-key.pressed{transform:scale(.92);background:rgba(200,240,96,.15);border-color:rgba(200,240,96,.4)}
+.lock-key.clear{font-size:.8rem;color:rgba(232,228,216,.4)}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.app{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:2rem 1.5rem 4rem}
+.who-bar{display:flex;align-items:center;gap:.75rem;background:rgba(232,228,216,.03);border:1px solid rgba(232,228,216,.07);border-radius:10px;padding:.6rem 1rem;margin-bottom:1.5rem}
+.who-label{color:rgba(232,228,216,.35);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase}
+.who-select{background:transparent;border:none;color:#e8e4d8;font-family:'Syne',sans-serif;font-size:.82rem;font-weight:600;cursor:pointer;outline:none;-webkit-appearance:none}
+.who-select option{background:#111118}
+.manage-btn{background:rgba(232,228,216,.05);border:1px solid rgba(232,228,216,.1);border-radius:7px;padding:.35rem .75rem;font-size:.68rem;font-family:'Syne',sans-serif;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:rgba(232,228,216,.45);cursor:pointer;transition:all .2s}
+.manage-btn:hover{background:rgba(232,228,216,.1);color:#e8e4d8}
+.sync-time{margin-left:auto;font-size:.68rem;font-family:'Space Mono',monospace;color:rgba(232,228,216,.2)}
+header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:2rem;padding-bottom:1.5rem;border-bottom:1px solid rgba(232,228,216,.08)}
+.header-left h1{font-size:.95rem;font-weight:400;color:rgba(232,228,216,.4);letter-spacing:.15em;text-transform:uppercase;margin-bottom:.25rem}
+.month-display{font-size:2.2rem;font-weight:800;letter-spacing:-.02em;color:#e8e4d8;line-height:1}
+.header-right{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:.5rem}
+.sync-status{font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:rgba(232,228,216,.25);font-family:'Space Mono',monospace;display:flex;align-items:center;gap:.4rem}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:rgba(232,228,216,.2);flex-shrink:0;transition:background .3s}
+.sync-dot.syncing{background:#fdb834;animation:pulse 1s infinite}
+.sync-dot.ok{background:#c8f060}
+.sync-dot.err{background:#e05050}
+.progress-label{font-size:.7rem;color:rgba(232,228,216,.35);letter-spacing:.1em;text-transform:uppercase}
+.progress-bar-wrap{width:130px;height:3px;background:rgba(232,228,216,.08);border-radius:99px;overflow:hidden}
+.progress-bar{height:100%;background:#c8f060;border-radius:99px;transition:width .6s cubic-bezier(.4,0,.2,1)}
+.progress-count{font-size:.75rem;color:rgba(232,228,216,.35);font-family:'Space Mono',monospace}
+.alert-banner{background:rgba(255,180,50,.07);border:1px solid rgba(255,180,50,.2);border-radius:10px;padding:.75rem 1rem;margin-bottom:1.5rem;display:none;align-items:center;gap:.75rem;font-size:.85rem;color:#fdb834}
+.alert-banner.visible{display:flex}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:1rem;margin-bottom:2.5rem}
+.card-c0{background:linear-gradient(135deg,rgba(124,58,237,.2),rgba(99,102,241,.1)) !important;border-color:rgba(139,92,246,.25) !important}
+.card-c1{background:linear-gradient(135deg,rgba(14,165,233,.2),rgba(6,182,212,.1)) !important;border-color:rgba(56,189,248,.25) !important}
+.card-c2{background:linear-gradient(135deg,rgba(16,185,129,.2),rgba(5,150,105,.1)) !important;border-color:rgba(52,211,153,.25) !important}
+.card-c3{background:linear-gradient(135deg,rgba(245,158,11,.2),rgba(251,146,60,.1)) !important;border-color:rgba(251,191,36,.25) !important}
+.card-c4{background:linear-gradient(135deg,rgba(236,72,153,.2),rgba(219,39,119,.1)) !important;border-color:rgba(244,114,182,.25) !important}
+.card-c5{background:linear-gradient(135deg,rgba(239,68,68,.2),rgba(220,38,38,.1)) !important;border-color:rgba(248,113,113,.25) !important}
+.card-c6{background:linear-gradient(135deg,rgba(168,85,247,.2),rgba(124,58,237,.1)) !important;border-color:rgba(196,181,253,.25) !important}
+.card{background:rgba(255,255,255,.06);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:1.25rem 1.25rem 1rem;transition:all .3s cubic-bezier(.4,0,.2,1);position:relative;overflow:hidden;animation:fadeUp .4s ease both;box-shadow:0 4px 24px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.1)}
+.card::before{content:'';position:absolute;inset:0;border-radius:18px;background:linear-gradient(135deg,rgba(255,255,255,.08) 0%,transparent 60%);pointer-events:none}
+.card:hover{border-color:rgba(255,255,255,.25);transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.15)}
+.card.paid{opacity:.3;filter:saturate(0.3)}
+.card.paid:hover{opacity:.45;transform:translateY(-2px)}
+.card.urgent:not(.paid){border-color:rgba(251,191,36,.4);background:rgba(251,191,36,.08);box-shadow:0 4px 24px rgba(251,191,36,.1),inset 0 1px 0 rgba(251,191,36,.2)}
+.card-day{font-family:'Space Mono',monospace;font-size:.68rem;color:rgba(232,228,216,.3);letter-spacing:.08em;margin-bottom:.6rem;display:flex;align-items:center;gap:.5rem}
+.day-badge{background:rgba(232,228,216,.07);border-radius:4px;padding:1px 6px;font-size:.65rem}
+.urgent-dot{width:6px;height:6px;border-radius:50%;background:#fdb834;margin-left:auto;animation:pulse 1.5s infinite}
+.paid-by{font-size:.62rem;color:rgba(232,228,216,.25);margin-left:auto;font-family:'Space Mono',monospace}
+.card-name{font-size:1.05rem;font-weight:700;color:#e8e4d8;margin-bottom:.9rem;letter-spacing:-.01em}
+.card.paid .card-name{text-decoration:line-through;color:rgba(232,228,216,.35)}
+.card-actions{display:flex;align-items:center;justify-content:space-between}
+.check-btn{display:flex;align-items:center;gap:.5rem;font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:rgba(232,228,216,.35);transition:color .2s;background:none;border:none;cursor:pointer;padding:0;font-family:'Syne',sans-serif}
+.check-btn:hover{color:#c8f060}
+.card.paid .check-btn{color:rgba(232,228,216,.2)}
+.check-circle{width:18px;height:18px;border-radius:50%;border:1.5px solid currentColor;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
+.check-circle svg{width:10px;height:10px}
+.section-history{border-top:1px solid rgba(232,228,216,.06);padding-top:1.5rem}
+.section-title{font-size:.68rem;letter-spacing:.15em;text-transform:uppercase;color:rgba(232,228,216,.22);margin-bottom:1rem;display:flex;align-items:center;gap:.75rem}
+.section-title::after{content:'';flex:1;height:1px;background:rgba(232,228,216,.06)}
+.history-list{display:flex;flex-direction:column;gap:.5rem}
+.history-item{display:flex;justify-content:space-between;align-items:center;padding:.6rem .9rem;background:rgba(232,228,216,.02);border:1px solid rgba(232,228,216,.05);border-radius:8px}
+.history-month{font-family:'Space Mono',monospace;font-size:.68rem;color:rgba(232,228,216,.28);letter-spacing:.06em}
+.history-bills{color:rgba(232,228,216,.45);font-size:.75rem;margin-top:2px}
+.history-count{font-family:'Space Mono',monospace;font-size:.7rem;color:#c8f060;opacity:.65}
+.empty-history{font-size:.8rem;color:rgba(232,228,216,.18);font-style:italic;padding:.5rem 0}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:#111118;border:1px solid rgba(232,228,216,.12);border-radius:16px;padding:2rem;width:90%}
+.modal h2{font-size:1.3rem;font-weight:800;color:#e8e4d8;margin-bottom:1.25rem}
+.modal-btn-row{display:flex;gap:.75rem;justify-content:flex-end;margin-top:1.5rem}
+.btn{border:none;border-radius:8px;padding:.6rem 1.25rem;font-family:'Syne',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;letter-spacing:.05em;text-transform:uppercase;transition:opacity .2s}
+.btn-primary{background:#c8f060;color:#0a0a0f}
+.btn-primary:hover{opacity:.85}
+.btn-ghost{background:rgba(232,228,216,.07);color:rgba(232,228,216,.6)}
+.btn-ghost:hover{background:rgba(232,228,216,.12)}
+.form-group{margin-bottom:1rem}
+.form-label{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(232,228,216,.4);margin-bottom:.4rem;display:block}
+.form-input{width:100%;background:rgba(232,228,216,.05);border:1px solid rgba(232,228,216,.12);border-radius:8px;padding:.65rem .9rem;color:#e8e4d8;font-family:'Syne',sans-serif;font-size:.9rem;outline:none;transition:border-color .2s}
+.form-input:focus{border-color:rgba(200,240,96,.4)}
+.bills-list{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem;max-height:280px;overflow-y:auto}
+.bill-row{display:flex;align-items:center;gap:.75rem;background:rgba(232,228,216,.03);border:1px solid rgba(232,228,216,.07);border-radius:8px;padding:.6rem .9rem}
+.bill-row-name{flex:1;font-size:.88rem;font-weight:600}
+.bill-row-day{font-family:'Space Mono',monospace;font-size:.72rem;color:rgba(232,228,216,.4)}
+.bill-row-btns{display:flex;gap:.3rem}
+.icon-btn{background:none;border:none;cursor:pointer;font-size:.9rem;padding:3px 5px;border-radius:4px;transition:background .15s;line-height:1}
+.icon-btn:hover{background:rgba(232,228,216,.1)}
+.add-btn{display:flex;align-items:center;gap:.5rem;background:rgba(200,240,96,.05);border:1px dashed rgba(200,240,96,.2);border-radius:8px;padding:.65rem .9rem;color:rgba(200,240,96,.55);font-family:'Syne',sans-serif;font-size:.78rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;width:100%;transition:all .2s}
+.add-btn:hover{background:rgba(200,240,96,.1);color:#c8f060;border-color:rgba(200,240,96,.35)}
+.modal-roll{text-align:center}
+.modal-roll h2{color:#c8f060}
+.modal-roll p{font-size:.85rem;color:rgba(232,228,216,.42);line-height:1.6;margin-bottom:1.5rem}
+.modal-roll .modal-btn-row{justify-content:center}
 
-  /* ---- Header ---- */
-  header.top{padding:calc(env(safe-area-inset-top) + 20px) 20px 14px; position:sticky; top:0; z-index:20; background:linear-gradient(180deg, var(--bg) 74%, transparent);}
-  .brand-row{display:flex; align-items:center; justify-content:space-between; gap:12px;}
-  .brand{display:flex; align-items:center; gap:11px;}
-  .logo-mark{width:38px; height:38px; border-radius:11px; flex-shrink:0; box-shadow:var(--shadow);}
-  .brand h1{font-family:'Manrope',sans-serif; font-weight:800; font-size:19px; margin:0; letter-spacing:-0.01em; color:var(--ink); line-height:1.15;}
-  .brand p{margin:1px 0 0; font-size:10.5px; color:var(--ink-faint); font-family:'JetBrains Mono',monospace; letter-spacing:0.09em; text-transform:uppercase;}
-  .langsw{display:flex; border:1px solid var(--line); border-radius:999px; overflow:hidden; background:var(--paper); flex-shrink:0;}
-  .langsw button{border:none; background:transparent; padding:7px 13px; font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:600; color:var(--ink-soft); cursor:pointer; letter-spacing:0.03em;}
-  .langsw button.active{background:var(--teal); color:#04231D;}
-
-  .pulse-wrap{margin-top:14px; height:22px; overflow:hidden;}
-  .pulse{width:200%; height:22px; animation: slide 7s linear infinite;}
-  @media (prefers-reduced-motion: reduce){ .pulse{animation:none;} }
-  @keyframes slide{ from{transform:translateX(0);} to{transform:translateX(-50%);} }
-
-  .search{margin-top:14px; position:relative;}
-  .search input{width:100%; padding:13px 14px 13px 40px; border-radius:13px; border:1px solid var(--line); background:var(--paper); font-size:15px; font-family:'Inter',sans-serif; color:var(--ink); box-shadow:var(--shadow);}
-  .search input::placeholder{color:var(--ink-faint);}
-  .search input:focus{outline:2px solid var(--teal); outline-offset:1px;}
-  .search svg{position:absolute; left:13px; top:50%; transform:translateY(-50%); width:16px; height:16px; stroke:var(--ink-faint);}
-
-  .cats{display:flex; gap:8px; margin-top:12px; overflow-x:auto; padding-bottom:2px; scrollbar-width:none;}
-  .cats::-webkit-scrollbar{display:none;}
-  .cat-chip{flex-shrink:0; padding:7px 14px; border-radius:999px; border:1px solid var(--line); background:var(--paper); font-size:12.5px; font-weight:500; color:var(--ink-soft); cursor:pointer; white-space:nowrap; font-family:'Inter',sans-serif;}
-  .cat-chip.active{background:var(--ink); color:var(--bg); border-color:var(--ink); font-weight:700;}
-
-  /* ---- List ---- */
-  main{padding:6px 20px 40px;}
-  .list{display:flex; flex-direction:column; gap:10px; margin-top:8px;}
-  .card{background:var(--paper); border:1px solid var(--line); border-radius:16px; padding:15px 16px; display:flex; align-items:center; gap:14px; cursor:pointer; box-shadow:var(--shadow); transition:transform .12s ease, border-color .12s ease;}
-  .card:active{transform:scale(0.98);}
-  .card:hover{border-color:var(--line-hi);}
-  .tag{font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; color:var(--teal); background:rgba(27,199,154,0.10); border:1px solid rgba(27,199,154,0.25); border-radius:9px; padding:7px 8px; min-width:56px; text-align:center; letter-spacing:0.01em;}
-  .card-txt{flex:1; min-width:0;}
-  .card-txt h3{margin:0 0 2px; font-family:'Manrope',sans-serif; font-size:16px; font-weight:700; color:var(--ink);}
-  .card-txt p{margin:0; font-size:12.5px; color:var(--ink-soft); line-height:1.4;}
-  .chev{width:16px; height:16px; stroke:var(--ink-faint); flex-shrink:0;}
-
-  .install-hint{margin-top:18px; border:1px dashed var(--line-hi); border-radius:16px; padding:15px; background:rgba(242,169,59,0.06); font-size:12.5px; color:var(--ink-soft); line-height:1.55;}
-  .install-hint b{color:var(--ink);}
-
-  .contact-card{display:flex; align-items:center; gap:13px; margin-top:10px; padding:14px 15px; border-radius:14px; border:1px solid var(--line); background:var(--paper); text-decoration:none; box-shadow:var(--shadow); cursor:pointer;}
-  .contact-card:active{transform:scale(0.98);}
-  .contact-icon{width:38px; height:38px; border-radius:11px; background:rgba(27,199,154,0.12); border:1px solid rgba(27,199,154,0.3); display:flex; align-items:center; justify-content:center; flex-shrink:0;}
-  .contact-icon svg{width:18px; height:18px; stroke:var(--teal);}
-  .contact-txt{flex:1; min-width:0;}
-  .contact-txt h4{margin:0 0 2px; font-family:'Manrope',sans-serif; font-size:14px; font-weight:700; color:var(--ink);}
-  .contact-txt p{margin:0; font-size:12px; color:var(--ink-soft); line-height:1.4;}
-
-  .modal-lang-row{display:flex; align-items:center; justify-content:space-between; margin-top:14px;}
-  .modal-lang-label{font-size:11.5px; color:var(--ink-faint); font-family:'JetBrains Mono',monospace; letter-spacing:0.04em; text-transform:uppercase;}
-  .modal-langsw{display:flex; border:1px solid var(--line); border-radius:999px; overflow:hidden; background:var(--paper); flex-shrink:0;}
-  .modal-langsw button{border:none; background:transparent; padding:6px 12px; font-family:'JetBrains Mono',monospace; font-size:11.5px; font-weight:600; color:var(--ink-soft); cursor:pointer;}
-  .modal-langsw button.active{background:var(--teal); color:#04231D;}
-
-  /* ---- Detail view ---- */
-  .detail{display:none; padding:calc(env(safe-area-inset-top) + 18px) 20px 60px;}
-  .detail.show{display:block;}
-  .app.detail-open main, .app.detail-open header.top{display:none;}
-  .backbtn{display:flex; align-items:center; gap:6px; background:none; border:none; color:var(--teal); font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:600; padding:0 0 18px; cursor:pointer;}
-  .backbtn svg{width:15px; height:15px; stroke:var(--teal);}
-
-  .dtitle{display:flex; align-items:center; gap:10px; margin-bottom:3px;}
-  .dtag{font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; color:var(--teal); background:rgba(27,199,154,0.10); border:1px solid rgba(27,199,154,0.25); border-radius:8px; padding:4px 8px;}
-  .dtitle h2{font-family:'Manrope',sans-serif; font-size:22px; font-weight:800; margin:0; color:var(--ink);}
-  .dsub{font-size:13.5px; color:var(--ink-soft); margin:6px 0 16px; line-height:1.5;}
-
-  .why{background:var(--paper); border:1px solid var(--line); border-left:3px solid var(--teal); border-radius:0 14px 14px 0; padding:14px 16px; font-size:13px; color:var(--ink-soft); line-height:1.6; margin-bottom:18px;}
-  .why b{color:var(--ink); font-family:'Manrope',sans-serif; font-weight:700;}
-
-  .field{margin-bottom:14px;}
-  .field label{display:block; font-size:12px; font-weight:600; color:var(--ink-soft); margin-bottom:7px; letter-spacing:0.01em;}
-  .field input[type=number]{width:100%; padding:13px 13px; border-radius:12px; border:1px solid var(--line); background:var(--paper); font-family:'JetBrains Mono',monospace; font-size:16px; color:var(--ink);}
-  .field input[type=number]:focus{outline:2px solid var(--teal); outline-offset:1px;}
-  .boolrow{display:flex; gap:8px;}
-  .boolrow button, .selrow button{flex:1; padding:12px 10px; border-radius:12px; border:1px solid var(--line); background:var(--paper); font-size:13.5px; font-weight:500; color:var(--ink); cursor:pointer; text-align:left; line-height:1.3; font-family:'Inter',sans-serif;}
-  .boolrow button.sel, .selrow button.sel{background:var(--teal); border-color:var(--teal); color:#04231D; font-weight:700;}
-  .selrow{display:flex; flex-direction:column; gap:6px;}
-
-  .calcbtn{width:100%; margin-top:8px; padding:16px; border-radius:14px; border:none; background:linear-gradient(135deg, var(--teal), var(--teal-dark)); color:#04231D; font-size:15.5px; font-weight:800; font-family:'Manrope',sans-serif; cursor:pointer; box-shadow:0 12px 26px -12px rgba(27,199,154,0.55);}
-  .calcbtn:active{transform:scale(0.985);}
-
-  .result{margin-top:20px; border-radius:18px; padding:19px; border:1px solid var(--line); display:none;}
-  .result.show{display:block;}
-  .result.low{background:rgba(66,214,138,0.08); border-color:rgba(66,214,138,0.3);}
-  .result.mid{background:rgba(242,169,59,0.08); border-color:rgba(242,169,59,0.3);}
-  .result.high{background:rgba(240,101,107,0.08); border-color:rgba(240,101,107,0.3);}
-  .result .rlabel{font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.08em; color:var(--ink-faint); margin:0 0 4px;}
-  .result .rvalue{font-family:'Manrope',sans-serif; font-size:34px; font-weight:800; margin:0 0 8px; color:var(--ink);}
-  .result .rband{display:inline-block; font-size:12px; font-weight:700; padding:5px 11px; border-radius:999px; margin-bottom:10px;}
-  .result.low .rband{background:var(--green); color:#04231D;}
-  .result.mid .rband{background:var(--amber); color:#251503;}
-  .result.high .rband{background:var(--red); color:#2A0709;}
-  .result .rtext{font-size:13.5px; color:var(--ink-soft); line-height:1.55; margin:0;}
-
-  .howbtn{margin-top:14px; background:none; border:none; color:var(--teal); font-size:13px; font-weight:600; font-family:'JetBrains Mono',monospace; padding:0; cursor:pointer; display:flex; align-items:center; gap:5px;}
-  .howtext{display:none; margin-top:10px; font-size:13px; color:var(--ink-soft); line-height:1.6; background:var(--paper); border:1px solid var(--line); border-radius:14px; padding:14px 16px;}
-  .howtext.show{display:block;}
-
-  .disclaimer{margin-top:22px; font-size:11.5px; color:var(--ink-faint); text-align:center; line-height:1.5; padding:0 6px;}
-
-  /* ---- Bloco de confiança ---- */
-  .trust{margin-top:20px; border-top:1px solid var(--line); padding-top:16px;}
-  .trustbtn{display:flex; align-items:center; gap:6px; background:none; border:none; color:var(--ink-soft); font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:600; padding:0; cursor:pointer; letter-spacing:0.02em; text-transform:uppercase;}
-  .trustbtn svg{width:13px; height:13px; stroke:var(--ink-soft); flex-shrink:0;}
-  .trustbody{max-height:0; overflow:hidden; transition:max-height .25s ease;}
-  .trustbody.show{max-height:900px;}
-  .trust-item{display:flex; gap:11px; padding:13px 0; border-bottom:1px solid var(--line);}
-  .trust-item:last-child{border-bottom:none;}
-  .trust-icon{width:30px; height:30px; border-radius:9px; background:rgba(27,199,154,0.12); border:1px solid rgba(27,199,154,0.3); display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:14px;}
-  .trust-txt b{display:block; font-size:12.5px; color:var(--ink); margin-bottom:2px; font-family:'Manrope',sans-serif; font-weight:700;}
-  .trust-txt span{font-size:12px; color:var(--ink-soft); line-height:1.5;}
-
-  /* ---- Modal instalar ---- */
-  .modal-overlay{position:fixed; inset:0; background:rgba(4,10,8,0.72); backdrop-filter:blur(2px); z-index:100; display:none; align-items:flex-end; justify-content:center; padding:0;}
-  .modal-overlay.show{display:flex;}
-  @media (min-width:601px){ .modal-overlay{align-items:center;} }
-  .modal-sheet{background:var(--paper-hi); border:1px solid var(--line-hi); border-radius:22px 22px 0 0; width:100%; max-width:480px; max-height:88vh; overflow-y:auto; padding:22px 22px calc(env(safe-area-inset-bottom) + 22px); box-shadow:0 -20px 50px -10px rgba(0,0,0,0.6);}
-  @media (min-width:601px){ .modal-sheet{border-radius:22px; margin-bottom:0;} }
-  .modal-head{display:flex; align-items:flex-start; gap:12px; margin-bottom:4px;}
-  .modal-icon{width:44px; height:44px; border-radius:13px; flex-shrink:0;}
-  .modal-head h3{font-family:'Manrope',sans-serif; font-weight:800; font-size:18px; margin:0 0 4px; color:var(--ink); line-height:1.25;}
-  .modal-head p{margin:0; font-size:12.5px; color:var(--ink-soft); line-height:1.45;}
-  .modal-close{margin-left:auto; background:none; border:none; color:var(--ink-faint); cursor:pointer; padding:4px; flex-shrink:0;}
-  .modal-close svg{width:20px; height:20px; stroke:var(--ink-faint);}
-
-  .modal-tabs{display:flex; gap:8px; margin:18px 0 16px; background:var(--paper); border:1px solid var(--line); border-radius:12px; padding:4px;}
-  .modal-tab{flex:1; text-align:center; padding:9px 6px; border-radius:9px; font-size:13px; font-weight:700; font-family:'Manrope',sans-serif; color:var(--ink-soft); cursor:pointer; background:none; border:none;}
-  .modal-tab.active{background:var(--teal); color:#04231D;}
-
-  .steps{display:flex; flex-direction:column; gap:12px; margin-bottom:6px;}
-  .step{display:flex; align-items:flex-start; gap:12px;}
-  .step-n{width:24px; height:24px; border-radius:50%; background:rgba(27,199,154,0.14); border:1px solid rgba(27,199,154,0.35); color:var(--teal); font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px;}
-  .step p{margin:0; font-size:13.5px; color:var(--ink); line-height:1.5; padding-top:2px;}
-  .step b{color:var(--teal);}
-
-  .modal-cta{width:100%; margin-top:20px; padding:15px; border-radius:14px; border:none; background:linear-gradient(135deg, var(--teal), var(--teal-dark)); color:#04231D; font-size:15px; font-weight:800; font-family:'Manrope',sans-serif; cursor:pointer;}
+.history-item{cursor:pointer}
+.history-item:hover{border-color:rgba(232,228,216,.15);background:rgba(232,228,216,.04)}
+.month-detail-modal{max-width:440px}
+.month-detail-modal h2{margin-bottom:.25rem}
+.month-detail-subtitle{font-size:.75rem;color:rgba(232,228,216,.35);font-family:'Space Mono',monospace;margin-bottom:1.25rem}
+.detail-bill-row{display:flex;align-items:center;gap:.75rem;padding:.55rem .75rem;border-radius:8px;margin-bottom:.4rem;font-size:.88rem}
+.detail-bill-row.paid-row{background:rgba(200,240,96,.06);border:1px solid rgba(200,240,96,.12)}
+.detail-bill-row.unpaid-row{background:rgba(232,80,80,.05);border:1px solid rgba(232,80,80,.12)}
+.detail-bill-icon{font-size:.9rem;flex-shrink:0}
+.detail-bill-name{flex:1;font-weight:600}
+.detail-bill-day{font-family:'Space Mono',monospace;font-size:.68rem;color:rgba(232,228,216,.35)}
+.detail-bill-who{font-size:.65rem;color:rgba(232,228,216,.3);font-family:'Space Mono',monospace;margin-left:auto}
+.detail-section-label{font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(232,228,216,.25);margin:.75rem 0 .4rem}
 </style>
 </head>
 <body>
-<div class="app" id="app">
+<div class="grain"></div>
+<div class="bg-orbs"><div class="orb orb1"></div><div class="orb orb2"></div><div class="orb orb3"></div><div class="orb orb4"></div></div>
 
-  <header class="top">
-    <div class="brand-row">
-      <div class="brand">
-        <svg class="logo-mark" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-          <defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1BC79A"/><stop offset="1" stop-color="#0A4F48"/></linearGradient></defs>
-          <rect width="200" height="200" rx="46" fill="url(#lg)"/>
-          <path d="M86 28 H114 V86 H172 V114 H114 V172 H86 V114 H28 V86 H86 Z" fill="#F5F1E6"/>
-          <polyline points="108,100 132,100 141,74 152,126 161,100 186,100" fill="none" stroke="#F2A93B" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
-          <circle cx="186" cy="100" r="6.5" fill="#F2A93B"/>
-        </svg>
-        <div>
-          <h1>Calculadora do Cruz</h1>
-          <p id="tagline">REFERENCIA CLÍNICA</p>
-        </div>
+<div class="lock-screen" id="lock-screen">
+  <div class="lock-icon">💰</div>
+  <div class="lock-title">Contas do Mês</div>
+  <div class="lock-hint">use o teclado ou clique nos números</div>
+  <div class="lock-dots">
+    <div class="lock-dot" id="d0"></div><div class="lock-dot" id="d1"></div>
+    <div class="lock-dot" id="d2"></div><div class="lock-dot" id="d3"></div>
+    <div class="lock-dot" id="d4"></div><div class="lock-dot" id="d5"></div>
+  </div>
+  <div class="lock-pad">
+    <button class="lock-key" id="k1" onclick="lockKey('1')">1</button>
+    <button class="lock-key" id="k2" onclick="lockKey('2')">2</button>
+    <button class="lock-key" id="k3" onclick="lockKey('3')">3</button>
+    <button class="lock-key" id="k4" onclick="lockKey('4')">4</button>
+    <button class="lock-key" id="k5" onclick="lockKey('5')">5</button>
+    <button class="lock-key" id="k6" onclick="lockKey('6')">6</button>
+    <button class="lock-key" id="k7" onclick="lockKey('7')">7</button>
+    <button class="lock-key" id="k8" onclick="lockKey('8')">8</button>
+    <button class="lock-key" id="k9" onclick="lockKey('9')">9</button>
+    <button class="lock-key clear" onclick="lockClear()">⌫</button>
+    <button class="lock-key" id="k0" onclick="lockKey('0')">0</button>
+    <button class="lock-key clear" onclick="lockReset()">✕</button>
+  </div>
+</div>
+
+<div class="app" id="app" style="display:none">
+  <div class="who-bar">
+    <span class="who-label">Marcando como:</span>
+    <select class="who-select" id="who-select">
+      <option value="João">João</option>
+      <option value="Namorada">Namorada</option>
+    </select>
+    <button class="manage-btn" onclick="openManage()">⚙ Gerenciar contas</button>
+    <span class="sync-time" id="sync-time">—</span>
+  </div>
+
+  <header>
+    <div class="header-left">
+      <h1>Checklist</h1>
+      <div class="month-display" id="month-display"></div>
+    </div>
+    <div class="header-right">
+      <div class="sync-status">
+        <span class="sync-dot" id="sync-dot"></span>
+        <span id="sync-label">conectando...</span>
       </div>
-      <div class="langsw">
-        <button id="btn-es" class="active" onclick="setLang('es')">ES</button>
-        <button id="btn-pt" onclick="setLang('pt')">PT</button>
+      <div class="progress-label">Progreso del mes</div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar" id="progress-bar" style="width:0%"></div>
       </div>
+      <div class="progress-count" id="progress-count">0 / 0 pagadas</div>
     </div>
-    <div class="pulse-wrap">
-      <svg class="pulse" viewBox="0 0 800 20" preserveAspectRatio="none"><polyline points="0,10 130,10 145,2 158,18 172,10 400,10 530,10 545,2 558,18 572,10 800,10" fill="none" stroke="#1BC79A" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </div>
-    <div class="search">
-      <svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke-width="2"/><path d="M20 20l-3.5-3.5" stroke-width="2" stroke-linecap="round"/></svg>
-      <input id="searchbox" type="text" placeholder="Buscar calculadora..." oninput="renderList()">
-    </div>
-    <div class="cats" id="cats"></div>
   </header>
 
-  <main>
-    <div class="list" id="list"></div>
-    <div class="install-hint" id="installhint"></div>
-    <button id="reopenBtn" style="width:100%; margin-top:10px; background:var(--paper); border:1px solid var(--line); border-radius:12px; padding:12px; color:var(--teal); font-weight:700; font-family:'Manrope',sans-serif; font-size:13.5px; cursor:pointer;" onclick="openInstallModal()">📲 <span id="reopenLabel">Ver paso a paso</span></button>
-    <a class="contact-card" id="contactCard" href="#">
-      <div class="contact-icon">
-        <svg viewBox="0 0 24 24" fill="none"><path d="M3 6.5A2.5 2.5 0 0 1 5.5 4h13A2.5 2.5 0 0 1 21 6.5v11A2.5 2.5 0 0 1 18.5 20h-13A2.5 2.5 0 0 1 3 17.5v-11Z" stroke-width="1.8"/><path d="M4 7l7.4 5.3a1 1 0 0 0 1.2 0L20 7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </div>
-      <div class="contact-txt">
-        <h4 id="contactTitle">¿Falta alguna calculadora?</h4>
-        <p id="contactSub">Escribime y la agrego · dr.joaovictor@icloud.com</p>
-      </div>
-      <svg class="chev" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </a>
-  </main>
-
-  <div class="detail" id="detail">
-    <button class="backbtn" onclick="closeDetail()"><svg viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span id="backlabel">Volver</span></button>
-    <div id="detailBody"></div>
+  <div class="alert-banner" id="alert-banner">
+    <span>⚠</span><span id="alert-text"></span>
   </div>
 
-  <div class="modal-overlay" id="installModal">
-    <div class="modal-sheet">
-      <div class="modal-head">
-        <svg class="modal-icon" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-          <defs><linearGradient id="mg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1BC79A"/><stop offset="1" stop-color="#0A4F48"/></linearGradient></defs>
-          <rect width="200" height="200" rx="46" fill="url(#mg)"/>
-          <path d="M86 28 H114 V86 H172 V114 H114 V172 H86 V114 H28 V86 H86 Z" fill="#F5F1E6"/>
-          <polyline points="108,100 132,100 141,74 152,126 161,100 186,100" fill="none" stroke="#F2A93B" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
-          <circle cx="186" cy="100" r="6.5" fill="#F2A93B"/>
-        </svg>
-        <div>
-          <h3 id="mTitle">Instalá la app en tu pantalla de inicio</h3>
-          <p id="mSub">Así la abrís como una app, sin el navegador, incluso sin internet.</p>
-        </div>
-        <button class="modal-close" onclick="closeInstallModal()"><svg viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke-width="2" stroke-linecap="round"/></svg></button>
-      </div>
-      <div class="modal-lang-row">
-        <span class="modal-lang-label" id="modalLangLabel">Idioma de esta guía</span>
-        <div class="modal-langsw">
-          <button id="modalLangES" onclick="setModalLang('es')">ES</button>
-          <button id="modalLangPT" onclick="setModalLang('pt')">PT</button>
-        </div>
-      </div>
-      <div class="modal-tabs">
-        <button class="modal-tab" id="tabIOS" onclick="setModalTab('ios')">iPhone</button>
-        <button class="modal-tab" id="tabAndroid" onclick="setModalTab('android')">Android</button>
-      </div>
-      <div class="steps" id="stepsWrap"></div>
-      <button class="modal-cta" onclick="closeInstallModal()" id="mCta">Entendido</button>
+  <div class="grid" id="cards-grid"></div>
+
+  <div class="section-history">
+    <div class="section-title">Historial</div>
+    <div class="history-list" id="history-list">
+      <div class="empty-history">Aún sin historial.</div>
     </div>
   </div>
+</div>
 
+<!-- MONTH ROLL -->
+<div class="modal-overlay" id="roll-modal">
+  <div class="modal modal-roll" style="max-width:380px">
+    <h2>¡Nuevo mes!</h2>
+    <p id="roll-text"></p>
+    <div class="modal-btn-row">
+      <button class="btn btn-primary" onclick="document.getElementById('roll-modal').classList.remove('open')">Empezar el mes</button>
+    </div>
+  </div>
+</div>
+
+<!-- MANAGE -->
+<div class="modal-overlay" id="manage-modal">
+  <div class="modal" style="max-width:460px">
+    <h2>Gerenciar contas</h2>
+    <div class="bills-list" id="bills-list"></div>
+    <button class="add-btn" onclick="openBillForm(null)">+ Adicionar conta</button>
+    <div class="modal-btn-row">
+      <button class="btn btn-ghost" onclick="document.getElementById('manage-modal').classList.remove('open')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- BILL FORM -->
+<div class="modal-overlay" id="form-modal">
+  <div class="modal" style="max-width:340px">
+    <h2 id="form-title">Nova conta</h2>
+    <div class="form-group">
+      <label class="form-label">Nome</label>
+      <input class="form-input" id="f-name" type="text" placeholder="ex: Netflix">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Dia de vencimento (1–31)</label>
+      <input class="form-input" id="f-day" type="number" min="1" max="31" placeholder="ex: 15">
+    </div>
+    <div class="modal-btn-row">
+      <button class="btn btn-ghost" onclick="document.getElementById('form-modal').classList.remove('open')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveBill()">Salvar</button>
+    </div>
+  </div>
 </div>
 
 <script>
-/* ============ AUTO-ATUALIZAÇÃO ============ */
-function forceUpdate(){
-  const url = new URL(location.href);
-  url.searchParams.set('_', Date.now());
-  location.href = url.toString();
-}
-
-(async function checkForUpdate(){
-  try{
-    const res = await fetch('version.json?_=' + Date.now(), {cache:'no-store'});
-    if(!res.ok) return;
-    const data = await res.json();
-    const stored = localStorage.getItem('cdc_version');
-    if(stored && stored !== data.v){
-      localStorage.setItem('cdc_version', data.v);
-      forceUpdate();
-      return;
-    }
-    localStorage.setItem('cdc_version', data.v);
-  }catch(e){ /* offline ou erro de rede — ignora */ }
-})();
-
-/* ============ IDIOMA ============ */
-let LANG = 'es';
-const UI = {
-  es:{ tagline:'REFERENCIA CLÍNICA DE BOLSILLO', search:'Buscar calculadora...', back:'Volver',
-       cats:{all:'Todas', emergencia:'Emergencias', cardiologia:'Cardiología', nefrologia:'Nefrología', geral:'General'},
-       calc:'Calcular', result:'Resultado', how:'Por qué funciona así', hide:'Ocultar explicación',
-       disclaimer:'Herramienta de apoyo educativo, basada en escalas y fórmulas publicadas en la literatura médica. No reemplaza el juicio clínico ni la evaluación de un profesional de salud.',
-       install:'<b>¿Todavía no la instalaste?</b> Tocá el botón de abajo para ver el paso a paso en iPhone o Android.',
-       reopen:'Ver paso a paso para instalar',
-       mTitle:'Instalá la app en tu pantalla de inicio',
-       mSub:'Así la abrís como una app, sin el navegador, incluso sin internet.',
-       mCta:'Entendido',
-       iosSteps:['Abrí este sitio en <b>Safari</b> (no funciona desde Chrome en iPhone).','Tocá el ícono de compartir <b>⬆️</b>, en la barra de abajo (o arriba, según el modelo).','Deslizá la lista de opciones y elegí <b>"Agregar a pantalla de inicio"</b>.','Tocá <b>"Agregar"</b> arriba a la derecha. Listo, ya tenés el ícono en tu pantalla.'],
-       androidSteps:['Abrí este sitio en <b>Chrome</b>.','Tocá los <b>tres puntos ⋮</b> arriba a la derecha.','Elegí <b>"Agregar a pantalla de inicio"</b> o <b>"Instalar app"</b> (el texto varía según el modelo).','Confirmá tocando <b>"Agregar"</b> o <b>"Instalar"</b>. Listo, ya tenés el ícono en tu pantalla.'],
-       contactTitle:'¿Falta alguna calculadora?', contactSub:'Escribime y la agrego',
-       modalLangLabel:'Idioma de esta guía',
-       mailSubject:'Sugerencia de calculadora – Calculadora do Cruz',
-       mailBody:'Hola! Te escribo para sugerir que agregues la siguiente calculadora o índice clínico:\n\nNombre: \nPor qué la uso: \n\nGracias!',
-       trustToggle:'Confiabilidad de esta calculadora', trustSource:'Fuente de la fórmula', trustValidation:'Validación',
-       trustReview:'Última revisión de contenido', trustPrivacy:'Privacidad', trustAbout:'Sobre',
-       trustPrivacyText:'Todo el cálculo ocurre en tu propio dispositivo. Ningún dato que ingresás acá se envía, guarda o comparte.',
-       trustAboutText:'Herramienta de apoyo educativo mantenida de forma independiente, basada en escalas y fórmulas publicadas y revisadas por la literatura médica.' },
-  pt:{ tagline:'REFERÊNCIA CLÍNICA DE BOLSO', search:'Buscar calculadora...', back:'Voltar',
-       cats:{all:'Todas', emergencia:'Emergência', cardiologia:'Cardiologia', nefrologia:'Nefrologia', geral:'Geral'},
-       calc:'Calcular', result:'Resultado', how:'Por que funciona assim', hide:'Ocultar explicação',
-       disclaimer:'Ferramenta de apoio educativo, baseada em escalas e fórmulas publicadas na literatura médica. Não substitui o julgamento clínico nem a avaliação de um profissional de saúde.',
-       install:'<b>Ainda não instalou?</b> Toque no botão abaixo para ver o passo a passo no iPhone ou Android.',
-       reopen:'Ver passo a passo para instalar',
-       mTitle:'Instale o app na sua tela de início',
-       mSub:'Assim você abre como um app, sem o navegador, mesmo sem internet.',
-       mCta:'Entendi',
-       iosSteps:['Abra este site no <b>Safari</b> (não funciona pelo Chrome no iPhone).','Toque no ícone de compartilhar <b>⬆️</b>, na barra de baixo (ou de cima, dependendo do modelo).','Deslize a lista de opções e escolha <b>"Adicionar à Tela de Início"</b>.','Toque em <b>"Adicionar"</b> no canto superior direito. Pronto, o ícone já está na sua tela.'],
-       androidSteps:['Abra este site no <b>Chrome</b>.','Toque nos <b>três pontinhos ⋮</b> no canto superior direito.','Escolha <b>"Adicionar à tela inicial"</b> ou <b>"Instalar app"</b> (o texto varia conforme o modelo).','Confirme tocando em <b>"Adicionar"</b> ou <b>"Instalar"</b>. Pronto, o ícone já está na sua tela.'],
-       contactTitle:'Falta alguma calculadora?', contactSub:'Me escreva e eu adiciono',
-       modalLangLabel:'Idioma deste guia',
-       mailSubject:'Sugestão de calculadora – Calculadora do Cruz',
-       mailBody:'Olá! Estou escrevendo para sugerir que você adicione a seguinte calculadora ou índice clínico:\n\nNome: \nPor que eu uso: \n\nObrigado(a)!',
-       trustToggle:'Confiabilidade desta calculadora', trustSource:'Fonte da fórmula', trustValidation:'Validação',
-       trustReview:'Última revisão de conteúdo', trustPrivacy:'Privacidade', trustAbout:'Sobre',
-       trustPrivacyText:'Todo o cálculo acontece no seu próprio dispositivo. Nenhum dado que você digita aqui é enviado, armazenado ou compartilhado.',
-       trustAboutText:'Ferramenta de apoio educativo mantida de forma independente, baseada em escalas e fórmulas publicadas e revisadas pela literatura médica.' }
-};
-
-let activeCat = 'all';
-let currentCalc = null;
-let currentValues = {};
-
-/* ============ CALCULADORAS ============ */
-const CALCS = [
-{ id:'imc', cat:'geral', tag:'IMC',
-  title:{es:'Índice de masa corporal', pt:'Índice de massa corporal'},
-  sub:{es:'Clasificación del estado nutricional', pt:'Classificação do estado nutricional'},
-  why:{es:'El IMC compara el peso con el cuadrado de la altura porque, dentro de una población, el peso corporal tiende a variar aproximadamente con el cuadrado de la estatura en personas de proporciones similares. No mide grasa corporal directamente, pero es un buen estimador poblacional y barato de obtener.',
-       pt:'O IMC compara o peso com o quadrado da altura porque, dentro de uma população, o peso corporal tende a variar aproximadamente com o quadrado da estatura em pessoas de proporções semelhantes. Não mede gordura corporal diretamente, mas é um bom estimador populacional e barato de obter.'},
-  inputs:[
-    {id:'peso', type:'number', label:{es:'Peso (kg)', pt:'Peso (kg)'}},
-    {id:'altura', type:'number', label:{es:'Altura (cm)', pt:'Altura (cm)'}}
-  ],
-  compute:(v)=>{
-    const h = v.altura/100;
-    const val = v.peso / (h*h);
-    let band='low', txt={es:'',pt:''};
-    if(val<18.5){band='mid'; txt={es:'Bajo peso.',pt:'Baixo peso.'};}
-    else if(val<25){band='low'; txt={es:'Peso normal.',pt:'Peso normal.'};}
-    else if(val<30){band='mid'; txt={es:'Sobrepeso.',pt:'Sobrepeso.'};}
-    else if(val<35){band='high'; txt={es:'Obesidad grado I.',pt:'Obesidade grau I.'};}
-    else if(val<40){band='high'; txt={es:'Obesidad grado II.',pt:'Obesidade grau II.'};}
-    else{band='high'; txt={es:'Obesidad grado III (mórbida).',pt:'Obesidade grau III (mórbida).'};}
-    return {value:val.toFixed(1), unit:'kg/m²', band, text:txt};
-  },
-  how:{es:'Fórmula: peso (kg) ÷ altura² (m). Los puntos de corte (18.5 / 25 / 30 / 35 / 40) son los adoptados por la OMS para adultos.',
-       pt:'Fórmula: peso (kg) ÷ altura² (m). Os pontos de corte (18.5 / 25 / 30 / 35 / 40) são os adotados pela OMS para adultos.'},
-  source:{es:'Organización Mundial de la Salud (OMS). "Obesity: preventing and managing the global epidemic", 1995/2000. Puntos de corte adoptados internacionalmente para adultos.', pt:'Organização Mundial da Saúde (OMS). "Obesity: preventing and managing the global epidemic", 1995/2000. Pontos de corte adotados internacionalmente para adultos.'},
-  reviewedAt:'2026-07'
-},
-
-{ id:'crcl', cat:'nefrologia', tag:'CrCl',
-  title:{es:'Clearance de creatinina (Cockcroft-Gault)', pt:'Clearance de creatinina (Cockcroft-Gault)'},
-  sub:{es:'Estimación de la función renal por peso', pt:'Estimativa da função renal por peso'},
-  why:{es:'La creatinina sérica sola no refleja bien la función renal porque depende también de la masa muscular. Cockcroft-Gault corrige por edad, peso y sexo para estimar cuánto plasma el riñón depura por minuto, algo esencial para ajustar dosis de medicamentos.',
-       pt:'A creatinina sérica sozinha não reflete bem a função renal porque depende também da massa muscular. Cockcroft-Gault corrige por idade, peso e sexo para estimar quanto plasma o rim depura por minuto, algo essencial para ajustar dose de medicamentos.'},
-  inputs:[
-    {id:'edad', type:'number', label:{es:'Edad (años)', pt:'Idade (anos)'}},
-    {id:'peso', type:'number', label:{es:'Peso (kg)', pt:'Peso (kg)'}},
-    {id:'creat', type:'number', label:{es:'Creatinina sérica (mg/dL)', pt:'Creatinina sérica (mg/dL)'}},
-    {id:'sexo', type:'bool', label:{es:'Sexo', pt:'Sexo'}, trueLabel:{es:'Mujer',pt:'Mulher'}, falseLabel:{es:'Hombre',pt:'Homem'}}
-  ],
-  compute:(v)=>{
-    let val = ((140-v.edad)*v.peso)/(72*v.creat);
-    if(v.sexo) val *= 0.85;
-    let band='low', txt;
-    if(val>=90){band='low'; txt={es:'Función renal normal.',pt:'Função renal normal.'};}
-    else if(val>=60){band='low'; txt={es:'Reducción leve.',pt:'Redução leve.'};}
-    else if(val>=30){band='mid'; txt={es:'Reducción moderada. Revisar ajuste de dosis de fármacos.',pt:'Redução moderada. Revisar ajuste de dose de fármacos.'};}
-    else if(val>=15){band='high'; txt={es:'Reducción severa.',pt:'Redução severa.'};}
-    else{band='high'; txt={es:'Falla renal. Considerar terapia de reemplazo renal según contexto clínico.',pt:'Falência renal. Considerar terapia de substituição renal conforme o contexto clínico.'};}
-    return {value:val.toFixed(0), unit:'mL/min', band, text:txt};
-  },
-  how:{es:'Fórmula: [(140−edad) × peso] ÷ (72 × creatinina), ×0.85 si es mujer (menor masa muscular promedio).',
-       pt:'Fórmula: [(140−idade) × peso] ÷ (72 × creatinina), ×0.85 se mulher (menor massa muscular média).'},
-  source:{es:'Cockcroft DW, Gault MH. "Prediction of creatinine clearance from serum creatinine." Nephron, 1976. Validada en el estudio original con 249 pacientes y todavía ampliamente usada para ajuste de dosis renal.', pt:'Cockcroft DW, Gault MH. "Prediction of creatinine clearance from serum creatinine." Nephron, 1976. Validada no estudo original com 249 pacientes e ainda amplamente usada para ajuste de dose renal.'},
-  reviewedAt:'2026-07'
-},
-
-{ id:'egfr', cat:'nefrologia', tag:'eGFR',
-  title:{es:'TFG estimada (CKD-EPI 2021)', pt:'TFG estimada (CKD-EPI 2021)'},
-  sub:{es:'Filtrado glomerular sin variable racial', pt:'Filtrado glomerular sem variável racial'},
-  why:{es:'A diferencia de Cockcroft-Gault (que estima un clearance a partir del peso), CKD-EPI estima directamente la tasa de filtración glomerular usando solo edad, sexo y creatinina, con una curva que se ajusta mejor en personas con función renal casi normal. Es la ecuación que recomiendan las guías actuales (KDIGO) para reportar la TFG de rutina.',
-       pt:'Diferente de Cockcroft-Gault (que estima um clearance a partir do peso), o CKD-EPI estima diretamente a taxa de filtração glomerular usando apenas idade, sexo e creatinina, com uma curva que se ajusta melhor em pessoas com função renal quase normal. É a equação recomendada pelas diretrizes atuais (KDIGO) para reportar a TFG de rotina.'},
-  inputs:[
-    {id:'edad', type:'number', label:{es:'Edad (años)', pt:'Idade (anos)'}},
-    {id:'creat', type:'number', label:{es:'Creatinina sérica (mg/dL)', pt:'Creatinina sérica (mg/dL)'}},
-    {id:'sexo', type:'bool', label:{es:'Sexo', pt:'Sexo'}, trueLabel:{es:'Mujer',pt:'Mulher'}, falseLabel:{es:'Hombre',pt:'Homem'}}
-  ],
-  compute:(v)=>{
-    const scr = v.creat;
-    let val;
-    if(v.sexo){
-      const k=0.7, a = scr<=k ? -0.241 : -1.200;
-      val = 142 * Math.pow(scr/k, a) * Math.pow(0.9938, v.edad) * 1.012;
-    } else {
-      const k=0.9, a = scr<=k ? -0.302 : -1.200;
-      val = 142 * Math.pow(scr/k, a) * Math.pow(0.9938, v.edad);
-    }
-    let band, txt;
-    if(val>=90){band='low'; txt={es:'TFG normal (o alta).',pt:'TFG normal (ou alta).'};}
-    else if(val>=60){band='low'; txt={es:'Levemente disminuida.',pt:'Levemente diminuída.'};}
-    else if(val>=30){band='mid'; txt={es:'Enfermedad renal crónica moderada (G3).',pt:'Doença renal crônica moderada (G3).'};}
-    else if(val>=15){band='high'; txt={es:'Enfermedad renal crónica severa (G4).',pt:'Doença renal crônica severa (G4).'};}
-    else{band='high'; txt={es:'Falla renal (G5). Considerar diálisis según contexto.',pt:'Falência renal (G5). Considerar diálise conforme o contexto.'};}
-    return {value:val.toFixed(0), unit:'mL/min/1.73m²', band, text:txt};
-  },
-  how:{es:'Ecuación CKD-EPI 2021 (sin coeficiente racial): usa una función potencia de la creatinina normalizada, distinta según esté por debajo o encima de un valor de corte (0.7 en mujeres, 0.9 en hombres), multiplicada por un factor exponencial de edad. Fue re-derivada en 2021 para eliminar el ajuste por raza.',
-       pt:'Equação CKD-EPI 2021 (sem coeficiente racial): usa uma função potência da creatinina normalizada, diferente conforme esteja abaixo ou acima de um valor de corte (0.7 em mulheres, 0.9 em homens), multiplicada por um fator exponencial de idade. Foi re-derivada em 2021 para eliminar o ajuste por raça.'},
-  source:{es:'Inker LA, et al. "New Creatinine- and Cystatin C-Based Equations to Estimate GFR without Race." New England Journal of Medicine, 2021. Ecuación recomendada por las guías KDIGO actuales.', pt:'Inker LA, et al. "New Creatinine- and Cystatin C-Based Equations to Estimate GFR without Race." New England Journal of Medicine, 2021. Equação recomendada pelas diretrizes KDIGO atuais.'},
-  reviewedAt:'2026-07'
-},
-
-{ id:'fena', cat:'nefrologia', tag:'FeNa',
-  title:{es:'Fracción excretada de sodio (FeNa)', pt:'Fração excretada de sódio (FeNa)'},
-  sub:{es:'Diferencia causa prerrenal de necrosis tubular aguda', pt:'Diferencia causa pré-renal de necrose tubular aguda'},
-  why:{es:'Ante una falla renal aguda, importa saber si el riñón está "hipoperfundido pero sano" (prerrenal, retiene sodio con avidez) o si el túbulo está dañado (necrosis tubular aguda, pierde sodio). La FeNa compara cuánto sodio se filtra contra cuánto se termina eliminando, normalizado por la creatinina, para estimar ese porcentaje de reabsorción.',
-       pt:'Diante de uma falência renal aguda, importa saber se o rim está "hipoperfundido mas saudável" (pré-renal, retém sódio com avidez) ou se o túbulo está lesado (necrose tubular aguda, perde sódio). O FeNa compara quanto sódio é filtrado contra quanto acaba sendo eliminado, normalizado pela creatinina, para estimar esse percentual de reabsorção.'},
-  inputs:[
-    {id:'una', type:'number', label:{es:'Sodio urinario (mEq/L)', pt:'Sódio urinário (mEq/L)'}},
-    {id:'pna', type:'number', label:{es:'Sodio plasmático (mEq/L)', pt:'Sódio plasmático (mEq/L)'}},
-    {id:'ucr', type:'number', label:{es:'Creatinina urinaria (mg/dL)', pt:'Creatinina urinária (mg/dL)'}},
-    {id:'pcr', type:'number', label:{es:'Creatinina plasmática (mg/dL)', pt:'Creatinina plasmática (mg/dL)'}}
-  ],
-  compute:(v)=>{
-    const val = (v.una*v.pcr)/(v.pna*v.ucr)*100;
-    let band, txt;
-    if(val<1){band='low'; txt={es:'Sugiere causa prerrenal (hipoperfusión): el riñón retiene sodio activamente.',pt:'Sugere causa pré-renal (hipoperfusão): o rim retém sódio ativamente.'};}
-    else if(val<=2){band='mid'; txt={es:'Zona indeterminada entre prerrenal y necrosis tubular aguda.',pt:'Zona indeterminada entre pré-renal e necrose tubular aguda.'};}
-    else{band='high'; txt={es:'Sugiere necrosis tubular aguda: el túbulo dañado pierde la capacidad de reabsorber sodio.',pt:'Sugere necrose tubular aguda: o túbulo lesado perde a capacidade de reabsorver sódio.'};}
-    return {value:val.toFixed(2), unit:'%', band, text:txt};
-  },
-  how:{es:'Fórmula: (Na urinario × creatinina plasmática) ÷ (Na plasmático × creatinina urinaria) × 100. Solo es interpretable en falla renal aguda oligúrica y pierde validez si el paciente recibió diuréticos recientemente (en ese caso se prefiere la fracción excretada de urea).',
-       pt:'Fórmula: (Na urinário × creatinina plasmática) ÷ (Na plasmático × creatinina urinária) × 100. Só é interpretável em falência renal aguda oligúrica e perde validade se o paciente recebeu diuréticos recentemente (nesse caso prefere-se a fração excretada de ureia).'},
-  source:{es:'Espinel CH. "The FENa test. Use in the differential diagnosis of acute renal failure." JAMA, 1976.', pt:'Espinel CH. "The FENa test. Use in the differential diagnosis of acute renal failure." JAMA, 1976.'},
-  reviewedAt:'2026-07'
-},
-
-{ id:'anion', cat:'nefrologia', tag:'AG',
-  title:{es:'Anion gap (brecha aniónica)', pt:'Anion gap (ânion gap)'},
-  sub:{es:'Diferenciación del tipo de acidosis metabólica', pt:'Diferenciação do tipo de acidose metabólica'},
-  why:{es:'La suma de cationes y aniones en el plasma debe ser eléctricamente neutra. Como no medimos todos los aniones de rutina, el "gap" representa los aniones no medidos. Un gap elevado sugiere acumulación de un ácido no medido, como en cetoacidosis o acidosis láctica.',
-       pt:'A soma de cátions e ânions no plasma deve ser eletricamente neutra. Como não medimos todos os ânions de rotina, o "gap" representa os ânions não medidos. Um gap elevado sugere acúmulo de um ácido não medido, como em cetoacidose ou acidose láctica.'},
-  inputs:[
-    {id:'na', type:'number', label:{es:'Sodio (mEq/L)', pt:'Sódio (mEq/L)'}},
-    {id:'cl', type:'number', label:{es:'Cloro (mEq/L)', pt:'Cloro (mEq/L)'}},
-    {id:'hco3', type:'number', label:{es:'Bicarbonato (mEq/L)', pt:'Bicarbonato (mEq/L)'}}
-  ],
-  compute:(v)=>{
-    const val = v.na - (v.cl+v.hco3);
-    let band='low', txt;
-    if(val<=12){band='low'; txt={es:'Gap normal (8–12). Si hay acidosis, pensar en causas hiperclorémicas.',pt:'Gap normal (8–12). Se houver acidose, pensar em causas hiperclorêmicas.'};}
-    else{band='high'; txt={es:'Gap elevado. Sugiere acumulación de ácido no medido: cetoacidosis, acidosis láctica, toxinas o uremia.',pt:'Gap elevado. Sugere acúmulo de ácido não medido: cetoacidose, acidose láctica, toxinas ou uremia.'};}
-    return {value:val.toFixed(1), unit:'mEq/L', band, text:txt};
-  },
-  how:{es:'Fórmula: Na⁺ − (Cl⁻ + HCO₃⁻). En hipoalbuminemia se puede corregir sumando 2.5 por cada g/dL que la albúmina esté por debajo de 4.',
-       pt:'Fórmula: Na⁺ − (Cl⁻ + HCO₃⁻). Na hipoalbuminemia pode-se corrigir somando 2.5 para cada g/dL que a albumina estiver abaixo de 4.'},
-  source:{es:'Emmett M, Narins RG. "Clinical use of the anion gap." Medicine (Baltimore), 1977.', pt:'Emmett M, Narins RG. "Clinical use of the anion gap." Medicine (Baltimore), 1977.'},
-  reviewedAt:'2026-07'
-},
-
-{ id:'nacorr', cat:'nefrologia', tag:'Na⁺c',
-  title:{es:'Sodio corregido por glucemia', pt:'Sódio corrigido pela glicemia'},
-  sub:{es:'Natremia real en hiperglucemia', pt:'Natremia real na hiperglicemia'},
-  why:{es:'La glucosa elevada arrastra agua desde el espacio intracelular al plasma por ósmosis, diluyendo el sodio medido. El sodio "corregido" estima cuál sería el sodio si la glucemia estuviera en 100 mg/dL.',
-       pt:'A glicose elevada puxa água do espaço intracelular para o plasma por osmose, diluindo o sódio medido. O sódio "corrigido" estima qual seria o sódio se a glicemia estivesse em 100 mg/dL.'},
-  inputs:[
-    {id:'na', type:'number', label:{es:'Sodio medido (mEq/L)', pt:'Sódio medido (mEq/L)'}},
-    {id:'glu', type:'number', label:{es:'Glucemia (mg/dL)', pt:'Glicemia (mg/dL)'}}
-  ],
-  compute:(v)=>{
-    const val = v.na + 1.6*((v.glu-100)/100);
-    let band='low', txt={es:'Sodio corregido calculado.',pt:'Sódio corrigido calculado.'};
-    if(val<135){band='mid'; txt={es:'Hiponatremia real, incluso corrigiendo por la glucemia.',pt:'Hiponatremia real, mesmo corrigindo pela glicemia.'};}
-    else if(val>145){band='mid'; txt={es:'Hipernatremia real.',pt:'Hipernatremia real.'};}
-    else{band='low'; txt={es:'Dentro de rango normal una vez corregido.',pt:'Dentro da faixa normal após correção.'};}
-    return {value:val.toFixed(1), unit:'mEq/L', band, text:txt};
-  },
-  how:{es:'Fórmula clásica (Katz): Na corregido = Na medido + 1.6 × [(glucemia − 100) / 100].',
-       pt:'Fórmula clássica (Katz): Na corrigido = Na medido + 1.6 × [(glicemia − 100) / 100].'},
-  source:{es:'Katz MA. "Hyperglycemia-induced hyponatremia — calculation of expected serum sodium depression." New England Journal of Medicine, 1973.', pt:'Katz MA. "Hyperglycemia-induced hyponatremia — calculation of expected serum sodium depression." New England Journal of Medicine, 1973.'},
-  reviewedAt:'2026-07'
-},
-
-{ id:'cha2ds2', cat:'cardiologia', tag:'CHA₂DS₂',
-  title:{es:'CHA₂DS₂-VASc', pt:'CHA₂DS₂-VASc'},
-  sub:{es:'Riesgo de ACV en fibrilación auricular', pt:'Risco de AVC na fibrilação atrial'},
-  why:{es:'En fibrilación auricular, la sangre puede estancarse en la aurícula y formar coágulos que viajan al cerebro. Este puntaje suma factores que aumentan ese riesgo para decidir si el beneficio de anticoagular supera el riesgo de sangrado.',
-       pt:'Na fibrilação atrial, o sangue pode estagnar no átrio e formar coágulos que viajam ao cérebro. Esse escore soma fatores que aumentam esse risco para decidir se o benefício de anticoagular supera o risco de sangramento.'},
-  inputs:[
-    {id:'icc', type:'bool', points:1, label:{es:'Insuficiencia cardíaca / disfunción de VI', pt:'Insuficiência cardíaca / disfunção de VE'}},
-    {id:'has', type:'bool', points:1, label:{es:'Hipertensión arterial', pt:'Hipertensão arterial'}},
-    {id:'edad75', type:'bool', points:2, label:{es:'Edad ≥ 75 años', pt:'Idade ≥ 75 anos'}},
-    {id:'dm', type:'bool', points:1, label:{es:'Diabetes mellitus', pt:'Diabetes mellitus'}},
-    {id:'acv', type:'bool', points:2, label:{es:'ACV / AIT / tromboembolismo previo', pt:'AVC / AIT / tromboembolismo prévio'}},
-    {id:'vasc', type:'bool', points:1, label:{es:'Enfermedad vascular (IAM, EAP, placa aórtica)', pt:'Doença vascular (IAM, DAP, placa aórtica)'}},
-    {id:'edad65', type:'bool', points:1, label:{es:'Edad 65–74 años', pt:'Idade 65–74 anos'}},
-    {id:'mujer', type:'bool', points:1, label:{es:'Sexo femenino', pt:'Sexo feminino'}}
-  ],
-  compute:(v, inputs)=>{
-    let score=0;
-    inputs.forEach(inp=>{ if(v[inp.id]) score+=inp.points; });
-    let band='low', txt;
-    if(score===0){band='low'; txt={es:'Riesgo bajo. En general no se recomienda anticoagulación.',pt:'Risco baixo. Em geral, não se recomenda anticoagulação.'};}
-    else if(score===1){band='mid'; txt={es:'Riesgo intermedio. Considerar anticoagulación según preferencias y contexto.',pt:'Risco intermediário. Considerar anticoagulação conforme preferências e contexto.'};}
-    else{band='high'; txt={es:'Riesgo significativo de ACV. Generalmente se recomienda anticoagulación oral, salvo contraindicación.',pt:'Risco significativo de AVC. Geralmente se recomenda anticoagulação oral, salvo contraindicação.'};}
-    return {value:score, unit:'puntos', band, text:txt};
-  },
-  how:{es:'Cada letra vale puntos: C(1) H(1) A₂(2) D(1) S₂(2) V(1) A(1) Sc(1). Los ítems con "2" pesan más porque son predictores más fuertes de ACV.',
-       pt:'Cada letra vale pontos: C(1) H(1) A₂(2) D(1) S₂(2) V(1) A(1) Sc(1). Os itens com "2" pesam mais porque são preditores mais fortes de AVC.'},
-  source:{es:'Lip GYH, et al. "Refining clinical risk stratification for predicting stroke and thromboembolism in atrial fibrillation." Chest, 2010. Adoptado por las guías de la ESC.', pt:'Lip GYH, et al. "Refining clinical risk stratification for predicting stroke and thromboembolism in atrial fibrillation." Chest, 2010. Adotado pelas diretrizes da ESC.'},
-  reviewedAt:'2026-07'
-},
-
-{ id:'wells', cat:'cardiologia', tag:'Wells',
-  title:{es:'Escala de Wells (TEP)', pt:'Escore de Wells (TEP)'},
-  sub:{es:'Probabilidad clínica de embolia pulmonar', pt:'Probabilidade clínica de embolia pulmonar'},
-  why:{es:'Antes de pedir estudios de imagen para embolia pulmonar, conviene estimar la probabilidad pre-test: eso decide si conviene empezar por un dímero-D o ir directo a angioTC.',
-       pt:'Antes de pedir exames de imagem para embolia pulmonar, convém estimar a probabilidade pré-teste: isso decide se convém começar pelo D-dímero ou ir direto para angioTC.'},
-  inputs:[
-    {id:'tvp', type:'bool', points:3, label:{es:'Signos clínicos de TVP', pt:'Sinais clínicos de TVP'}},
-    {id:'altdiag', type:'bool', points:3, label:{es:'Diagnóstico alternativo menos probable que TEP', pt:'Diagnóstico alternativo menos provável que TEP'}},
-    {id:'fc', type:'bool', points:1.5, label:{es:'Frecuencia cardíaca > 100/min', pt:'Frequência cardíaca > 100/min'}},
-    {id:'inmov', type:'bool', points:1.5, label:{es:'Inmovilización o cirugía en las últimas 4 semanas', pt:'Imobilização ou cirurgia nas últimas 4 semanas'}},
-    {id:'prev', type:'bool', points:1.5, label:{es:'TVP/TEP previo', pt:'TVP/TEP prévio'}},
-    {id:'hemop', type:'bool', points:1, label:{es:'Hemoptisis', pt:'Hemoptise'}},
-    {id:'cancer', type:'bool', points:1, label:{es:'Cáncer activo', pt:'Câncer ativo'}}
-  ],
-  compute:(v, inputs)=>{
-    let score=0;
-    inputs.forEach(inp=>{ if(v[inp.id]) score+=inp.points; });
-    let band='low', txt;
-    if(score<=4){band='low'; txt={es:'TEP poco probable. Razonable iniciar con dímero-D antes de imágenes.',pt:'TEP pouco provável. Razoável iniciar com D-dímero antes de imagem.'};}
-    else{band='high'; txt={es:'TEP probable. Considerar angioTC de tórax directamente.',pt:'TEP provável. Considerar angioTC de tórax diretamente.'};}
-    return {value:score, unit:'puntos', band, text:txt};
-  },
-  how:{es:'Versión dicotomizada (≤4 vs >4). Los ítems de 3 puntos mostraron mayor asociación estadística con el diagnóstico final confirmado de TEP.',
-       pt:'Versão dicotomizada (≤4 vs >4). Os itens de 3 pontos mostraram maior associação estatística com o diagnóstico final confirmado de TEP.'},
-  source:{es:'Wells PS, et al. Thrombosis and Haemostasis, 2000 (versión validada). Ampliamente usado para estratificar riesgo de TEP.', pt:'Wells PS, et al. Thrombosis and Haemostasis, 2000 (versão validada). Amplamente usado para estratificar risco de TEP.'},
-  reviewedAt:'2026-07'
-},
-
-{ id:'heart', cat:'cardiologia', tag:'HEART',
-  title:{es:'HEART score', pt:'HEART score'},
-  sub:{es:'Riesgo de evento cardíaco en dolor torácico', pt:'Risco de evento cardíaco em dor torácica'},
-  why:{es:'La mayoría de los pacientes que llegan a urgencias con dolor de pecho no tienen un síndrome coronario agudo. HEART combina cinco datos disponibles en los primeros minutos (historia clínica, ECG, edad, factores de riesgo y troponina) para separar de forma rápida a quién se puede dar de alta y a quién hay que internar u observar.',
-       pt:'A maioria dos pacientes que chegam à emergência com dor no peito não tem uma síndrome coronariana aguda. O HEART combina cinco dados disponíveis nos primeiros minutos (história clínica, ECG, idade, fatores de risco e troponina) para separar rapidamente quem pode ter alta e quem precisa ser internado ou observado.'},
-  inputs:[
-    {id:'h', type:'select', label:{es:'Historia clínica (History)', pt:'História clínica (History)'}, options:[
-      {v:0,l:{es:'Poco sugestiva',pt:'Pouco sugestiva'}},{v:1,l:{es:'Moderadamente sugestiva',pt:'Moderadamente sugestiva'}},{v:2,l:{es:'Altamente sugestiva',pt:'Altamente sugestiva'}}]},
-    {id:'e', type:'select', label:{es:'ECG', pt:'ECG'}, options:[
-      {v:0,l:{es:'Normal',pt:'Normal'}},{v:1,l:{es:'Alteración inespecífica de la repolarización',pt:'Alteração inespecífica da repolarização'}},{v:2,l:{es:'Descenso significativo del ST',pt:'Descenso significativo do ST'}}]},
-    {id:'a', type:'select', label:{es:'Edad (Age)', pt:'Idade (Age)'}, options:[
-      {v:0,l:{es:'< 45 años',pt:'< 45 anos'}},{v:1,l:{es:'45–64 años',pt:'45–64 anos'}},{v:2,l:{es:'≥ 65 años',pt:'≥ 65 anos'}}]},
-    {id:'r', type:'select', label:{es:'Factores de riesgo (Risk factors)', pt:'Fatores de risco (Risk factors)'}, options:[
-      {v:0,l:{es:'Ninguno',pt:'Nenhum'}},{v:1,l:{es:'1–2 factores',pt:'1–2 fatores'}},{v:2,l:{es:'≥3 factores o enfermedad aterosclerótica conocida',pt:'≥3 fatores ou doença aterosclerótica conhecida'}}]},
-    {id:'t', type:'select', label:{es:'Troponina', pt:'Troponina'}, options:[
-      {v:0,l:{es:'≤ límite normal',pt:'≤ limite normal'}},{v:1,l:{es:'1–3× el límite normal',pt:'1–3× o limite normal'}},{v:2,l:{es:'> 3× el límite normal',pt:'> 3× o limite normal'}}]}
-  ],
-  compute:(v)=>{
-    const val = (v.h||0)+(v.e||0)+(v.a||0)+(v.r||0)+(v.t||0);
-    let band, txt;
-    if(val<=3){band='low'; txt={es:'Riesgo bajo (≈1–2% de eventos a 6 semanas). Razonable considerar alta con seguimiento ambulatorio.',pt:'Risco baixo (≈1–2% de eventos em 6 semanas). Razoável considerar alta com seguimento ambulatorial.'};}
-    else if(val<=6){band='mid'; txt={es:'Riesgo intermedio (≈12–17%). Considerar observación clínica e investigación adicional.',pt:'Risco intermediário (≈12–17%). Considerar observação clínica e investigação adicional.'};}
-    else{band='high'; txt={es:'Riesgo alto (≈50–65%). Considerar evaluación invasiva temprana.',pt:'Risco alto (≈50–65%). Considerar avaliação invasiva precoce.'};}
-    return {value:val, unit:'/ 10', band, text:txt};
-  },
-  how:{es:'Cada una de las 5 categorías vale 0, 1 o 2 puntos (rango total 0-10). A diferencia de GRACE, no fue diseñado a partir de pacientes ya diagnosticados con síndrome coronario agudo, sino de cualquiera que consulta por dolor torácico, que es exactamente la pregunta clínica en la puerta de urgencias.',
-       pt:'Cada uma das 5 categorias vale 0, 1 ou 2 pontos (faixa total 0-10). Diferente do GRACE, não foi desenhado a partir de pacientes já diagnosticados com síndrome coronariana aguda, mas de qualquer um que procura atendimento por dor torácica, que é exatamente a pergunta clínica na porta da emergência.'},
-  source:{es:'Six AJ, Backus BE, Kelder JC. "Chest pain in the emergency room: value of the HEART score." Netherlands Heart Journal, 2008.', pt:'Six AJ, Backus BE, Kelder JC. "Chest pain in the emergency room: value of the HEART score." Netherlands Heart Journal, 2008.'},
-  reviewedAt:'2026-07'
-},
-
-{ id:'grace', cat:'cardiologia', tag:'GRACE',
-  title:{es:'GRACE score', pt:'GRACE score'},
-  sub:{es:'Mortalidad intrahospitalaria en síndrome coronario agudo', pt:'Mortalidade intra-hospitalar em síndrome coronariana aguda'},
-  why:{es:'Una vez confirmado un síndrome coronario agudo, GRACE ayuda a decidir la urgencia de la estrategia invasiva (cateterismo) estimando el riesgo de morir durante la internación. Combina variables hemodinámicas (presión, frecuencia cardíaca, Killip), función renal (creatinina), edad y hallazgos de gravedad (paro cardíaco, cambios del ST, enzimas elevadas) porque cada una refleja, desde un ángulo distinto, cuánto estrés está soportando el corazón.',
-       pt:'Uma vez confirmada uma síndrome coronariana aguda, o GRACE ajuda a decidir a urgência da estratégia invasiva (cateterismo) estimando o risco de morte durante a internação. Combina variáveis hemodinâmicas (pressão, frequência cardíaca, Killip), função renal (creatinina), idade e achados de gravidade (parada cardíaca, alterações do ST, enzimas elevadas) porque cada uma reflete, de um ângulo diferente, quanto estresse o coração está suportando.'},
-  inputs:[
-    {id:'edad', type:'select', label:{es:'Edad', pt:'Idade'}, options:[
-      {v:0,l:{es:'< 30 años',pt:'< 30 anos'}},{v:8,l:{es:'30–39 años',pt:'30–39 anos'}},{v:25,l:{es:'40–49 años',pt:'40–49 anos'}},{v:41,l:{es:'50–59 años',pt:'50–59 anos'}},
-      {v:58,l:{es:'60–69 años',pt:'60–69 anos'}},{v:75,l:{es:'70–79 años',pt:'70–79 anos'}},{v:91,l:{es:'80–89 años',pt:'80–89 anos'}},{v:100,l:{es:'≥ 90 años',pt:'≥ 90 anos'}}]},
-    {id:'fc', type:'select', label:{es:'Frecuencia cardíaca (lpm)', pt:'Frequência cardíaca (bpm)'}, options:[
-      {v:0,l:{es:'< 50',pt:'< 50'}},{v:3,l:{es:'50–69',pt:'50–69'}},{v:9,l:{es:'70–89',pt:'70–89'}},{v:15,l:{es:'90–109',pt:'90–109'}},
-      {v:24,l:{es:'110–149',pt:'110–149'}},{v:38,l:{es:'150–199',pt:'150–199'}},{v:46,l:{es:'≥ 200',pt:'≥ 200'}}]},
-    {id:'pas', type:'select', label:{es:'Presión arterial sistólica (mmHg)', pt:'Pressão arterial sistólica (mmHg)'}, options:[
-      {v:58,l:{es:'< 80',pt:'< 80'}},{v:53,l:{es:'80–99',pt:'80–99'}},{v:43,l:{es:'100–119',pt:'100–119'}},{v:34,l:{es:'120–139',pt:'120–139'}},
-      {v:24,l:{es:'140–159',pt:'140–159'}},{v:10,l:{es:'160–199',pt:'160–199'}},{v:0,l:{es:'≥ 200',pt:'≥ 200'}}]},
-    {id:'creat', type:'select', label:{es:'Creatinina (mg/dL)', pt:'Creatinina (mg/dL)'}, options:[
-      {v:1,l:{es:'< 0.40',pt:'< 0.40'}},{v:4,l:{es:'0.40–0.79',pt:'0.40–0.79'}},{v:7,l:{es:'0.80–1.19',pt:'0.80–1.19'}},{v:10,l:{es:'1.20–1.59',pt:'1.20–1.59'}},
-      {v:13,l:{es:'1.60–1.99',pt:'1.60–1.99'}},{v:21,l:{es:'2.00–3.99',pt:'2.00–3.99'}},{v:28,l:{es:'≥ 4.00',pt:'≥ 4.00'}}]},
-    {id:'killip', type:'select', label:{es:'Clase de Killip', pt:'Classe de Killip'}, options:[
-      {v:0,l:{es:'I — sin insuficiencia cardíaca',pt:'I — sem insuficiência cardíaca'}},{v:20,l:{es:'II — estertores o ingurgitación yugular',pt:'II — estertores ou turgência jugular'}},
-      {v:39,l:{es:'III — edema pulmonar',pt:'III — edema pulmonar'}},{v:59,l:{es:'IV — shock cardiogénico',pt:'IV — choque cardiogênico'}}]},
-    {id:'arresto', type:'bool', points:39, label:{es:'Paro cardíaco al ingreso', pt:'Parada cardíaca na admissão'}},
-    {id:'st', type:'bool', points:28, label:{es:'Desviación del segmento ST', pt:'Desvio do segmento ST'}},
-    {id:'enz', type:'bool', points:14, label:{es:'Enzimas cardíacas elevadas', pt:'Enzimas cardíacas elevadas'}}
-  ],
-  compute:(v)=>{
-    const val = (v.edad||0)+(v.fc||0)+(v.pas||0)+(v.creat||0)+(v.killip||0)+(v.arresto?39:0)+(v.st?28:0)+(v.enz?14:0);
-    let band, txt;
-    if(val<=108){band='low'; txt={es:'Riesgo bajo de mortalidad intrahospitalaria (<1%).',pt:'Risco baixo de mortalidade intra-hospitalar (<1%).'};}
-    else if(val<=140){band='mid'; txt={es:'Riesgo intermedio de mortalidad intrahospitalaria (1–3%).',pt:'Risco intermediário de mortalidade intra-hospitalar (1–3%).'};}
-    else{band='high'; txt={es:'Riesgo alto de mortalidad intrahospitalaria (>3%). Considerar estrategia invasiva temprana.',pt:'Risco alto de mortalidade intra-hospitalar (>3%). Considerar estratégia invasiva precoce.'};}
-    return {value:val, unit:'puntos', band, text:txt};
-  },
-  how:{es:'Ocho variables ponderadas según su fuerza estadística en el estudio original (43.810 pacientes, Fox et al. 2006). Los tres ítems dicotómicos (paro cardíaco, desviación del ST, enzimas elevadas) pesan mucho porque marcan gravedad extrema o daño miocárdico ya establecido, no solo riesgo teórico.',
-       pt:'Oito variáveis ponderadas conforme sua força estatística no estudo original (43.810 pacientes, Fox et al. 2006). Os três itens dicotômicos (parada cardíaca, desvio do ST, enzimas elevadas) pesam muito porque marcam gravidade extrema ou dano miocárdico já estabelecido, não apenas risco teórico.'},
-  source:{es:'Granger CB, et al. "Predictors of hospital mortality in the global registry of acute coronary events (GRACE)." Archives of Internal Medicine, 2003.', pt:'Granger CB, et al. "Predictors of hospital mortality in the global registry of acute coronary events (GRACE)." Archives of Internal Medicine, 2003.'},
-  reviewedAt:'2026-07'
-},
-
-{ id:'qsofa', cat:'emergencia', tag:'qSOFA',
-  title:{es:'qSOFA', pt:'qSOFA'},
-  sub:{es:'Detección rápida de riesgo en sospecha de sepsis', pt:'Detecção rápida de risco em suspeita de sepse'},
-  why:{es:'qSOFA identifica, sin laboratorio, a pacientes con sospecha de infección con mayor riesgo de mal desenlace, usando solo tres signos vitales fáciles de tomar en cualquier lugar.',
-       pt:'O qSOFA identifica, sem laboratório, pacientes com suspeita de infecção com maior risco de desfecho ruim, usando apenas três sinais vitais fáceis de aferir em qualquer lugar.'},
-  inputs:[
-    {id:'pas', type:'bool', points:1, label:{es:'Presión arterial sistólica ≤ 100 mmHg', pt:'Pressão arterial sistólica ≤ 100 mmHg'}},
-    {id:'fr', type:'bool', points:1, label:{es:'Frecuencia respiratoria ≥ 22/min', pt:'Frequência respiratória ≥ 22/min'}},
-    {id:'mental', type:'bool', points:1, label:{es:'Alteración del estado mental (Glasgow < 15)', pt:'Alteração do estado mental (Glasgow < 15)'}}
-  ],
-  compute:(v, inputs)=>{
-    let score=0;
-    inputs.forEach(inp=>{ if(v[inp.id]) score+=inp.points; });
-    let band = score>=2 ? 'high':'low';
-    let txt = score>=2
-      ? {es:'qSOFA positivo (≥2). Mayor riesgo de mal desenlace: considerar evaluación urgente para sepsis.',pt:'qSOFA positivo (≥2). Maior risco de desfecho ruim: considerar avaliação urgente para sepse.'}
-      : {es:'qSOFA negativo. No descarta sepsis por sí solo; seguir evaluando clínicamente.',pt:'qSOFA negativo. Não descarta sepse por si só; seguir avaliando clinicamente.'};
-    return {value:score, unit:'/ 3', band, text:txt};
-  },
-  how:{es:'Cada criterio vale 1 punto. Un puntaje ≥2 se asoció a mayor mortalidad intrahospitalaria en pacientes con sospecha de infección. No reemplaza los criterios formales de sepsis.',
-       pt:'Cada critério vale 1 ponto. Um escore ≥2 se associou a maior mortalidade intra-hospitalar em pacientes com suspeita de infecção. Não substitui os critérios formais de sepse.'},
-  source:{es:'Singer M, et al. "The Third International Consensus Definitions for Sepsis and Septic Shock (Sepsis-3)." JAMA, 2016.', pt:'Singer M, et al. "The Third International Consensus Definitions for Sepsis and Septic Shock (Sepsis-3)." JAMA, 2016.'},
-  reviewedAt:'2026-07'
-},
-
-{ id:'gcs', cat:'emergencia', tag:'GCS',
-  title:{es:'Escala de coma de Glasgow', pt:'Escala de coma de Glasgow'},
-  sub:{es:'Evaluación del nivel de conciencia', pt:'Avaliação do nível de consciência'},
-  why:{es:'Fue creada para dar un lenguaje común y reproducible sobre el nivel de conciencia. Evalúa tres funciones neurológicas independientes: apertura ocular, respuesta verbal y respuesta motora.',
-       pt:'Foi criada para dar uma linguagem comum e reprodutível sobre o nível de consciência. Avalia três funções neurológicas independentes: abertura ocular, resposta verbal e resposta motora.'},
-  inputs:[
-    {id:'ocular', type:'select', label:{es:'Apertura ocular', pt:'Abertura ocular'}, options:[
-      {v:4, l:{es:'Espontánea',pt:'Espontânea'}},{v:3, l:{es:'Al estímulo verbal',pt:'Ao estímulo verbal'}},
-      {v:2, l:{es:'Al dolor',pt:'À dor'}},{v:1, l:{es:'Ninguna',pt:'Nenhuma'}}]},
-    {id:'verbal', type:'select', label:{es:'Respuesta verbal', pt:'Resposta verbal'}, options:[
-      {v:5, l:{es:'Orientada',pt:'Orientada'}},{v:4, l:{es:'Confusa',pt:'Confusa'}},
-      {v:3, l:{es:'Palabras inapropiadas',pt:'Palavras inapropriadas'}},{v:2, l:{es:'Sonidos incomprensibles',pt:'Sons incompreensíveis'}},{v:1, l:{es:'Ninguna',pt:'Nenhuma'}}]},
-    {id:'motora', type:'select', label:{es:'Respuesta motora', pt:'Resposta motora'}, options:[
-      {v:6, l:{es:'Obedece órdenes',pt:'Obedece ordens'}},{v:5, l:{es:'Localiza el dolor',pt:'Localiza a dor'}},
-      {v:4, l:{es:'Retira al dolor',pt:'Retira à dor'}},{v:3, l:{es:'Flexión anormal (decorticación)',pt:'Flexão anormal (decorticação)'}},
-      {v:2, l:{es:'Extensión anormal (descerebración)',pt:'Extensão anormal (descerebração)'}},{v:1, l:{es:'Ninguna',pt:'Nenhuma'}}]}
-  ],
-  compute:(v)=>{
-    const val = (v.ocular||0)+(v.verbal||0)+(v.motora||0);
-    let band, txt;
-    if(val>=13){band='low'; txt={es:'Compromiso leve.',pt:'Comprometimento leve.'};}
-    else if(val>=9){band='mid'; txt={es:'Compromiso moderado.',pt:'Comprometimento moderado.'};}
-    else{band='high'; txt={es:'Compromiso severo. Considerar protección avanzada de la vía aérea (referencia clásica: ≤8).',pt:'Comprometimento severo. Considerar proteção avançada de via aérea (referência clássica: ≤8).'};}
-    return {value:val, unit:'/ 15', band, text:txt};
-  },
-  how:{es:'Suma de tres subescalas: ocular (1-4) + verbal (1-5) + motora (1-6), rango total 3 a 15. La respuesta motora es la que más peso predictivo tiene sobre el pronóstico neurológico.',
-       pt:'Soma de três subescalas: ocular (1-4) + verbal (1-5) + motora (1-6), faixa total 3 a 15. A resposta motora é a que tem mais peso preditivo sobre o prognóstico neurológico.'},
-  source:{es:'Teasdale G, Jennett B. "Assessment of coma and impaired consciousness: a practical scale." The Lancet, 1974. Una de las escalas neurológicas más usadas en el mundo.', pt:'Teasdale G, Jennett B. "Assessment of coma and impaired consciousness: a practical scale." The Lancet, 1974. Uma das escalas neurológicas mais usadas no mundo.'},
-  reviewedAt:'2026-07'
-},
-
-{ id:'meld', cat:'geral', tag:'MELD',
-  title:{es:'MELD', pt:'MELD'},
-  sub:{es:'Gravedad de la enfermedad hepática crónica', pt:'Gravidade da doença hepática crônica'},
-  why:{es:'El MELD se usa para priorizar quién recibe un trasplante hepático primero. Combina tres marcadores de falla hepática y renal en una escala logarítmica, porque el riesgo de muerte aumenta de forma no lineal a medida que estos valores empeoran.',
-       pt:'O MELD é usado para priorizar quem recebe um transplante hepático primeiro. Combina três marcadores de falência hepática e renal em uma escala logarítmica, porque o risco de morte aumenta de forma não linear à medida que esses valores pioram.'},
-  inputs:[
-    {id:'bili', type:'number', label:{es:'Bilirrubina total (mg/dL)', pt:'Bilirrubina total (mg/dL)'}},
-    {id:'inr', type:'number', label:{es:'INR', pt:'INR'}},
-    {id:'creat', type:'number', label:{es:'Creatinina (mg/dL)', pt:'Creatinina (mg/dL)'}},
-    {id:'dialisis', type:'bool', label:{es:'Diálisis ≥ 2 veces en la última semana', pt:'Diálise ≥ 2 vezes na última semana'}}
-  ],
-  compute:(v)=>{
-    let bili = Math.max(v.bili,1);
-    let inr = Math.max(v.inr,1);
-    let creat = v.dialisis ? 4.0 : Math.min(Math.max(v.creat,1),4);
-    let val = 3.78*Math.log(bili) + 11.2*Math.log(inr) + 9.57*Math.log(creat) + 6.43;
-    val = Math.round(val);
-    if(val<6) val=6;
-    let band, txt;
-    if(val<10){band='low'; txt={es:'Riesgo bajo a corto plazo.',pt:'Risco baixo a curto prazo.'};}
-    else if(val<20){band='mid'; txt={es:'Riesgo intermedio. Enfermedad hepática avanzada.',pt:'Risco intermediário. Doença hepática avançada.'};}
-    else{band='high'; txt={es:'Riesgo alto a corto plazo. Prioridad elevada en lista de trasplante.',pt:'Risco alto a curto prazo. Prioridade elevada em lista de transplante.'};}
-    return {value:val, unit:'puntos', band, text:txt};
-  },
-  how:{es:'Fórmula: 3.78×ln(bilirrubina) + 11.2×ln(INR) + 9.57×ln(creatinina) + 6.43. Los valores se acotan (mínimo 1, creatinina máximo 4, o 4 fijo si dializa) para evitar que valores extremos distorsionen el puntaje.',
-       pt:'Fórmula: 3.78×ln(bilirrubina) + 11.2×ln(INR) + 9.57×ln(creatinina) + 6.43. Os valores são limitados (mínimo 1, creatinina máximo 4, ou 4 fixo se dialisa) para evitar que valores extremos distorçam o escore.'},
-  source:{es:'Kamath PS, et al. "A model to predict survival in patients with end-stage liver disease." Hepatology, 2001. Usado para priorización en listas de trasplante hepático.', pt:'Kamath PS, et al. "A model to predict survival in patients with end-stage liver disease." Hepatology, 2001. Usado para priorização em listas de transplante hepático.'},
-  reviewedAt:'2026-07'
-},
-
-{ id:'meldna', cat:'geral', tag:'MELD-Na',
-  title:{es:'MELD-Na', pt:'MELD-Na'},
-  sub:{es:'MELD ajustado por sodio', pt:'MELD ajustado pelo sódio'},
-  why:{es:'El MELD original no incluye el sodio, pero la hiponatremia es, por sí sola, un predictor independiente de mortalidad en cirrosis (refleja activación neurohormonal severa por vasodilatación esplácnica). MELD-Na incorpora una penalización cuando el sodio está bajo, mejorando la predicción de mortalidad en lista de espera.',
-       pt:'O MELD original não inclui o sódio, mas a hiponatremia é, por si só, um preditor independente de mortalidade na cirrose (reflete ativação neuro-hormonal severa por vasodilatação esplâncnica). O MELD-Na incorpora uma penalização quando o sódio está baixo, melhorando a predição de mortalidade em lista de espera.'},
-  inputs:[
-    {id:'bili', type:'number', label:{es:'Bilirrubina total (mg/dL)', pt:'Bilirrubina total (mg/dL)'}},
-    {id:'inr', type:'number', label:{es:'INR', pt:'INR'}},
-    {id:'creat', type:'number', label:{es:'Creatinina (mg/dL)', pt:'Creatinina (mg/dL)'}},
-    {id:'na', type:'number', label:{es:'Sodio sérico (mEq/L)', pt:'Sódio sérico (mEq/L)'}},
-    {id:'dialisis', type:'bool', label:{es:'Diálisis ≥ 2 veces en la última semana', pt:'Diálise ≥ 2 vezes na última semana'}}
-  ],
-  compute:(v)=>{
-    let bili = Math.max(v.bili,1);
-    let inr = Math.max(v.inr,1);
-    let creat = v.dialisis ? 4.0 : Math.min(Math.max(v.creat,1),4);
-    let meld = 3.78*Math.log(bili) + 11.2*Math.log(inr) + 9.57*Math.log(creat) + 6.43;
-    meld = Math.max(6, Math.round(meld));
-    let na = Math.min(Math.max(v.na,125),137);
-    let val = meld + 1.32*(137-na) - (0.033*meld*(137-na));
-    val = Math.round(val);
-    if(val<6) val=6;
-    if(val>40) val=40;
-    let band, txt;
-    if(val<10){band='low'; txt={es:'Riesgo bajo a corto plazo.',pt:'Risco baixo a curto prazo.'};}
-    else if(val<20){band='mid'; txt={es:'Riesgo intermedio. Enfermedad hepática avanzada.',pt:'Risco intermediário. Doença hepática avançada.'};}
-    else{band='high'; txt={es:'Riesgo alto a corto plazo. Prioridad elevada en lista de trasplante.',pt:'Risco alto a curto prazo. Prioridade elevada em lista de transplante.'};}
-    return {value:val, unit:'puntos', band, text:txt};
-  },
-  how:{es:'Fórmula (OPTN/UNOS): MELD-Na = MELD + 1.32×(137−Na) − [0.033×MELD×(137−Na)], con el sodio acotado entre 125 y 137 mEq/L para evitar que valores extremos distorsionen el ajuste.',
-       pt:'Fórmula (OPTN/UNOS): MELD-Na = MELD + 1.32×(137−Na) − [0.033×MELD×(137−Na)], com o sódio limitado entre 125 e 137 mEq/L para evitar que valores extremos distorçam o ajuste.'},
-  source:{es:'Kim WR, et al. "Hyponatremia and mortality among patients on the liver-transplant waiting list." New England Journal of Medicine, 2008.', pt:'Kim WR, et al. "Hyponatremia and mortality among patients on the liver-transplant waiting list." New England Journal of Medicine, 2008.'},
-  reviewedAt:'2026-07'
-},
-
-{ id:'pam', cat:'geral', tag:'PAM',
-  title:{es:'Presión arterial media (PAM)', pt:'Pressão arterial média (PAM)'},
-  sub:{es:'Presión de perfusión de los órganos', pt:'Pressão de perfusão dos órgãos'},
-  why:{es:'La presión que realmente perfunde los órganos durante todo el ciclo cardíaco no es la sistólica ni la diastólica, sino un promedio ponderado entre ambas. Como el corazón pasa más tiempo en diástole que en sístole, la diastólica pesa el doble en la fórmula. Es la presión que se usa como objetivo en shock y sepsis.',
-       pt:'A pressão que realmente perfunde os órgãos durante todo o ciclo cardíaco não é a sistólica nem a diastólica, mas uma média ponderada entre as duas. Como o coração passa mais tempo em diástole do que em sístole, a diastólica pesa o dobro na fórmula. É a pressão usada como meta em choque e sepse.'},
-  inputs:[
-    {id:'pas', type:'number', label:{es:'Presión arterial sistólica (mmHg)', pt:'Pressão arterial sistólica (mmHg)'}},
-    {id:'pad', type:'number', label:{es:'Presión arterial diastólica (mmHg)', pt:'Pressão arterial diastólica (mmHg)'}}
-  ],
-  compute:(v)=>{
-    const val = (v.pas + 2*v.pad)/3;
-    let band, txt;
-    if(val<65){band='high'; txt={es:'Por debajo del objetivo habitual de perfusión (65 mmHg). Considerar soporte hemodinámico según contexto.',pt:'Abaixo da meta habitual de perfusão (65 mmHg). Considerar suporte hemodinâmico conforme o contexto.'};}
-    else if(val<=110){band='low'; txt={es:'Dentro de rango habitual de perfusión orgánica.',pt:'Dentro da faixa habitual de perfusão orgânica.'};}
-    else{band='mid'; txt={es:'Elevada. Evaluar contexto de hipertensión o emergencia hipertensiva.',pt:'Elevada. Avaliar contexto de hipertensão ou emergência hipertensiva.'};}
-    return {value:val.toFixed(0), unit:'mmHg', band, text:txt};
-  },
-  how:{es:'Fórmula: [PAS + (2 × PAD)] ÷ 3. El objetivo de ≥65 mmHg en shock séptico viene del estudio SEPSISPAM y guías de Surviving Sepsis, por ser el umbral por debajo del cual se compromete la autorregulación de la perfusión renal y cerebral en la mayoría de las personas.',
-       pt:'Fórmula: [PAS + (2 × PAD)] ÷ 3. A meta de ≥65 mmHg em choque séptico vem do estudo SEPSISPAM e das diretrizes Surviving Sepsis, por ser o limiar abaixo do qual se compromete a autorregulação da perfusão renal e cerebral na maioria das pessoas.'},
-  source:{es:'Fórmula clásica de fisiología cardiovascular, presente en libros de texto de fisiología médica (ej: Guyton & Hall, Tratado de Fisiología Médica). No depende de un único estudio de validación.', pt:'Fórmula clássica de fisiologia cardiovascular, presente em livros-texto de fisiologia médica (ex: Guyton & Hall, Tratado de Fisiologia Médica). Não depende de um único estudo de validação.'},
-  reviewedAt:'2026-07'
-},
-
-{ id:'qtc', cat:'cardiologia', tag:'QTc',
-  title:{es:'QT corregido (Bazett)', pt:'QT corrigido (Bazett)'},
-  sub:{es:'Riesgo de arritmia ventricular por QT prolongado', pt:'Risco de arritmia ventricular por QT prolongado'},
-  why:{es:'El intervalo QT se acorta naturalmente cuando el corazón late más rápido, así que un QT medido en 90 lpm no es comparable a uno medido en 60 lpm. Bazett corrige ese efecto dividiendo por la raíz cuadrada del intervalo R-R (en segundos), para poder comparar el QT entre personas con distinta frecuencia cardíaca y detectar riesgo real de arritmias como torsade de pointes.',
-       pt:'O intervalo QT se encurta naturalmente quando o coração bate mais rápido, então um QT medido a 90 bpm não é comparável a um medido a 60 bpm. Bazett corrige esse efeito dividindo pela raiz quadrada do intervalo R-R (em segundos), para poder comparar o QT entre pessoas com frequência cardíaca diferente e detectar risco real de arritmias como torsade de pointes.'},
-  inputs:[
-    {id:'qt', type:'number', label:{es:'Intervalo QT medido (ms)', pt:'Intervalo QT medido (ms)'}},
-    {id:'fc', type:'number', label:{es:'Frecuencia cardíaca (lpm)', pt:'Frequência cardíaca (bpm)'}},
-    {id:'sexo', type:'bool', label:{es:'Sexo', pt:'Sexo'}, trueLabel:{es:'Mujer',pt:'Mulher'}, falseLabel:{es:'Hombre',pt:'Homem'}}
-  ],
-  compute:(v)=>{
-    const rr = 60/v.fc;
-    const val = v.qt / Math.sqrt(rr);
-    const limite = v.sexo ? 460 : 440;
-    let band, txt;
-    if(val<limite){band='low'; txt={es:'QTc dentro de rango normal.',pt:'QTc dentro da faixa normal.'};}
-    else if(val<500){band='mid'; txt={es:'QTc limítrofe/prolongado. Revisar fármacos que prolongan el QT y electrolitos (K, Mg, Ca).',pt:'QTc limítrofe/prolongado. Revisar fármacos que prolongam o QT e eletrólitos (K, Mg, Ca).'};}
-    else{band='high'; txt={es:'QTc muy prolongado (≥500 ms). Riesgo aumentado de torsade de pointes; revisar causas reversibles con urgencia.',pt:'QTc muito prolongado (≥500 ms). Risco aumentado de torsade de pointes; revisar causas reversíveis com urgência.'};}
-    return {value:val.toFixed(0), unit:'ms', band, text:txt};
-  },
-  how:{es:'Fórmula de Bazett: QTc = QT ÷ √(RR), donde RR = 60 ÷ frecuencia cardíaca (en segundos). Es la fórmula más usada en la práctica clínica diaria, aunque sobrecorrige a frecuencias muy altas o muy bajas (ahí otras fórmulas como Fridericia son más precisas).',
-       pt:'Fórmula de Bazett: QTc = QT ÷ √(RR), onde RR = 60 ÷ frequência cardíaca (em segundos). É a fórmula mais usada na prática clínica diária, embora supercorrija em frequências muito altas ou muito baixas (nesses casos, outras fórmulas como Fridericia são mais precisas).'},
-  source:{es:'Bazett HC. "An analysis of the time-relations of electrocardiograms." Heart, 1920. Fórmula de corrección más usada en la práctica clínica, a pesar de sus limitaciones conocidas en frecuencias extremas.', pt:'Bazett HC. "An analysis of the time-relations of electrocardiograms." Heart, 1920. Fórmula de correção mais usada na prática clínica, apesar de suas limitações conhecidas em frequências extremas.'},
-  reviewedAt:'2026-07'
-},
-
-{ id:'pesoideal', cat:'geral', tag:'PIdeal',
-  title:{es:'Peso corporal ideal (Devine)', pt:'Peso corporal ideal (Devine)'},
-  sub:{es:'Referencia para dosificación de fármacos', pt:'Referência para dosagem de fármacos'},
-  why:{es:'Muchos fármacos (sedantes, algunos antibióticos, volumen corriente en ventilación mecánica) se dosifican según el peso ideal y no el peso real, porque el exceso de tejido adiposo no aumenta proporcionalmente el volumen de distribución de esos fármacos ni el tamaño funcional del pulmón. La fórmula de Devine estima ese peso "de referencia" a partir de la altura.',
-       pt:'Muitos fármacos (sedativos, alguns antibióticos, volume corrente em ventilação mecânica) são dosados pelo peso ideal e não pelo peso real, porque o excesso de tecido adiposo não aumenta proporcionalmente o volume de distribuição desses fármacos nem o tamanho funcional do pulmão. A fórmula de Devine estima esse peso "de referência" a partir da altura.'},
-  inputs:[
-    {id:'altura', type:'number', label:{es:'Altura (cm)', pt:'Altura (cm)'}},
-    {id:'sexo', type:'bool', label:{es:'Sexo', pt:'Sexo'}, trueLabel:{es:'Mujer',pt:'Mulher'}, falseLabel:{es:'Hombre',pt:'Homem'}}
-  ],
-  compute:(v)=>{
-    const inches = v.altura/2.54;
-    const base = v.sexo ? 45.5 : 50;
-    let val = base + 2.3*(inches-60);
-    if(val<0) val=base;
-    return {value:val.toFixed(1), unit:'kg', band:'low', text:{es:'Peso ideal estimado según altura y sexo.',pt:'Peso ideal estimado conforme altura e sexo.'}};
-  },
-  how:{es:'Fórmula de Devine: hombres = 50 + 2.3 × (altura en pulgadas − 60); mujeres = 45.5 + 2.3 × (altura en pulgadas − 60). Cada pulgada por encima de 60 (152 cm) agrega 2.3 kg al peso de referencia.',
-       pt:'Fórmula de Devine: homens = 50 + 2.3 × (altura em polegadas − 60); mulheres = 45.5 + 2.3 × (altura em polegadas − 60). Cada polegada acima de 60 (152 cm) soma 2.3 kg ao peso de referência.'},
-  source:{es:'Devine BJ. "Gentamicin therapy." Drug Intelligence & Clinical Pharmacy, 1974. Fórmula ampliamente adoptada para el cálculo de dosis de medicamentos por peso ideal.', pt:'Devine BJ. "Gentamicin therapy." Drug Intelligence & Clinical Pharmacy, 1974. Fórmula amplamente adotada para cálculo de dose de medicamentos por peso ideal.'},
-  reviewedAt:'2026-07'
-},
-
-{ id:'homair', cat:'geral', tag:'HOMA-IR',
-  title:{es:'HOMA-IR', pt:'HOMA-IR'},
-  sub:{es:'Estimación de resistencia a la insulina', pt:'Estimativa de resistência à insulina'},
-  why:{es:'En ayunas, la glucemia se mantiene estable gracias a un equilibrio entre la insulina secretada y la sensibilidad de los tejidos a ella. Si hacen falta niveles de insulina más altos de lo esperado para mantener la glucemia normal en ayunas, eso sugiere que los tejidos están resistiendo su efecto. HOMA-IR aproxima esa relación multiplicando ambos valores.',
-       pt:'Em jejum, a glicemia se mantém estável graças a um equilíbrio entre a insulina secretada e a sensibilidade dos tecidos a ela. Se são necessários níveis de insulina mais altos do que o esperado para manter a glicemia normal em jejum, isso sugere que os tecidos estão resistindo ao seu efeito. O HOMA-IR aproxima essa relação multiplicando os dois valores.'},
-  inputs:[
-    {id:'glu', type:'number', label:{es:'Glucemia en ayunas (mg/dL)', pt:'Glicemia em jejum (mg/dL)'}},
-    {id:'ins', type:'number', label:{es:'Insulina en ayunas (µU/mL)', pt:'Insulina em jejum (µU/mL)'}}
-  ],
-  compute:(v)=>{
-    const val = (v.glu*v.ins)/405;
-    let band, txt;
-    if(val<2.5){band='low'; txt={es:'Sin evidencia de resistencia a la insulina significativa.',pt:'Sem evidência de resistência à insulina significativa.'};}
-    else{band='high'; txt={es:'Sugiere resistencia a la insulina. El punto de corte varía según la población y el laboratorio.',pt:'Sugere resistência à insulina. O ponto de corte varia conforme a população e o laboratório.'};}
-    return {value:val.toFixed(2), unit:'', band, text:txt};
-  },
-  how:{es:'Fórmula: (glucemia mg/dL × insulina µU/mL) ÷ 405. El punto de corte de 2.5 es el más citado en la literatura, pero varía bastante según la población estudiada y el ensayo de insulina usado por cada laboratorio, así que conviene interpretarlo junto al contexto clínico.',
-       pt:'Fórmula: (glicemia mg/dL × insulina µU/mL) ÷ 405. O ponto de corte de 2.5 é o mais citado na literatura, mas varia bastante conforme a população estudada e o ensaio de insulina usado por cada laboratório, então convém interpretá-lo junto ao contexto clínico.'},
-  source:{es:'Matthews DR, et al. "Homeostasis model assessment: insulin resistance and beta-cell function from fasting plasma glucose and insulin concentrations in man." Diabetologia, 1985.', pt:'Matthews DR, et al. "Homeostasis model assessment: insulin resistance and beta-cell function from fasting plasma glucose and insulin concentrations in man." Diabetologia, 1985.'},
-  reviewedAt:'2026-07'
-},
-
-{ id:'sofa', cat:'emergencia', tag:'SOFA',
-  title:{es:'SOFA', pt:'SOFA'},
-  sub:{es:'Disfunción orgánica secuencial en sepsis', pt:'Disfunção orgânica sequencial em sepse'},
-  why:{es:'La sepsis se define hoy como una disfunción orgánica potencialmente mortal causada por una respuesta desregulada del cuerpo a una infección. SOFA cuantifica esa disfunción evaluando seis sistemas por separado (respiratorio, coagulación, hígado, cardiovascular, sistema nervioso central y renal), porque cada órgano puede fallar de forma independiente y en distinto grado.',
-       pt:'A sepse é definida hoje como uma disfunção orgânica potencialmente fatal causada por uma resposta desregulada do corpo a uma infecção. O SOFA quantifica essa disfunção avaliando seis sistemas separadamente (respiratório, coagulação, fígado, cardiovascular, sistema nervoso central e renal), porque cada órgão pode falhar de forma independente e em grau diferente.'},
-  inputs:[
-    {id:'resp', type:'select', label:{es:'Respiratorio — PaO₂/FiO₂ (mmHg)', pt:'Respiratório — PaO₂/FiO₂ (mmHg)'}, options:[
-      {v:0,l:{es:'≥ 400',pt:'≥ 400'}},{v:1,l:{es:'< 400',pt:'< 400'}},{v:2,l:{es:'< 300',pt:'< 300'}},
-      {v:3,l:{es:'< 200 con soporte respiratorio',pt:'< 200 com suporte respiratório'}},{v:4,l:{es:'< 100 con soporte respiratorio',pt:'< 100 com suporte respiratório'}}]},
-    {id:'coag', type:'select', label:{es:'Coagulación — Plaquetas (×10³/µL)', pt:'Coagulação — Plaquetas (×10³/µL)'}, options:[
-      {v:0,l:{es:'≥ 150',pt:'≥ 150'}},{v:1,l:{es:'< 150',pt:'< 150'}},{v:2,l:{es:'< 100',pt:'< 100'}},{v:3,l:{es:'< 50',pt:'< 50'}},{v:4,l:{es:'< 20',pt:'< 20'}}]},
-    {id:'higado', type:'select', label:{es:'Hígado — Bilirrubina (mg/dL)', pt:'Fígado — Bilirrubina (mg/dL)'}, options:[
-      {v:0,l:{es:'< 1.2',pt:'< 1.2'}},{v:1,l:{es:'1.2–1.9',pt:'1.2–1.9'}},{v:2,l:{es:'2.0–5.9',pt:'2.0–5.9'}},{v:3,l:{es:'6.0–11.9',pt:'6.0–11.9'}},{v:4,l:{es:'≥ 12.0',pt:'≥ 12.0'}}]},
-    {id:'cardio', type:'select', label:{es:'Cardiovascular', pt:'Cardiovascular'}, options:[
-      {v:0,l:{es:'PAM ≥ 70 mmHg',pt:'PAM ≥ 70 mmHg'}},{v:1,l:{es:'PAM < 70 mmHg',pt:'PAM < 70 mmHg'}},
-      {v:2,l:{es:'Dopamina ≤5 o dobutamina (cualquier dosis)',pt:'Dopamina ≤5 ou dobutamina (qualquer dose)'}},
-      {v:3,l:{es:'Dopamina >5, o epinefrina/norepinefrina ≤0.1',pt:'Dopamina >5, ou epinefrina/norepinefrina ≤0.1'}},
-      {v:4,l:{es:'Dopamina >15, o epinefrina/norepinefrina >0.1',pt:'Dopamina >15, ou epinefrina/norepinefrina >0.1'}}]},
-    {id:'scn', type:'select', label:{es:'Sistema nervioso central — Glasgow', pt:'Sistema nervoso central — Glasgow'}, options:[
-      {v:0,l:{es:'15',pt:'15'}},{v:1,l:{es:'13–14',pt:'13–14'}},{v:2,l:{es:'10–12',pt:'10–12'}},{v:3,l:{es:'6–9',pt:'6–9'}},{v:4,l:{es:'< 6',pt:'< 6'}}]},
-    {id:'renal', type:'select', label:{es:'Renal — Creatinina (mg/dL)', pt:'Renal — Creatinina (mg/dL)'}, options:[
-      {v:0,l:{es:'< 1.2',pt:'< 1.2'}},{v:1,l:{es:'1.2–1.9',pt:'1.2–1.9'}},{v:2,l:{es:'2.0–3.4',pt:'2.0–3.4'}},{v:3,l:{es:'3.5–4.9',pt:'3.5–4.9'}},{v:4,l:{es:'≥ 5.0',pt:'≥ 5.0'}}]}
-  ],
-  compute:(v)=>{
-    const val = (v.resp||0)+(v.coag||0)+(v.higado||0)+(v.cardio||0)+(v.scn||0)+(v.renal||0);
-    let band, txt;
-    if(val<=1){band='low'; txt={es:'Disfunción orgánica mínima o ausente.',pt:'Disfunção orgânica mínima ou ausente.'};}
-    else if(val<=6){band='mid'; txt={es:'Disfunción orgánica presente. Mortalidad estimada aumenta con el puntaje.',pt:'Disfunção orgânica presente. Mortalidade estimada aumenta com o escore.'};}
-    else{band='high'; txt={es:'Disfunción orgánica severa/multiorgánica. Mortalidad estimada significativamente elevada.',pt:'Disfunção orgânica severa/multiorgânica. Mortalidade estimada significativamente elevada.'};}
-    return {value:val, unit:'/ 24', band, text:txt};
-  },
-  how:{es:'Suma de 6 subescalas de 0 a 4 puntos cada una. Un aumento de ≥2 puntos respecto al basal, en presencia de infección sospechada o confirmada, es parte de la definición actual (Sepsis-3) de sepsis.',
-       pt:'Soma de 6 subescalas de 0 a 4 pontos cada uma. Um aumento de ≥2 pontos em relação ao basal, na presença de infecção suspeita ou confirmada, faz parte da definição atual (Sepsis-3) de sepse.'},
-  source:{es:'Vincent JL, et al. "The SOFA (Sepsis-related Organ Failure Assessment) score to describe organ dysfunction/failure." Intensive Care Medicine, 1996.', pt:'Vincent JL, et al. "The SOFA (Sepsis-related Organ Failure Assessment) score to describe organ dysfunction/failure." Intensive Care Medicine, 1996.'},
-  reviewedAt:'2026-07'
-},
-
-{ id:'news2', cat:'emergencia', tag:'NEWS2',
-  title:{es:'NEWS2', pt:'NEWS2'},
-  sub:{es:'Deterioro clínico agudo (signos vitales)', pt:'Deterioração clínica aguda (sinais vitais)'},
-  why:{es:'NEWS2 fue diseñado para detectar deterioro clínico temprano en cualquier paciente hospitalizado, no solo en sospecha de infección. Usa seis signos vitales de rutina, cada uno puntuado según qué tan lejos está de lo normal, para generar una alarma temprana y objetiva antes de que el paciente se descompense de forma evidente.',
-       pt:'O NEWS2 foi desenhado para detectar deterioração clínica precoce em qualquer paciente internado, não só em suspeita de infecção. Usa seis sinais vitais de rotina, cada um pontuado conforme o quão longe está do normal, para gerar um alarme precoce e objetivo antes que o paciente se descompense de forma evidente.'},
-  inputs:[
-    {id:'fr', type:'select', label:{es:'Frecuencia respiratoria (rpm)', pt:'Frequência respiratória (rpm)'}, options:[
-      {v:3,l:{es:'≤ 8',pt:'≤ 8'}},{v:1,l:{es:'9–11',pt:'9–11'}},{v:0,l:{es:'12–20',pt:'12–20'}},{v:2,l:{es:'21–24',pt:'21–24'}},{v:3,l:{es:'≥ 25',pt:'≥ 25'}}]},
-    {id:'spo2', type:'select', label:{es:'Saturación de O₂ (%)', pt:'Saturação de O₂ (%)'}, options:[
-      {v:3,l:{es:'≤ 91',pt:'≤ 91'}},{v:2,l:{es:'92–93',pt:'92–93'}},{v:1,l:{es:'94–95',pt:'94–95'}},{v:0,l:{es:'≥ 96',pt:'≥ 96'}}]},
-    {id:'o2sup', type:'bool', points:2, label:{es:'Requiere oxígeno suplementario', pt:'Necessita de oxigênio suplementar'}},
-    {id:'pas', type:'select', label:{es:'Presión arterial sistólica (mmHg)', pt:'Pressão arterial sistólica (mmHg)'}, options:[
-      {v:3,l:{es:'≤ 90',pt:'≤ 90'}},{v:2,l:{es:'91–100',pt:'91–100'}},{v:1,l:{es:'101–110',pt:'101–110'}},{v:0,l:{es:'111–219',pt:'111–219'}},{v:3,l:{es:'≥ 220',pt:'≥ 220'}}]},
-    {id:'fc', type:'select', label:{es:'Frecuencia cardíaca (lpm)', pt:'Frequência cardíaca (bpm)'}, options:[
-      {v:3,l:{es:'≤ 40',pt:'≤ 40'}},{v:1,l:{es:'41–50',pt:'41–50'}},{v:0,l:{es:'51–90',pt:'51–90'}},{v:1,l:{es:'91–110',pt:'91–110'}},{v:2,l:{es:'111–130',pt:'111–130'}},{v:3,l:{es:'≥ 131',pt:'≥ 131'}}]},
-    {id:'consciencia', type:'bool', points:3, label:{es:'Alteración de conciencia (nueva confusión, responde solo a voz/dolor, o no responde)', pt:'Alteração de consciência (nova confusão, responde só a voz/dor, ou não responde)'}},
-    {id:'temp', type:'select', label:{es:'Temperatura (°C)', pt:'Temperatura (°C)'}, options:[
-      {v:3,l:{es:'≤ 35.0',pt:'≤ 35.0'}},{v:1,l:{es:'35.1–36.0',pt:'35.1–36.0'}},{v:0,l:{es:'36.1–38.0',pt:'36.1–38.0'}},{v:1,l:{es:'38.1–39.0',pt:'38.1–39.0'}},{v:2,l:{es:'≥ 39.1',pt:'≥ 39.1'}}]}
-  ],
-  compute:(v)=>{
-    const val = (v.fr||0)+(v.spo2||0)+(v.o2sup?2:0)+(v.pas||0)+(v.fc||0)+(v.consciencia?3:0)+(v.temp||0);
-    let band, txt;
-    if(val<=4){band='low'; txt={es:'Riesgo bajo. Monitoreo de rutina.',pt:'Risco baixo. Monitoramento de rotina.'};}
-    else if(val<=6){band='mid'; txt={es:'Riesgo medio. Aumentar frecuencia de monitoreo y avisar al equipo responsable.',pt:'Risco médio. Aumentar frequência de monitoramento e avisar a equipe responsável.'};}
-    else{band='high'; txt={es:'Riesgo alto. Evaluación urgente, considerar traslado a un nivel de mayor monitoreo.',pt:'Risco alto. Avaliação urgente, considerar transferência para nível de maior monitoramento.'};}
-    return {value:val, unit:'puntos', band, text:txt};
-  },
-  how:{es:'Suma de 7 parámetros. Un solo parámetro puntuado con 3 ya activa una alerta de riesgo medio, independientemente del total, porque una desviación extrema en un solo sistema puede ser tan peligrosa como varias desviaciones leves combinadas.',
-       pt:'Soma de 7 parâmetros. Um único parâmetro pontuado com 3 já ativa um alerta de risco médio, independentemente do total, porque um desvio extremo em um único sistema pode ser tão perigoso quanto vários desvios leves combinados.'},
-  source:{es:'Royal College of Physicians (Reino Unido). "National Early Warning Score (NEWS) 2." 2017. Adoptado por el NHS para el deterioro clínico precoz.', pt:'Royal College of Physicians (Reino Unido). "National Early Warning Score (NEWS) 2." 2017. Adotado pelo NHS para deterioração clínica precoce.'},
-  reviewedAt:'2026-07'
-},
-
-{ id:'timi', cat:'cardiologia', tag:'TIMI',
-  title:{es:'TIMI risk score (SCA sin elevación del ST)', pt:'TIMI risk score (SCA sem supra de ST)'},
-  sub:{es:'Riesgo en angina inestable / IAM sin elevación del ST', pt:'Risco em angina instável / IAM sem supra de ST'},
-  why:{es:'Una vez diagnosticado un síndrome coronario agudo sin elevación del ST, TIMI ayuda a decidir la urgencia de una estrategia invasiva sumando siete factores clínicos y de laboratorio simples, disponibles apenas la persona llega, sin esperar estudios complejos.',
-       pt:'Uma vez diagnosticada uma síndrome coronariana aguda sem supra de ST, o TIMI ajuda a decidir a urgência de uma estratégia invasiva somando sete fatores clínicos e laboratoriais simples, disponíveis assim que a pessoa chega, sem esperar exames complexos.'},
-  inputs:[
-    {id:'edad', type:'bool', points:1, label:{es:'Edad ≥ 65 años', pt:'Idade ≥ 65 anos'}},
-    {id:'factores', type:'bool', points:1, label:{es:'≥ 3 factores de riesgo para enfermedad coronaria', pt:'≥ 3 fatores de risco para doença coronariana'}},
-    {id:'ecc', type:'bool', points:1, label:{es:'Enfermedad coronaria conocida (estenosis ≥ 50%)', pt:'Doença coronariana conhecida (estenose ≥ 50%)'}},
-    {id:'aas', type:'bool', points:1, label:{es:'Uso de aspirina en los últimos 7 días', pt:'Uso de aspirina nos últimos 7 dias'}},
-    {id:'angina', type:'bool', points:1, label:{es:'≥ 2 episodios de angina en las últimas 24 h', pt:'≥ 2 episódios de angina nas últimas 24 h'}},
-    {id:'st', type:'bool', points:1, label:{es:'Desviación del ST ≥ 0.5 mm', pt:'Desvio do ST ≥ 0.5 mm'}},
-    {id:'marcadores', type:'bool', points:1, label:{es:'Marcadores cardíacos elevados', pt:'Marcadores cardíacos elevados'}}
-  ],
-  compute:(v, inputs)=>{
-    let score=0;
-    inputs.forEach(inp=>{ if(v[inp.id]) score+=inp.points; });
-    let band, txt;
-    if(score<=2){band='low'; txt={es:'Riesgo bajo (≈5–8% de eventos a 14 días).',pt:'Risco baixo (≈5–8% de eventos em 14 dias).'};}
-    else if(score<=4){band='mid'; txt={es:'Riesgo intermedio (≈13–20% de eventos a 14 días).',pt:'Risco intermediário (≈13–20% de eventos em 14 dias).'};}
-    else{band='high'; txt={es:'Riesgo alto (≈26–41% de eventos a 14 días). Considerar estrategia invasiva temprana.',pt:'Risco alto (≈26–41% de eventos em 14 dias). Considerar estratégia invasiva precoce.'};}
-    return {value:score, unit:'/ 7', band, text:txt};
-  },
-  how:{es:'Cada ítem vale 1 punto (rango 0-7). A diferencia de GRACE, que usa variables continuas ponderadas, TIMI simplifica todo a variables binarias para poder calcularse mentalmente al lado de la cama, a costa de algo de precisión estadística.',
-       pt:'Cada item vale 1 ponto (faixa 0-7). Diferente do GRACE, que usa variáveis contínuas ponderadas, o TIMI simplifica tudo em variáveis binárias para poder ser calculado mentalmente à beira do leito, ao custo de alguma precisão estatística.'},
-  source:{es:'Antman EM, et al. "The TIMI risk score for unstable angina/non-ST elevation MI." JAMA, 2000.', pt:'Antman EM, et al. "The TIMI risk score for unstable angina/non-ST elevation MI." JAMA, 2000.'},
-  reviewedAt:'2026-07'
-},
-
-{ id:'spesi', cat:'cardiologia', tag:'sPESI',
-  title:{es:'sPESI', pt:'sPESI'},
-  sub:{es:'Riesgo de mortalidad en embolia pulmonar confirmada', pt:'Risco de mortalidade em embolia pulmonar confirmada'},
-  why:{es:'Una vez confirmada la embolia pulmonar, la pregunta clínica cambia: ¿esta persona puede tratarse ambulatoriamente o necesita internación? sPESI simplifica el PESI original a seis variables binarias fáciles de obtener, para tomar esa decisión de forma rápida y reproducible.',
-       pt:'Uma vez confirmada a embolia pulmonar, a pergunta clínica muda: essa pessoa pode ser tratada ambulatorialmente ou precisa de internação? O sPESI simplifica o PESI original para seis variáveis binárias fáceis de obter, para tomar essa decisão de forma rápida e reprodutível.'},
-  inputs:[
-    {id:'edad', type:'bool', points:1, label:{es:'Edad > 80 años', pt:'Idade > 80 anos'}},
-    {id:'cancer', type:'bool', points:1, label:{es:'Cáncer activo', pt:'Câncer ativo'}},
-    {id:'epoc', type:'bool', points:1, label:{es:'Enfermedad cardiopulmonar crónica', pt:'Doença cardiopulmonar crônica'}},
-    {id:'fc', type:'bool', points:1, label:{es:'Frecuencia cardíaca ≥ 110/min', pt:'Frequência cardíaca ≥ 110/min'}},
-    {id:'pas', type:'bool', points:1, label:{es:'Presión arterial sistólica < 100 mmHg', pt:'Pressão arterial sistólica < 100 mmHg'}},
-    {id:'sat', type:'bool', points:1, label:{es:'Saturación de O₂ < 90%', pt:'Saturação de O₂ < 90%'}}
-  ],
-  compute:(v, inputs)=>{
-    let score=0;
-    inputs.forEach(inp=>{ if(v[inp.id]) score+=inp.points; });
-    let band, txt;
-    if(score===0){band='low'; txt={es:'Riesgo bajo (mortalidad a 30 días ≈1%). Puede considerarse manejo ambulatorio en un contexto adecuado.',pt:'Risco baixo (mortalidade em 30 dias ≈1%). Pode-se considerar manejo ambulatorial em um contexto adequado.'};}
-    else{band='high'; txt={es:'Riesgo alto (mortalidad a 30 días ≈10%). Se recomienda internación.',pt:'Risco alto (mortalidade em 30 dias ≈10%). Recomenda-se internação.'};}
-    return {value:score, unit:'/ 6', band, text:txt};
-  },
-  how:{es:'Cada ítem vale 1 punto. Un puntaje de 0 identifica pacientes de bajo riesgo con alta seguridad (alto valor predictivo negativo); basta un solo ítem positivo para reclasificar como alto riesgo.',
-       pt:'Cada item vale 1 ponto. Um escore de 0 identifica pacientes de baixo risco com alta segurança (alto valor preditivo negativo); basta um único item positivo para reclassificar como alto risco.'},
-  source:{es:'Jiménez D, et al. "Simplification of the pulmonary embolism severity index for prognostication in patients with acute symptomatic pulmonary embolism." Archives of Internal Medicine, 2010.', pt:'Jiménez D, et al. "Simplification of the pulmonary embolism severity index for prognostication in patients with acute symptomatic pulmonary embolism." Archives of Internal Medicine, 2010.'},
-  reviewedAt:'2026-07'
-},
-
-{ id:'killip', cat:'cardiologia', tag:'Killip',
-  title:{es:'Clasificación de Killip-Kimball', pt:'Classificação de Killip-Kimball'},
-  sub:{es:'Gravedad clínica en infarto agudo de miocardio', pt:'Gravidade clínica no infarto agudo do miocárdio'},
-  why:{es:'Antes de tener acceso a laboratorio o hemodinamia invasiva, Killip-Kimball clasifica al paciente con infarto solamente por el examen físico (auscultación pulmonar y cardíaca, signos de shock), porque esos hallazgos reflejan directamente cuánto músculo cardíaco está fallando como bomba.',
-       pt:'Antes de ter acesso a laboratório ou hemodinâmica invasiva, o Killip-Kimball classifica o paciente com infarto apenas pelo exame físico (ausculta pulmonar e cardíaca, sinais de choque), porque esses achados refletem diretamente quanto músculo cardíaco está falhando como bomba.'},
-  inputs:[
-    {id:'clase', type:'select', label:{es:'Clase clínica', pt:'Classe clínica'}, options:[
-      {v:1,l:{es:'I — Sin signos de insuficiencia cardíaca',pt:'I — Sem sinais de insuficiência cardíaca'}},
-      {v:2,l:{es:'II — Estertores basales o ingurgitación yugular / tercer ruido',pt:'II — Estertores basais ou turgência jugular / terceira bulha'}},
-      {v:3,l:{es:'III — Edema agudo de pulmón',pt:'III — Edema agudo de pulmão'}},
-      {v:4,l:{es:'IV — Shock cardiogénico',pt:'IV — Choque cardiogênico'}}]}
-  ],
-  compute:(v)=>{
-    const map = {
-      1:{band:'low', mort:'≈6%', txt:{es:'Sin insuficiencia cardíaca clínica.',pt:'Sem insuficiência cardíaca clínica.'}},
-      2:{band:'mid', mort:'≈17%', txt:{es:'Insuficiencia cardíaca leve a moderada.',pt:'Insuficiência cardíaca leve a moderada.'}},
-      3:{band:'high', mort:'≈38%', txt:{es:'Edema pulmonar franco.',pt:'Edema pulmonar franco.'}},
-      4:{band:'high', mort:'≈81%', txt:{es:'Shock cardiogénico.',pt:'Choque cardiogênico.'}}
-    };
-    const r = map[v.clase];
-    return {value:'Killip '+({1:'I',2:'II',3:'III',4:'IV'}[v.clase]), unit:'', band:r.band, text:{es:`Mortalidad hospitalaria histórica aproximada: ${r.mort}. ${r.txt.es}`, pt:`Mortalidade hospitalar histórica aproximada: ${r.mort}. ${r.txt.pt}`}};
-  },
-  how:{es:'Clasificación descriptiva (no una suma de puntos): cada clase representa un escalón de gravedad hemodinámica creciente, validado originalmente por Killip y Kimball en 1967 con datos de mortalidad hospitalaria por infarto, antes de la era de la reperfusión.',
-       pt:'Classificação descritiva (não uma soma de pontos): cada classe representa um degrau de gravidade hemodinâmica crescente, validado originalmente por Killip e Kimball em 1967 com dados de mortalidade hospitalar por infarto, antes da era da reperfusão.'},
-  source:{es:'Killip T, Kimball JT. "Treatment of myocardial infarction in a coronary care unit." American Journal of Cardiology, 1967.', pt:'Killip T, Kimball JT. "Treatment of myocardial infarction in a coronary care unit." American Journal of Cardiology, 1967.'},
-  reviewedAt:'2026-07'
-},
-
-{ id:'curb65', cat:'emergencia', tag:'CURB-65',
-  title:{es:'CURB-65', pt:'CURB-65'},
-  sub:{es:'Gravedad de la neumonía adquirida en la comunidad', pt:'Gravidade da pneumonia adquirida na comunidade'},
-  why:{es:'CURB-65 ayuda a decidir si una neumonía puede tratarse en casa o necesita internación (o incluso UCI), combinando cinco datos rápidos de obtener: confusión mental, función renal, frecuencia respiratoria, presión arterial y edad, cada uno reflejando un ángulo distinto de qué tan comprometido está el paciente.',
-       pt:'O CURB-65 ajuda a decidir se uma pneumonia pode ser tratada em casa ou precisa de internação (ou até UTI), combinando cinco dados rápidos de obter: confusão mental, função renal, frequência respiratória, pressão arterial e idade, cada um refletindo um ângulo diferente do quão comprometido está o paciente.'},
-  inputs:[
-    {id:'confusion', type:'bool', points:1, label:{es:'Confusión mental de nueva aparición', pt:'Confusão mental de início recente'}},
-    {id:'urea', type:'bool', points:1, label:{es:'Urea > 19 mg/dL (o BUN > 19)', pt:'Ureia > 19 mg/dL (ou BUN > 19)'}},
-    {id:'fr', type:'bool', points:1, label:{es:'Frecuencia respiratoria ≥ 30/min', pt:'Frequência respiratória ≥ 30/min'}},
-    {id:'pa', type:'bool', points:1, label:{es:'Presión arterial: sistólica < 90 o diastólica ≤ 60 mmHg', pt:'Pressão arterial: sistólica < 90 ou diastólica ≤ 60 mmHg'}},
-    {id:'edad', type:'bool', points:1, label:{es:'Edad ≥ 65 años', pt:'Idade ≥ 65 anos'}}
-  ],
-  compute:(v, inputs)=>{
-    let score=0;
-    inputs.forEach(inp=>{ if(v[inp.id]) score+=inp.points; });
-    let band, txt;
-    if(score<=1){band='low'; txt={es:'Riesgo bajo. Razonable manejo ambulatorio.',pt:'Risco baixo. Razoável manejo ambulatorial.'};}
-    else if(score===2){band='mid'; txt={es:'Riesgo intermedio. Considerar internación breve o supervisión estrecha.',pt:'Risco intermediário. Considerar internação breve ou supervisão estreita.'};}
-    else{band='high'; txt={es:'Riesgo alto. Se recomienda internación; con 4-5 puntos, considerar UCI.',pt:'Risco alto. Recomenda-se internação; com 4-5 pontos, considerar UTI.'};}
-    return {value:score, unit:'/ 5', band, text:txt};
-  },
-  how:{es:'Cada ítem vale 1 punto (rango 0-5). Es una versión simplificada del CURB-65 completo (que además pondera la oxigenación y hallazgos radiológicos), pensada para poder aplicarse en minutos en la guardia.',
-       pt:'Cada item vale 1 ponto (faixa 0-5). É uma versão simplificada do CURB-65 completo (que também pondera a oxigenação e achados radiológicos), pensada para poder ser aplicada em minutos na emergência.'},
-  source:{es:'Lim WS, et al. "Defining community acquired pneumonia severity on presentation to hospital." Thorax, 2003.', pt:'Lim WS, et al. "Defining community acquired pneumonia severity on presentation to hospital." Thorax, 2003.'},
-  reviewedAt:'2026-07'
-},
-
-{ id:'alvarado', cat:'emergencia', tag:'Alvarado',
-  title:{es:'Escala de Alvarado', pt:'Escore de Alvarado'},
-  sub:{es:'Probabilidad clínica de apendicitis aguda', pt:'Probabilidade clínica de apendicite aguda'},
-  why:{es:'La apendicitis se diagnostica clásicamente por una combinación de síntomas, signos y laboratorio simple, sin necesidad de imágenes en los casos típicos. Alvarado combina esos hallazgos (migración del dolor, anorexia, náuseas, dolor localizado, rebote, fiebre y leucocitosis) en un puntaje que ayuda a decidir entre observación, imágenes o cirugía.',
-       pt:'A apendicite é diagnosticada classicamente por uma combinação de sintomas, sinais e laboratório simples, sem necessidade de imagem nos casos típicos. O Alvarado combina esses achados (migração da dor, anorexia, náuseas, dor localizada, descompressão dolorosa, febre e leucocitose) em um escore que ajuda a decidir entre observação, imagem ou cirurgia.'},
-  inputs:[
-    {id:'migracion', type:'bool', points:1, label:{es:'Migración del dolor a fosa ilíaca derecha', pt:'Migração da dor para fossa ilíaca direita'}},
-    {id:'anorexia', type:'bool', points:1, label:{es:'Anorexia', pt:'Anorexia'}},
-    {id:'nauseas', type:'bool', points:1, label:{es:'Náuseas o vómitos', pt:'Náuseas ou vômitos'}},
-    {id:'dolor', type:'bool', points:2, label:{es:'Dolor a la palpación en fosa ilíaca derecha', pt:'Dor à palpação em fossa ilíaca direita'}},
-    {id:'rebote', type:'bool', points:1, label:{es:'Dolor de rebote (Blumberg)', pt:'Dor de rebote (Blumberg)'}},
-    {id:'temp', type:'bool', points:1, label:{es:'Temperatura ≥ 37.3 °C', pt:'Temperatura ≥ 37.3 °C'}},
-    {id:'leuco', type:'bool', points:2, label:{es:'Leucocitosis > 10.000/mm³', pt:'Leucocitose > 10.000/mm³'}},
-    {id:'desviacion', type:'bool', points:1, label:{es:'Desviación a la izquierda (neutrofilia > 75%)', pt:'Desvio à esquerda (neutrofilia > 75%)'}}
-  ],
-  compute:(v, inputs)=>{
-    let score=0;
-    inputs.forEach(inp=>{ if(v[inp.id]) score+=inp.points; });
-    let band, txt;
-    if(score<=4){band='low'; txt={es:'Apendicitis poco probable. Considerar diagnósticos alternativos.',pt:'Apendicite pouco provável. Considerar diagnósticos alternativos.'};}
-    else if(score<=6){band='mid'; txt={es:'Apendicitis posible. Considerar observación seriada o imágenes.',pt:'Apendicite possível. Considerar observação seriada ou imagem.'};}
-    else{band='high'; txt={es:'Apendicitis probable. Considerar evaluación quirúrgica.',pt:'Apendicite provável. Considerar avaliação cirúrgica.'};}
-    return {value:score, unit:'/ 10', band, text:txt};
-  },
-  how:{es:'Los ítems más específicos (dolor localizado y leucocitosis) valen 2 puntos cada uno, mientras que los síntomas más inespecíficos valen 1, reflejando su distinto peso estadístico en el estudio original de Alvarado (1986).',
-       pt:'Os itens mais específicos (dor localizada e leucocitose) valem 2 pontos cada um, enquanto os sintomas mais inespecíficos valem 1, refletindo seu peso estatístico diferente no estudo original de Alvarado (1986).'},
-  source:{es:'Alvarado A. "A practical score for the early diagnosis of acute appendicitis." Annals of Emergency Medicine, 1986.', pt:'Alvarado A. "A practical score for the early diagnosis of acute appendicitis." Annals of Emergency Medicine, 1986.'},
-  reviewedAt:'2026-07'
-},
-
-{ id:'kdigo', cat:'nefrologia', tag:'KDIGO',
-  title:{es:'KDIGO — Estadificación de lesión renal aguda', pt:'KDIGO — Estadiamento de lesão renal aguda'},
-  sub:{es:'Clasificación de severidad por creatinina', pt:'Classificação de severidade pela creatinina'},
-  why:{es:'KDIGO estandarizó la definición de lesión renal aguda para que distintos hospitales e investigadores hablen del mismo fenómeno. Esta versión compara la creatinina actual contra el valor basal de la persona, porque un mismo valor absoluto de creatinina puede representar normalidad para algunos pacientes y una caída dramática de la función renal para otros.',
-       pt:'O KDIGO padronizou a definição de lesão renal aguda para que diferentes hospitais e pesquisadores falem do mesmo fenômeno. Esta versão compara a creatinina atual contra o valor basal da pessoa, porque um mesmo valor absoluto de creatinina pode representar normalidade para alguns pacientes e uma queda dramática da função renal para outros.'},
-  inputs:[
-    {id:'basal', type:'number', label:{es:'Creatinina basal (mg/dL)', pt:'Creatinina basal (mg/dL)'}},
-    {id:'actual', type:'number', label:{es:'Creatinina actual (mg/dL)', pt:'Creatinina atual (mg/dL)'}}
-  ],
-  compute:(v)=>{
-    const ratio = v.actual/v.basal;
-    const delta = v.actual - v.basal;
-    let band, txt, estadio;
-    if(ratio>=3 || v.actual>=4.0){estadio=3; band='high'; txt={es:'Estadio 3: creatinina ≥3× el basal, o ≥4.0 mg/dL, o inicio de terapia de reemplazo renal.',pt:'Estágio 3: creatinina ≥3× o basal, ou ≥4.0 mg/dL, ou início de terapia de substituição renal.'};}
-    else if(ratio>=2){estadio=2; band='high'; txt={es:'Estadio 2: creatinina entre 2 y 2.9× el valor basal.',pt:'Estágio 2: creatinina entre 2 e 2.9× o valor basal.'};}
-    else if(ratio>=1.5 || delta>=0.3){estadio=1; band='mid'; txt={es:'Estadio 1: creatinina 1.5-1.9× el basal, o aumento ≥0.3 mg/dL en 48 h.',pt:'Estágio 1: creatinina 1.5-1.9× o basal, ou aumento ≥0.3 mg/dL em 48 h.'};}
-    else{estadio=0; band='low'; txt={es:'No cumple criterios de lesión renal aguda por creatinina.',pt:'Não preenche critérios de lesão renal aguda pela creatinina.'};}
-    return {value:estadio===0?'—':estadio, unit:estadio===0?'':'estadio', band, text:txt};
-  },
-  how:{es:'Esta calculadora usa solo el criterio de creatinina (razón actual/basal y delta absoluto). KDIGO también estadifica por diuresis (mL/kg/h sostenidos en el tiempo), que no está incluido acá porque requiere seguimiento continuo, no un valor puntual.',
-       pt:'Esta calculadora usa apenas o critério de creatinina (razão atual/basal e delta absoluto). O KDIGO também estadia pela diurese (mL/kg/h sustentados ao longo do tempo), que não está incluído aqui porque requer acompanhamento contínuo, não um valor pontual.'},
-  source:{es:'KDIGO Clinical Practice Guideline for Acute Kidney Injury. Kidney International Supplements, 2012.', pt:'KDIGO Clinical Practice Guideline for Acute Kidney Injury. Kidney International Supplements, 2012.'},
-  reviewedAt:'2026-07'
-},
-
-{ id:'asa', cat:'geral', tag:'ASA',
-  title:{es:'Clasificación ASA', pt:'Classificação ASA'},
-  sub:{es:'Estado físico preoperatorio', pt:'Estado físico pré-operatório'},
-  why:{es:'Antes de una cirugía, el anestesiólogo necesita una forma rápida y estandarizada de comunicar qué tan enfermo está el paciente en general, independientemente del procedimiento a realizar. La clasificación ASA agrupa a los pacientes en 6 categorías según la presencia y severidad de enfermedad sistémica, y se asocia con el riesgo perioperatorio.',
-       pt:'Antes de uma cirurgia, o anestesiologista precisa de uma forma rápida e padronizada de comunicar quão doente está o paciente em geral, independentemente do procedimento a ser realizado. A classificação ASA agrupa os pacientes em 6 categorias conforme a presença e severidade de doença sistêmica, e se associa ao risco perioperatório.'},
-  inputs:[
-    {id:'clase', type:'select', label:{es:'Clase ASA', pt:'Classe ASA'}, options:[
-      {v:1,l:{es:'I — Paciente sano',pt:'I — Paciente saudável'}},
-      {v:2,l:{es:'II — Enfermedad sistémica leve, sin limitación funcional',pt:'II — Doença sistêmica leve, sem limitação funcional'}},
-      {v:3,l:{es:'III — Enfermedad sistémica severa, con limitación funcional',pt:'III — Doença sistêmica severa, com limitação funcional'}},
-      {v:4,l:{es:'IV — Enfermedad sistémica severa que amenaza la vida constantemente',pt:'IV — Doença sistêmica severa que ameaça a vida constantemente'}},
-      {v:5,l:{es:'V — Moribundo, no se espera que sobreviva sin la cirugía',pt:'V — Moribundo, não se espera que sobreviva sem a cirurgia'}},
-      {v:6,l:{es:'VI — Muerte cerebral declarada, donante de órganos',pt:'VI — Morte encefálica declarada, doador de órgãos'}}]}
-  ],
-  compute:(v)=>{
-    const band = v.clase<=2 ? 'low' : (v.clase<=3 ? 'mid' : 'high');
-    return {value:'ASA '+({1:'I',2:'II',3:'III',4:'IV',5:'V',6:'VI'}[v.clase]), unit:'', band, text:{es:'Clasificación según estado físico preoperatorio. Se le agrega una "E" cuando la cirugía es de emergencia.',pt:'Classificação conforme estado físico pré-operatório. Adiciona-se um "E" quando a cirurgia é de emergência.'}};
-  },
-  how:{es:'Es una clasificación clínica (no una suma de puntos), basada en el juicio del anestesiólogo sobre el estado general del paciente. Aunque es subjetiva, se correlaciona consistentemente con la mortalidad y morbilidad perioperatoria en estudios grandes.',
-       pt:'É uma classificação clínica (não uma soma de pontos), baseada no julgamento do anestesiologista sobre o estado geral do paciente. Embora seja subjetiva, se correlaciona consistentemente com a mortalidade e morbidade perioperatória em estudos grandes.'},
-  source:{es:'American Society of Anesthesiologists (ASA). Sistema de clasificación de estado físico, originado en 1963 y actualizado periódicamente por la sociedad.', pt:'American Society of Anesthesiologists (ASA). Sistema de classificação de estado físico, originado em 1963 e atualizado periodicamente pela sociedade.'},
-  reviewedAt:'2026-07'
-},
-
-{ id:'caprini', cat:'geral', tag:'Caprini',
-  title:{es:'Escala de Caprini (2005)', pt:'Escore de Caprini (2005)'},
-  sub:{es:'Riesgo de tromboembolismo venoso perioperatorio', pt:'Risco de tromboembolismo venoso perioperatório'},
-  why:{es:'Caprini suma factores de riesgo de trombosis con distinto peso (1, 2, 3 o 5 puntos) según qué tan fuertemente se asocian a eventos trombóticos en la evidencia original, para decidir qué tipo de profilaxis (mecánica, farmacológica o ambas) necesita cada paciente quirúrgico.',
-       pt:'O Caprini soma fatores de risco de trombose com peso diferente (1, 2, 3 ou 5 pontos) conforme o quão fortemente se associam a eventos trombóticos na evidência original, para decidir que tipo de profilaxia (mecânica, farmacológica ou ambas) cada paciente cirúrgico precisa.'},
-  inputs:[
-    {id:'edad4160', type:'bool', points:1, label:{es:'Edad 41–60 años', pt:'Idade 41–60 anos'}},
-    {id:'cirmenor', type:'bool', points:1, label:{es:'Cirugía menor planeada', pt:'Cirurgia menor planejada'}},
-    {id:'imc25', type:'bool', points:1, label:{es:'IMC > 25', pt:'IMC > 25'}},
-    {id:'varices', type:'bool', points:1, label:{es:'Venas varicosas', pt:'Veias varicosas'}},
-    {id:'eii', type:'bool', points:1, label:{es:'Enfermedad inflamatoria intestinal', pt:'Doença inflamatória intestinal'}},
-    {id:'edemapiernas', type:'bool', points:1, label:{es:'Edema de piernas actual', pt:'Edema de pernas atual'}},
-    {id:'sepsis1m', type:'bool', points:1, label:{es:'Sepsis (< 1 mes)', pt:'Sepse (< 1 mês)'}},
-    {id:'pulmonar1m', type:'bool', points:1, label:{es:'Enfermedad pulmonar seria, incl. neumonía (< 1 mes)', pt:'Doença pulmonar séria, incl. pneumonia (< 1 mês)'}},
-    {id:'reposomedico', type:'bool', points:1, label:{es:'Paciente médico actualmente en reposo en cama', pt:'Paciente clínico atualmente em repouso no leito'}},
-    {id:'edad6074', type:'bool', points:2, label:{es:'Edad 60–74 años', pt:'Idade 60–74 anos'}},
-    {id:'cirmayor', type:'bool', points:2, label:{es:'Cirugía mayor (> 45 min)', pt:'Cirurgia maior (> 45 min)'}},
-    {id:'laparoscopica', type:'bool', points:2, label:{es:'Cirugía laparoscópica (> 45 min)', pt:'Cirurgia laparoscópica (> 45 min)'}},
-    {id:'malignidad', type:'bool', points:2, label:{es:'Malignidad (presente o previa)', pt:'Malignidade (presente ou prévia)'}},
-    {id:'confinado72', type:'bool', points:2, label:{es:'Confinado a cama > 72 h', pt:'Confinado ao leito > 72 h'}},
-    {id:'yeso', type:'bool', points:2, label:{es:'Yeso inmovilizador (< 1 mes)', pt:'Gesso imobilizador (< 1 mês)'}},
-    {id:'catetervenoso', type:'bool', points:2, label:{es:'Acceso venoso central', pt:'Acesso venoso central'}},
-    {id:'edad75', type:'bool', points:3, label:{es:'Edad ≥ 75 años', pt:'Idade ≥ 75 anos'}},
-    {id:'tvpprevia', type:'bool', points:3, label:{es:'Historia personal de TVP/TEP', pt:'História pessoal de TVP/TEP'}},
-    {id:'famtrombosis', type:'bool', points:3, label:{es:'Historia familiar de trombosis', pt:'História familiar de trombose'}},
-    {id:'trombofilia', type:'bool', points:3, label:{es:'Trombofilia conocida (factor V Leiden, anticuerpos antifosfolípido, etc.)', pt:'Trombofilia conhecida (fator V Leiden, anticorpos antifosfolípide, etc.)'}},
-    {id:'artroplastia', type:'bool', points:5, label:{es:'Artroplastia electiva de miembro inferior', pt:'Artroplastia eletiva de membro inferior'}},
-    {id:'fractura', type:'bool', points:5, label:{es:'Fractura de cadera, pelvis o pierna (< 1 mes)', pt:'Fratura de quadril, pelve ou perna (< 1 mês)'}},
-    {id:'acv1m', type:'bool', points:5, label:{es:'ACV (< 1 mes)', pt:'AVC (< 1 mês)'}},
-    {id:'lesionmedular', type:'bool', points:5, label:{es:'Lesión medular aguda / parálisis (< 1 mes)', pt:'Lesão medular aguda / paralisia (< 1 mês)'}}
-  ],
-  compute:(v, inputs)=>{
-    let score=0;
-    inputs.forEach(inp=>{ if(v[inp.id]) score+=inp.points; });
-    let band, txt;
-    if(score<=1){band='low'; txt={es:'Riesgo bajo. Deambulación precoz frecuente ± profilaxis mecánica.',pt:'Risco baixo. Deambulação precoce frequente ± profilaxia mecânica.'};}
-    else if(score<=4){band='mid'; txt={es:'Riesgo moderado. Profilaxis mecánica ± farmacológica según contexto.',pt:'Risco moderado. Profilaxia mecânica ± farmacológica conforme o contexto.'};}
-    else{band='high'; txt={es:'Riesgo alto. Considerar profilaxis mecánica y farmacológica combinada, evaluando siempre el riesgo de sangrado.',pt:'Risco alto. Considerar profilaxia mecânica e farmacológica combinada, avaliando sempre o risco de sangramento.'};}
-    return {value:score, unit:'puntos', band, text:txt};
-  },
-  how:{es:'Versión 2005, la más usada en la práctica y la validada en más estudios. Los ítems de mayor peso (5 puntos) son eventos agudos de muy alto riesgo trombótico documentado (fractura de cadera, ACV reciente, lesión medular), mientras que factores crónicos leves como venas varicosas valen apenas 1 punto.',
-       pt:'Versão 2005, a mais usada na prática e a validada em mais estudos. Os itens de maior peso (5 pontos) são eventos agudos de risco trombótico documentado muito alto (fratura de quadril, AVC recente, lesão medular), enquanto fatores crônicos leves como veias varicosas valem apenas 1 ponto.'},
-  source:{es:'Caprini JA. "Thrombosis risk assessment as a guide to quality patient care." Disease-a-Month, 2005.', pt:'Caprini JA. "Thrombosis risk assessment as a guide to quality patient care." Disease-a-Month, 2005.'},
-  reviewedAt:'2026-07'
-},
-
-{ id:'apgar', cat:'geral', tag:'APGAR',
-  title:{es:'Puntaje de APGAR', pt:'Escore de APGAR'},
-  sub:{es:'Estado clínico del recién nacido', pt:'Estado clínico do recém-nascido'},
-  why:{es:'APGAR fue diseñado para dar, en segundos y sin equipo especial, una primera impresión objetiva de cómo está tolerando el recién nacido la transición a la vida fuera del útero. Evalúa cinco signos simples que reflejan función cardiorrespiratoria y neurológica básica, típicamente al minuto 1 y al minuto 5 de vida.',
-       pt:'O APGAR foi desenhado para dar, em segundos e sem equipamento especial, uma primeira impressão objetiva de como o recém-nascido está tolerando a transição para a vida fora do útero. Avalia cinco sinais simples que refletem função cardiorrespiratória e neurológica básica, tipicamente no minuto 1 e no minuto 5 de vida.'},
-  inputs:[
-    {id:'color', type:'select', label:{es:'Apariencia / color', pt:'Aparência / cor'}, options:[
-      {v:0,l:{es:'Cianosis o palidez generalizada',pt:'Cianose ou palidez generalizada'}},{v:1,l:{es:'Cuerpo rosado, extremidades cianóticas',pt:'Corpo rosado, extremidades cianóticas'}},{v:2,l:{es:'Rosado en todo el cuerpo',pt:'Rosado em todo o corpo'}}]},
-    {id:'fc', type:'select', label:{es:'Frecuencia cardíaca', pt:'Frequência cardíaca'}, options:[
-      {v:0,l:{es:'Ausente',pt:'Ausente'}},{v:1,l:{es:'< 100 lpm',pt:'< 100 bpm'}},{v:2,l:{es:'≥ 100 lpm',pt:'≥ 100 bpm'}}]},
-    {id:'reflejos', type:'select', label:{es:'Irritabilidad refleja', pt:'Irritabilidade reflexa'}, options:[
-      {v:0,l:{es:'Sin respuesta',pt:'Sem resposta'}},{v:1,l:{es:'Mueca o quejido leve',pt:'Careta ou gemido leve'}},{v:2,l:{es:'Llanto vigoroso, tos o estornudo',pt:'Choro vigoroso, tosse ou espirro'}}]},
-    {id:'tono', type:'select', label:{es:'Tono muscular / actividad', pt:'Tônus muscular / atividade'}, options:[
-      {v:0,l:{es:'Flácido',pt:'Flácido'}},{v:1,l:{es:'Alguna flexión de extremidades',pt:'Alguma flexão de extremidades'}},{v:2,l:{es:'Movimiento activo',pt:'Movimento ativo'}}]},
-    {id:'resp', type:'select', label:{es:'Respiración', pt:'Respiração'}, options:[
-      {v:0,l:{es:'Ausente',pt:'Ausente'}},{v:1,l:{es:'Lenta o irregular',pt:'Lenta ou irregular'}},{v:2,l:{es:'Llanto fuerte, respiración regular',pt:'Choro forte, respiração regular'}}]}
-  ],
-  compute:(v)=>{
-    const val = (v.color||0)+(v.fc||0)+(v.reflejos||0)+(v.tono||0)+(v.resp||0);
-    let band, txt;
-    if(val>=7){band='low'; txt={es:'Transición normal.',pt:'Transição normal.'};}
-    else if(val>=4){band='mid'; txt={es:'Depresión moderada. Puede requerir estimulación o soporte respiratorio.',pt:'Depressão moderada. Pode necessitar de estimulação ou suporte respiratório.'};}
-    else{band='high'; txt={es:'Depresión severa. Requiere reanimación neonatal inmediata.',pt:'Depressão severa. Requer reanimação neonatal imediata.'};}
-    return {value:val, unit:'/ 10', band, text:txt};
-  },
-  how:{es:'Suma de 5 categorías de 0 a 2 puntos. Se evalúa tradicionalmente al minuto 1 (refleja tolerancia al parto) y al minuto 5 (mejor predictor de evolución); si sigue bajo, se repite cada 5 minutos.',
-       pt:'Soma de 5 categorias de 0 a 2 pontos. É avaliado tradicionalmente no minuto 1 (reflete tolerância ao parto) e no minuto 5 (melhor preditor de evolução); se continuar baixo, repete-se a cada 5 minutos.'},
-  source:{es:'Apgar V. "A proposal for a new method of evaluation of the newborn infant." Current Researches in Anesthesia & Analgesia, 1953.', pt:'Apgar V. "A proposal for a new method of evaluation of the newborn infant." Current Researches in Anesthesia & Analgesia, 1953.'},
-  reviewedAt:'2026-07'
-},
-
-{ id:'bishop', cat:'geral', tag:'Bishop',
-  title:{es:'Puntaje de Bishop', pt:'Escore de Bishop'},
-  sub:{es:'Favorabilidad cervical para inducción del parto', pt:'Favorabilidade cervical para indução do parto'},
-  why:{es:'Antes de inducir un parto, importa saber si el cuello uterino está "listo" para el proceso, porque inducir sobre un cuello desfavorable aumenta el riesgo de fracaso de inducción y cesárea. Bishop combina hallazgos del examen físico (dilatación, borramiento, altura de la presentación, consistencia y posición del cuello) en un puntaje que estima esa probabilidad de éxito.',
-       pt:'Antes de induzir um parto, importa saber se o colo uterino está "pronto" para o processo, porque induzir sobre um colo desfavorável aumenta o risco de falha de indução e cesárea. O Bishop combina achados do exame físico (dilatação, apagamento, altura da apresentação, consistência e posição do colo) em um escore que estima essa probabilidade de sucesso.'},
-  inputs:[
-    {id:'dilatacion', type:'select', label:{es:'Dilatación (cm)', pt:'Dilatação (cm)'}, options:[
-      {v:0,l:{es:'Cerrado',pt:'Fechado'}},{v:1,l:{es:'1–2',pt:'1–2'}},{v:2,l:{es:'3–4',pt:'3–4'}},{v:3,l:{es:'≥ 5',pt:'≥ 5'}}]},
-    {id:'borramiento', type:'select', label:{es:'Borramiento (%)', pt:'Apagamento (%)'}, options:[
-      {v:0,l:{es:'0–30',pt:'0–30'}},{v:1,l:{es:'40–50',pt:'40–50'}},{v:2,l:{es:'60–70',pt:'60–70'}},{v:3,l:{es:'≥ 80',pt:'≥ 80'}}]},
-    {id:'altura', type:'select', label:{es:'Altura de la presentación (estación)', pt:'Altura da apresentação (estação)'}, options:[
-      {v:0,l:{es:'-3',pt:'-3'}},{v:1,l:{es:'-2',pt:'-2'}},{v:2,l:{es:'-1 / 0',pt:'-1 / 0'}},{v:3,l:{es:'+1 / +2',pt:'+1 / +2'}}]},
-    {id:'consistencia', type:'select', label:{es:'Consistencia cervical', pt:'Consistência cervical'}, options:[
-      {v:0,l:{es:'Firme',pt:'Firme'}},{v:1,l:{es:'Media',pt:'Média'}},{v:2,l:{es:'Blanda',pt:'Amolecida'}}]},
-    {id:'posicion', type:'select', label:{es:'Posición cervical', pt:'Posição cervical'}, options:[
-      {v:0,l:{es:'Posterior',pt:'Posterior'}},{v:1,l:{es:'Media',pt:'Média'}},{v:2,l:{es:'Anterior',pt:'Anterior'}}]}
-  ],
-  compute:(v)=>{
-    const val = (v.dilatacion||0)+(v.borramiento||0)+(v.altura||0)+(v.consistencia||0)+(v.posicion||0);
-    let band, txt;
-    if(val>=8){band='low'; txt={es:'Cuello favorable. Alta probabilidad de éxito de inducción, similar a trabajo de parto espontáneo.',pt:'Colo favorável. Alta probabilidade de sucesso de indução, semelhante a trabalho de parto espontâneo.'};}
-    else if(val>=6){band='mid'; txt={es:'Cuello intermedio. Puede necesitar maduración cervical antes de la inducción.',pt:'Colo intermediário. Pode necessitar de maturação cervical antes da indução.'};}
-    else{band='high'; txt={es:'Cuello desfavorable. Mayor riesgo de fracaso de inducción; considerar maduración cervical.',pt:'Colo desfavorável. Maior risco de falha de indução; considerar maturação cervical.'};}
-    return {value:val, unit:'/ 13', band, text:txt};
-  },
-  how:{es:'Suma de 5 componentes (rango 0-13). Un puntaje ≥8 se asocia a una probabilidad de parto vaginal exitoso tras inducción similar a la de un trabajo de parto que comienza espontáneamente.',
-       pt:'Soma de 5 componentes (faixa 0-13). Um escore ≥8 se associa a uma probabilidade de parto vaginal bem-sucedido após indução semelhante à de um trabalho de parto que começa espontaneamente.'},
-  source:{es:'Bishop EH. "Pelvic scoring for elective induction." Obstetrics & Gynecology, 1964.', pt:'Bishop EH. "Pelvic scoring for elective induction." Obstetrics & Gynecology, 1964.'},
-  reviewedAt:'2026-07'
-},
-
-{ id:'nihss', cat:'emergencia', tag:'NIHSS',
-  title:{es:'NIHSS', pt:'NIHSS'},
-  sub:{es:'Severidad del déficit neurológico en ACV isquémico', pt:'Severidade do déficit neurológico no AVC isquêmico'},
-  why:{es:'NIHSS estandariza el examen neurológico en ACV agudo en un puntaje numérico único, para poder comparar objetivamente la severidad entre pacientes, decidir elegibilidad para trombólisis o trombectomía, y detectar empeoramiento o mejoría durante la evolución con exámenes repetidos.',
-       pt:'O NIHSS padroniza o exame neurológico no AVC agudo em um escore numérico único, para poder comparar objetivamente a severidade entre pacientes, decidir elegibilidade para trombólise ou trombectomia, e detectar piora ou melhora durante a evolução com exames repetidos.'},
-  inputs:[
-    {id:'consciencia', type:'select', label:{es:'1a. Nivel de conciencia', pt:'1a. Nível de consciência'}, options:[
-      {v:0,l:{es:'Alerta',pt:'Alerta'}},{v:1,l:{es:'Somnoliento, despierta con mínimo estímulo',pt:'Sonolento, desperta com mínimo estímulo'}},{v:2,l:{es:'Obnubilado, requiere estímulo repetido/doloroso',pt:'Obnubilado, requer estímulo repetido/doloroso'}},{v:3,l:{es:'Coma (sin respuesta o solo reflejos)',pt:'Coma (sem resposta ou apenas reflexos)'}}]},
-    {id:'preguntas', type:'select', label:{es:'1b. Preguntas orientadas (mes y edad)', pt:'1b. Perguntas orientadas (mês e idade)'}, options:[
-      {v:0,l:{es:'Responde ambas correctamente',pt:'Responde ambas corretamente'}},{v:1,l:{es:'Responde una correctamente',pt:'Responde uma corretamente'}},{v:2,l:{es:'Ninguna correcta',pt:'Nenhuma correta'}}]},
-    {id:'ordenes', type:'select', label:{es:'1c. Órdenes (abrir/cerrar ojos, mano)', pt:'1c. Ordens (abrir/fechar olhos, mão)'}, options:[
-      {v:0,l:{es:'Ejecuta ambas',pt:'Executa ambas'}},{v:1,l:{es:'Ejecuta una',pt:'Executa uma'}},{v:2,l:{es:'Ninguna',pt:'Nenhuma'}}]},
-    {id:'mirada', type:'select', label:{es:'2. Mirada conjugada', pt:'2. Olhar conjugado'}, options:[
-      {v:0,l:{es:'Normal',pt:'Normal'}},{v:1,l:{es:'Parálisis parcial de la mirada',pt:'Paralisia parcial do olhar'}},{v:2,l:{es:'Desviación forzada',pt:'Desvio forçado'}}]},
-    {id:'campos', type:'select', label:{es:'3. Campos visuales', pt:'3. Campos visuais'}, options:[
-      {v:0,l:{es:'Sin defecto',pt:'Sem defeito'}},{v:1,l:{es:'Hemianopsia parcial',pt:'Hemianopsia parcial'}},{v:2,l:{es:'Hemianopsia completa',pt:'Hemianopsia completa'}},{v:3,l:{es:'Ceguera bilateral',pt:'Cegueira bilateral'}}]},
-    {id:'facial', type:'select', label:{es:'4. Paresia facial', pt:'4. Paresia facial'}, options:[
-      {v:0,l:{es:'Normal',pt:'Normal'}},{v:1,l:{es:'Leve (asimetría al sonreír)',pt:'Leve (assimetria ao sorrir)'}},{v:2,l:{es:'Parcial (parálisis inferior)',pt:'Parcial (paralisia inferior)'}},{v:3,l:{es:'Completa (uni o bilateral)',pt:'Completa (uni ou bilateral)'}}]},
-    {id:'brazoi', type:'select', label:{es:'5a. Motor brazo izquierdo', pt:'5a. Motor braço esquerdo'}, options:[
-      {v:0,l:{es:'Sin caída en 10 s',pt:'Sem queda em 10 s'}},{v:1,l:{es:'Cae antes de 10 s, sin tocar la cama',pt:'Cai antes de 10 s, sem tocar a cama'}},{v:2,l:{es:'Esfuerzo contra gravedad, cae a la cama',pt:'Esforço contra gravidade, cai na cama'}},{v:3,l:{es:'Sin esfuerzo contra gravedad',pt:'Sem esforço contra gravidade'}},{v:4,l:{es:'Sin movimiento',pt:'Sem movimento'}}]},
-    {id:'brazod', type:'select', label:{es:'5b. Motor brazo derecho', pt:'5b. Motor braço direito'}, options:[
-      {v:0,l:{es:'Sin caída en 10 s',pt:'Sem queda em 10 s'}},{v:1,l:{es:'Cae antes de 10 s, sin tocar la cama',pt:'Cai antes de 10 s, sem tocar a cama'}},{v:2,l:{es:'Esfuerzo contra gravedad, cae a la cama',pt:'Esforço contra gravidade, cai na cama'}},{v:3,l:{es:'Sin esfuerzo contra gravedad',pt:'Sem esforço contra gravidade'}},{v:4,l:{es:'Sin movimiento',pt:'Sem movimento'}}]},
-    {id:'piernai', type:'select', label:{es:'6a. Motor pierna izquierda', pt:'6a. Motor perna esquerda'}, options:[
-      {v:0,l:{es:'Sin caída en 5 s',pt:'Sem queda em 5 s'}},{v:1,l:{es:'Cae antes de 5 s, sin tocar la cama',pt:'Cai antes de 5 s, sem tocar a cama'}},{v:2,l:{es:'Esfuerzo contra gravedad, cae a la cama',pt:'Esforço contra gravidade, cai na cama'}},{v:3,l:{es:'Sin esfuerzo contra gravedad',pt:'Sem esforço contra gravidade'}},{v:4,l:{es:'Sin movimiento',pt:'Sem movimento'}}]},
-    {id:'piernad', type:'select', label:{es:'6b. Motor pierna derecha', pt:'6b. Motor perna direita'}, options:[
-      {v:0,l:{es:'Sin caída en 5 s',pt:'Sem queda em 5 s'}},{v:1,l:{es:'Cae antes de 5 s, sin tocar la cama',pt:'Cai antes de 5 s, sem tocar a cama'}},{v:2,l:{es:'Esfuerzo contra gravedad, cae a la cama',pt:'Esforço contra gravidade, cai na cama'}},{v:3,l:{es:'Sin esfuerzo contra gravedad',pt:'Sem esforço contra gravidade'}},{v:4,l:{es:'Sin movimiento',pt:'Sem movimento'}}]},
-    {id:'ataxia', type:'select', label:{es:'7. Ataxia de miembros', pt:'7. Ataxia de membros'}, options:[
-      {v:0,l:{es:'Ausente',pt:'Ausente'}},{v:1,l:{es:'Presente en 1 miembro',pt:'Presente em 1 membro'}},{v:2,l:{es:'Presente en 2 miembros',pt:'Presente em 2 membros'}}]},
-    {id:'sensibilidad', type:'select', label:{es:'8. Sensibilidad', pt:'8. Sensibilidade'}, options:[
-      {v:0,l:{es:'Normal',pt:'Normal'}},{v:1,l:{es:'Pérdida leve a moderada',pt:'Perda leve a moderada'}},{v:2,l:{es:'Pérdida severa o total',pt:'Perda severa ou total'}}]},
-    {id:'lenguaje', type:'select', label:{es:'9. Lenguaje (afasia)', pt:'9. Linguagem (afasia)'}, options:[
-      {v:0,l:{es:'Normal',pt:'Normal'}},{v:1,l:{es:'Afasia leve a moderada',pt:'Afasia leve a moderada'}},{v:2,l:{es:'Afasia severa',pt:'Afasia severa'}},{v:3,l:{es:'Mudo o afasia global',pt:'Mudo ou afasia global'}}]},
-    {id:'disartria', type:'select', label:{es:'10. Disartria', pt:'10. Disartria'}, options:[
-      {v:0,l:{es:'Normal',pt:'Normal'}},{v:1,l:{es:'Leve a moderada',pt:'Leve a moderada'}},{v:2,l:{es:'Severa o anartria',pt:'Severa ou anartria'}}]},
-    {id:'extincion', type:'select', label:{es:'11. Extinción / inatención', pt:'11. Extinção / inatenção'}, options:[
-      {v:0,l:{es:'Ausente',pt:'Ausente'}},{v:1,l:{es:'Inatención parcial (una modalidad)',pt:'Inatenção parcial (uma modalidade)'}},{v:2,l:{es:'Inatención severa (más de una modalidad)',pt:'Inatenção severa (mais de uma modalidade)'}}]}
-  ],
-  compute:(v)=>{
-    const val = (v.consciencia||0)+(v.preguntas||0)+(v.ordenes||0)+(v.mirada||0)+(v.campos||0)+(v.facial||0)+(v.brazoi||0)+(v.brazod||0)+(v.piernai||0)+(v.piernad||0)+(v.ataxia||0)+(v.sensibilidad||0)+(v.lenguaje||0)+(v.disartria||0)+(v.extincion||0);
-    let band, txt;
-    if(val===0){band='low'; txt={es:'Sin déficit neurológico detectable con esta escala.',pt:'Sem déficit neurológico detectável com esta escala.'};}
-    else if(val<=4){band='low'; txt={es:'ACV leve.',pt:'AVC leve.'};}
-    else if(val<=15){band='mid'; txt={es:'ACV moderado.',pt:'AVC moderado.'};}
-    else if(val<=20){band='mid'; txt={es:'ACV moderado a severo.',pt:'AVC moderado a severo.'};}
-    else{band='high'; txt={es:'ACV severo.',pt:'AVC severo.'};}
-    return {value:val, unit:'/ 42', band, text:txt};
-  },
-  how:{es:'Suma de 15 ítems que evalúan distintas funciones neurológicas (conciencia, lenguaje, campos visuales, motor, sensibilidad, entre otras), con rango total de 0 a 42. Es la escala estándar para cuantificar severidad de ACV isquémico agudo y guiar decisiones de reperfusión.',
-       pt:'Soma de 15 itens que avaliam diferentes funções neurológicas (consciência, linguagem, campos visuais, motor, sensibilidade, entre outras), com faixa total de 0 a 42. É a escala padrão para quantificar a severidade do AVC isquêmico agudo e guiar decisões de reperfusão.'},
-  source:{es:'Brott T, et al. "Measurements of acute cerebral infarction: a clinical examination scale." Stroke, 1989. Estándar internacional para la evaluación del ACV agudo.', pt:'Brott T, et al. "Measurements of acute cerebral infarction: a clinical examination scale." Stroke, 1989. Padrão internacional para avaliação de AVC agudo.'},
-  reviewedAt:'2026-07'
-},
-
-{ id:'apache2', cat:'emergencia', tag:'APACHE II',
-  title:{es:'APACHE II', pt:'APACHE II'},
-  sub:{es:'Gravedad y mortalidad estimada en UCI', pt:'Gravidade e mortalidade estimada em UTI'},
-  why:{es:'APACHE II resume qué tan lejos están 12 variables fisiológicas de rutina de sus valores normales, en las peores mediciones de las primeras 24 horas, y le suma edad y salud crónica previa. La lógica es que la magnitud total de la desviación fisiológica, sumada entre múltiples sistemas, predice mejor el riesgo de muerte que cualquier variable aislada.',
-       pt:'O APACHE II resume o quão longe estão 12 variáveis fisiológicas de rotina de seus valores normais, nas piores medições das primeiras 24 horas, e soma idade e saúde crônica prévia. A lógica é que a magnitude total do desvio fisiológico, somada entre múltiplos sistemas, prediz melhor o risco de morte do que qualquer variável isolada.'},
-  inputs:[
-    {id:'temp', type:'select', label:{es:'Temperatura central (°C)', pt:'Temperatura central (°C)'}, options:[
-      {v:4,l:{es:'≥ 41 o ≤ 29.9',pt:'≥ 41 ou ≤ 29.9'}},{v:3,l:{es:'39–40.9 o 30–31.9',pt:'39–40.9 ou 30–31.9'}},{v:2,l:{es:'32–33.9',pt:'32–33.9'}},
-      {v:1,l:{es:'38.5–38.9 o 34–35.9',pt:'38.5–38.9 ou 34–35.9'}},{v:0,l:{es:'36–38.4',pt:'36–38.4'}}]},
-    {id:'map', type:'select', label:{es:'Presión arterial media (mmHg)', pt:'Pressão arterial média (mmHg)'}, options:[
-      {v:4,l:{es:'≥ 160 o ≤ 49',pt:'≥ 160 ou ≤ 49'}},{v:3,l:{es:'130–159',pt:'130–159'}},{v:2,l:{es:'110–129 o 50–69',pt:'110–129 ou 50–69'}},{v:0,l:{es:'70–109',pt:'70–109'}}]},
-    {id:'fc', type:'select', label:{es:'Frecuencia cardíaca (lpm)', pt:'Frequência cardíaca (bpm)'}, options:[
-      {v:4,l:{es:'≥ 180 o ≤ 39',pt:'≥ 180 ou ≤ 39'}},{v:3,l:{es:'140–179 o 40–54',pt:'140–179 ou 40–54'}},{v:2,l:{es:'110–139 o 55–69',pt:'110–139 ou 55–69'}},{v:0,l:{es:'70–109',pt:'70–109'}}]},
-    {id:'fr', type:'select', label:{es:'Frecuencia respiratoria (rpm)', pt:'Frequência respiratória (rpm)'}, options:[
-      {v:4,l:{es:'≥ 50 o ≤ 5',pt:'≥ 50 ou ≤ 5'}},{v:3,l:{es:'35–49',pt:'35–49'}},{v:2,l:{es:'6–9',pt:'6–9'}},{v:1,l:{es:'25–34 o 10–11',pt:'25–34 ou 10–11'}},{v:0,l:{es:'12–24',pt:'12–24'}}]},
-    {id:'oxig', type:'select', label:{es:'Oxigenación — PaO₂ (mmHg, con FiO₂ < 0.5)', pt:'Oxigenação — PaO₂ (mmHg, com FiO₂ < 0.5)'}, options:[
-      {v:0,l:{es:'> 70',pt:'> 70'}},{v:1,l:{es:'61–70',pt:'61–70'}},{v:3,l:{es:'55–60',pt:'55–60'}},{v:4,l:{es:'< 55',pt:'< 55'}}]},
-    {id:'ph', type:'select', label:{es:'pH arterial', pt:'pH arterial'}, options:[
-      {v:4,l:{es:'≥ 7.7 o < 7.15',pt:'≥ 7.7 ou < 7.15'}},{v:3,l:{es:'7.6–7.69 o 7.15–7.24',pt:'7.6–7.69 ou 7.15–7.24'}},{v:2,l:{es:'7.25–7.32',pt:'7.25–7.32'}},{v:1,l:{es:'7.5–7.59',pt:'7.5–7.59'}},{v:0,l:{es:'7.33–7.49',pt:'7.33–7.49'}}]},
-    {id:'na', type:'select', label:{es:'Sodio sérico (mEq/L)', pt:'Sódio sérico (mEq/L)'}, options:[
-      {v:4,l:{es:'≥ 180 o < 110',pt:'≥ 180 ou < 110'}},{v:3,l:{es:'160–179 o 111–119',pt:'160–179 ou 111–119'}},{v:2,l:{es:'155–159 o 120–129',pt:'155–159 ou 120–129'}},{v:1,l:{es:'150–154',pt:'150–154'}},{v:0,l:{es:'130–149',pt:'130–149'}}]},
-    {id:'k', type:'select', label:{es:'Potasio sérico (mEq/L)', pt:'Potássio sérico (mEq/L)'}, options:[
-      {v:4,l:{es:'≥ 7 o < 2.5',pt:'≥ 7 ou < 2.5'}},{v:3,l:{es:'6–6.9',pt:'6–6.9'}},{v:2,l:{es:'2.5–2.9',pt:'2.5–2.9'}},{v:1,l:{es:'5.5–5.9 o 3–3.4',pt:'5.5–5.9 ou 3–3.4'}},{v:0,l:{es:'3.5–5.4',pt:'3.5–5.4'}}]},
-    {id:'creat', type:'select', label:{es:'Creatinina sérica (mg/dL)', pt:'Creatinina sérica (mg/dL)'}, options:[
-      {v:4,l:{es:'≥ 3.5',pt:'≥ 3.5'}},{v:3,l:{es:'2.0–3.4',pt:'2.0–3.4'}},{v:2,l:{es:'1.5–1.9 o < 0.6',pt:'1.5–1.9 ou < 0.6'}},{v:0,l:{es:'0.6–1.4',pt:'0.6–1.4'}}]},
-    {id:'ira', type:'bool', label:{es:'Falla renal aguda presente', pt:'Falência renal aguda presente'}},
-    {id:'hto', type:'select', label:{es:'Hematocrito (%)', pt:'Hematócrito (%)'}, options:[
-      {v:4,l:{es:'≥ 60 o < 20',pt:'≥ 60 ou < 20'}},{v:2,l:{es:'50–59.9 o 20–29.9',pt:'50–59.9 ou 20–29.9'}},{v:1,l:{es:'46–49.9',pt:'46–49.9'}},{v:0,l:{es:'30–45.9',pt:'30–45.9'}}]},
-    {id:'wbc', type:'select', label:{es:'Leucocitos (×1000/mm³)', pt:'Leucócitos (×1000/mm³)'}, options:[
-      {v:4,l:{es:'≥ 40 o < 1',pt:'≥ 40 ou < 1'}},{v:2,l:{es:'20–39.9 o 1–2.9',pt:'20–39.9 ou 1–2.9'}},{v:1,l:{es:'15–19.9',pt:'15–19.9'}},{v:0,l:{es:'3–14.9',pt:'3–14.9'}}]},
-    {id:'gcs', type:'number', label:{es:'Escala de coma de Glasgow (3–15)', pt:'Escala de coma de Glasgow (3–15)'}},
-    {id:'edad', type:'select', label:{es:'Edad', pt:'Idade'}, options:[
-      {v:0,l:{es:'< 45',pt:'< 45'}},{v:2,l:{es:'45–54',pt:'45–54'}},{v:3,l:{es:'55–64',pt:'55–64'}},{v:5,l:{es:'65–74',pt:'65–74'}},{v:6,l:{es:'≥ 75',pt:'≥ 75'}}]},
-    {id:'cronico', type:'select', label:{es:'Salud crónica previa', pt:'Saúde crônica prévia'}, options:[
-      {v:0,l:{es:'Sin insuficiencia orgánica severa',pt:'Sem insuficiência orgânica severa'}},
-      {v:2,l:{es:'Insuficiencia orgánica severa + postoperatorio electivo',pt:'Insuficiência orgânica severa + pós-operatório eletivo'}},
-      {v:5,l:{es:'Insuficiencia orgánica severa, no operado o postop. de urgencia',pt:'Insuficiência orgânica severa, não operado ou pós-op. de urgência'}}]}
-  ],
-  compute:(v)=>{
-    const gcsPts = 15 - Math.min(Math.max(v.gcs,3),15);
-    const creatPts = v.ira ? (v.creat*2) : v.creat;
-    const val = (v.temp||0)+(v.map||0)+(v.fc||0)+(v.fr||0)+(v.oxig||0)+(v.ph||0)+(v.na||0)+(v.k||0)+creatPts+(v.hto||0)+(v.wbc||0)+gcsPts+(v.edad||0)+(v.cronico||0);
-    let band, txt;
-    if(val<10){band='low'; txt={es:'Gravedad leve. Mortalidad hospitalaria estimada ≈4%.',pt:'Gravidade leve. Mortalidade hospitalar estimada ≈4%.'};}
-    else if(val<20){band='mid'; txt={es:'Gravedad moderada. Mortalidad hospitalaria estimada ≈15%.',pt:'Gravidade moderada. Mortalidade hospitalar estimada ≈15%.'};}
-    else if(val<30){band='high'; txt={es:'Gravedad alta. Mortalidad hospitalaria estimada ≈30–40%.',pt:'Gravidade alta. Mortalidade hospitalar estimada ≈30–40%.'};}
-    else{band='high'; txt={es:'Gravedad muy alta. Mortalidad hospitalaria estimada >50%.',pt:'Gravidade muito alta. Mortalidade hospitalar estimada >50%.'};}
-    return {value:val, unit:'/ 71', band, text:txt};
-  },
-  how:{es:'Suma de la Puntuación de Fisiología Aguda (12 variables, 0-4 puntos cada una, usando el peor valor de las primeras 24 h) + puntos de edad (0-6) + puntos de salud crónica (0, 2 o 5). Los puntos de creatinina se duplican si hay falla renal aguda, porque a igual valor numérico, un riñón que falló agudamente representa mayor gravedad que uno con daño crónico ya compensado. Esta calculadora usa PaO₂ (asume FiO₂ < 0.5); con FiO₂ ≥ 0.5 el cálculo original usa el gradiente A-aDO₂, no incluido aquí.',
-       pt:'Soma da Pontuação de Fisiologia Aguda (12 variáveis, 0-4 pontos cada, usando o pior valor das primeiras 24 h) + pontos de idade (0-6) + pontos de saúde crônica (0, 2 ou 5). Os pontos de creatinina são duplicados se houver falência renal aguda, porque para o mesmo valor numérico, um rim que falhou agudamente representa maior gravidade do que um com dano crônico já compensado. Esta calculadora usa PaO₂ (assume FiO₂ < 0.5); com FiO₂ ≥ 0.5 o cálculo original usa o gradiente A-aDO₂, não incluído aqui.'},
-  source:{es:'Knaus WA, et al. "APACHE II: a severity of disease classification system." Critical Care Medicine, 1985.', pt:'Knaus WA, et al. "APACHE II: a severity of disease classification system." Critical Care Medicine, 1985.'},
-  reviewedAt:'2026-07'
-}
+const WORKER = "https://contas-do-mes.joaovictorcruzsantos.workers.dev";
+const PASS   = "306020";
+const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const DEFAULT_BILLS = [
+  {id:'aysa',      name:'AYSA',      day:1},
+  {id:'alquiler',  name:'Alquiler',  day:5},
+  {id:'faculdade', name:'Faculdade', day:10},
+  {id:'expensas',  name:'Expensas',  day:10},
+  {id:'agip',      name:'AGIP',      day:10},
+  {id:'iplan',     name:'iPlan',     day:16},
+  {id:'edesur',    name:'Edesur',    day:27},
 ];
 
-/* ============ RENDER: LISTA ============ */
-function setLang(l){
-  LANG = l;
-  document.getElementById('btn-es').classList.toggle('active', l==='es');
-  document.getElementById('btn-pt').classList.toggle('active', l==='pt');
-  document.documentElement.lang = l==='es' ? 'es' : 'pt-BR';
-  renderChrome();
-  renderList();
-  if(currentCalc) openDetail(currentCalc.id, true);
+const now = new Date();
+const CY = now.getFullYear(), CM = now.getMonth(), TODAY = now.getDate();
+let data = {months:{},history:[],bills:[...DEFAULT_BILLS],_lastMonth:{y:CY,m:CM}};
+let who = localStorage.getItem('bills_who')||'João';
+let editId = null;
+
+// ── LOCK ──────────────────────────────────────────────────────────────────────
+let lockInput = "";
+
+function lockKey(k) {
+  if (lockInput.length >= 6) return;
+  lockInput += k;
+  const btn = document.getElementById('k'+k);
+  if (btn) { btn.classList.add('pressed'); setTimeout(()=>btn.classList.remove('pressed'),150); }
+  updateDots();
+  if (lockInput.length === 6) setTimeout(checkPass, 120);
+}
+function lockClear() { lockInput=lockInput.slice(0,-1); updateDots(); }
+function lockReset() { lockInput=""; document.querySelectorAll('.lock-dot').forEach(d=>d.classList.remove('filled','error')); }
+function updateDots() { for(let i=0;i<6;i++){const d=document.getElementById('d'+i);d.classList.remove('error');d.classList.toggle('filled',i<lockInput.length);} }
+function checkPass() {
+  if (lockInput===PASS) {
+    sessionStorage.setItem('bills_auth','1');
+    document.getElementById('lock-screen').classList.add('hidden');
+    document.getElementById('app').style.display='block';
+    init();
+  } else {
+    document.querySelectorAll('.lock-dot').forEach(d=>d.classList.add('error'));
+    setTimeout(lockReset,600);
+  }
 }
 
-function renderChrome(){
-  const t = UI[LANG];
-  document.getElementById('tagline').textContent = t.tagline;
-  document.getElementById('searchbox').placeholder = t.search;
-  document.getElementById('backlabel').textContent = t.back;
-  document.getElementById('installhint').innerHTML = t.install;
-  document.getElementById('reopenLabel').textContent = t.reopen;
-  document.getElementById('contactTitle').textContent = t.contactTitle;
-  document.getElementById('contactSub').textContent = t.contactSub + ' · dr.joaovictor@icloud.com';
-  const subject = encodeURIComponent(t.mailSubject);
-  const body = encodeURIComponent(t.mailBody);
-  document.getElementById('contactCard').href = `mailto:dr.joaovictor@icloud.com?subject=${subject}&body=${body}`;
-  const catsEl = document.getElementById('cats');
-  catsEl.innerHTML = '';
-  const cats = ['all','emergencia','cardiologia','nefrologia','geral'];
-  cats.forEach(c=>{
-    const chip = document.createElement('div');
-    chip.className = 'cat-chip' + (activeCat===c ? ' active':'');
-    chip.textContent = t.cats[c];
-    chip.onclick = ()=>{ activeCat=c; renderChrome(); renderList(); };
-    catsEl.appendChild(chip);
-  });
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('lock-screen').classList.contains('hidden')) {
+    if (e.key>='0'&&e.key<='9') lockKey(e.key);
+    else if (e.key==='Backspace') lockClear();
+    else if (e.key==='Escape') lockReset();
+  }
+});
+
+function checkAuth() {
+  if (sessionStorage.getItem('bills_auth')==='1') {
+    document.getElementById('lock-screen').classList.add('hidden');
+    document.getElementById('app').style.display='block';
+    return true;
+  }
+  return false;
 }
 
-function renderModalChrome(){
-  const t = UI[modalLang];
-  document.getElementById('modalLangES').classList.toggle('active', modalLang==='es');
-  document.getElementById('modalLangPT').classList.toggle('active', modalLang==='pt');
-  document.getElementById('modalLangLabel').textContent = t.modalLangLabel;
-  document.getElementById('mTitle').textContent = t.mTitle;
-  document.getElementById('mSub').textContent = t.mSub;
-  document.getElementById('mCta').textContent = t.mCta;
-  renderModalSteps();
+// ── SYNC ──────────────────────────────────────────────────────────────────────
+function setSS(state,txt) { document.getElementById('sync-dot').className='sync-dot '+state; document.getElementById('sync-label').textContent=txt; }
+
+async function remoteRead() {
+  setSS('syncing','sincronizando...');
+  try {
+    const r = await fetch(WORKER,{cache:'no-store'});
+    if (!r.ok) throw 0;
+    const d = await r.json();
+    data = Object.assign({months:{},history:[],bills:[...DEFAULT_BILLS],_lastMonth:{y:CY,m:CM}},d);
+    if (!data.bills||!data.bills.length) data.bills=[...DEFAULT_BILLS];
+    setSS('ok','sincronizado');
+    document.getElementById('sync-time').textContent='sync '+new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+    return true;
+  } catch(e) { setSS('err','sin conexión'); return false; }
 }
 
-function renderList(){
-  const listEl = document.getElementById('list');
-  listEl.innerHTML = '';
-  const q = (document.getElementById('searchbox').value||'').toLowerCase();
-  CALCS.filter(c=>{
-    const matchCat = activeCat==='all' || c.cat===activeCat;
-    const matchQ = !q || c.title[LANG].toLowerCase().includes(q) || c.tag.toLowerCase().includes(q);
-    return matchCat && matchQ;
-  }).forEach(c=>{
-    const card = document.createElement('div');
-    card.className = 'card';
-    card.onclick = ()=>openDetail(c.id);
-    card.innerHTML = `
-      <div class="tag">${c.tag}</div>
-      <div class="card-txt"><h3>${c.title[LANG]}</h3><p>${c.sub[LANG]}</p></div>
-      <svg class="chev" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-    listEl.appendChild(card);
-  });
+async function remoteWrite() {
+  setSS('syncing','guardando...');
+  try {
+    await fetch(WORKER,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+    setSS('ok','guardado');
+    document.getElementById('sync-time').textContent='sync '+new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+  } catch(e) { setSS('err','error al guardar'); }
 }
 
-/* ============ RENDER: DETALHE ============ */
-function openDetail(id, silent){
-  const c = CALCS.find(x=>x.id===id);
-  currentCalc = c;
-  if(!silent) currentValues = {};
-  document.getElementById('app').classList.add('detail-open');
-  document.getElementById('detail').classList.add('show');
-  const t = UI[LANG];
+// ── DATA ──────────────────────────────────────────────────────────────────────
+function mkey(y,m){return `${y}_${m}`}
+function curkey(){return mkey(CY,CM)}
+function getPaid(){return data.months[curkey()]||{}}
+function getBills(){return data.bills&&data.bills.length?data.bills:[...DEFAULT_BILLS]}
+function getUrgent(){const p=getPaid();return getBills().filter(b=>b.day===TODAY+1&&!p[b.id])}
 
-  let inputsHtml = '';
-  c.inputs.forEach(inp=>{
-    if(inp.type==='number'){
-      inputsHtml += `<div class="field"><label>${inp.label[LANG]}</label>
-        <input type="number" inputmode="decimal" id="in-${inp.id}" value="${currentValues[inp.id]??''}" oninput="currentValues['${inp.id}']=parseFloat(this.value)">
-      </div>`;
-    } else if(inp.type==='bool'){
-      const trueL = inp.trueLabel ? inp.trueLabel[LANG] : (LANG==='es'?'Sí':'Sim');
-      const falseL = inp.falseLabel ? inp.falseLabel[LANG] : 'No';
-      const cur = currentValues[inp.id];
-      inputsHtml += `<div class="field"><label>${inp.label[LANG]}</label>
-        <div class="boolrow">
-          <button type="button" class="${cur===true?'sel':''}" onclick="setBool('${inp.id}',true)">${trueL}</button>
-          <button type="button" class="${cur===false?'sel':''}" onclick="setBool('${inp.id}',false)">${falseL}</button>
-        </div>
-      </div>`;
-    } else if(inp.type==='select'){
-      const cur = currentValues[inp.id];
-      let opts = '';
-      inp.options.forEach(o=>{
-        opts += `<button type="button" class="${cur===o.v?'sel':''}" onclick="setSelect('${inp.id}',${o.v})">${o.l[LANG]}</button>`;
-      });
-      inputsHtml += `<div class="field"><label>${inp.label[LANG]}</label><div class="selrow">${opts}</div></div>`;
-    }
-  });
+function checkRollover() {
+  const last=data._lastMonth||{y:CY,m:CM};
+  if(last.y===CY&&last.m===CM) return null;
+  const prev=data.months[mkey(last.y,last.m)]||{};
+  const bills=getBills();
+  const pc=bills.filter(b=>prev[b.id]).length;
+  data.history=data.history||[];
+  data.history.unshift({year:last.y,month:last.m,paid:pc,total:bills.length,bills:bills.map(b=>({id:b.id,name:b.name,paid:!!prev[b.id]}))});
+  if(data.history.length>24)data.history.length=24;
+  data._lastMonth={y:CY,m:CM};
+  return {label:`${MONTHS[last.m]} ${last.y}`,pc,total:bills.length};
+}
 
-  document.getElementById('detailBody').innerHTML = `
-    <div class="dtitle"><span class="dtag">${c.tag}</span><h2>${c.title[LANG]}</h2></div>
-    <p class="dsub">${c.sub[LANG]}</p>
-    <div class="why"><b>${LANG==='es'?'¿Por qué esta fórmula?':'Por que essa fórmula?'}</b><br>${c.why[LANG]}</div>
-    <div id="inputsWrap">${inputsHtml}</div>
-    <button class="calcbtn" onclick="runCalc()">${t.calc}</button>
-    <div class="result" id="resultBox"></div>
-    <button class="howbtn" id="howbtnEl" onclick="toggleHow()">▸ <span id="howbtnLabel">${t.how}</span></button>
-    <div class="howtext" id="howtext">${c.how[LANG]}</div>
-
-    <div class="trust">
-      <button class="trustbtn" id="trustbtnEl" onclick="toggleTrust()">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/></svg>
-        <span id="trustbtnLabel">▸ ${t.trustToggle}</span>
-      </button>
-      <div class="trustbody" id="trustbody">
-        <div class="trust-item">
-          <div class="trust-icon">📖</div>
-          <div class="trust-txt"><b>${t.trustSource}</b><span>${c.source[LANG]}</span></div>
-        </div>
-        <div class="trust-item">
-          <div class="trust-icon">🗓️</div>
-          <div class="trust-txt"><b>${t.trustReview}</b><span>${c.reviewedAt}</span></div>
-        </div>
-        <div class="trust-item">
-          <div class="trust-icon">🔒</div>
-          <div class="trust-txt"><b>${t.trustPrivacy}</b><span>${t.trustPrivacyText}</span></div>
-        </div>
-        <div class="trust-item">
-          <div class="trust-icon">👤</div>
-          <div class="trust-txt"><b>${t.trustAbout}</b><span>${t.trustAboutText}</span></div>
-        </div>
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function render() {
+  const paid=getPaid(), bills=getBills(), urgIds=getUrgent().map(b=>b.id);
+  document.getElementById('month-display').textContent=`${MONTHS[CM]} ${CY}`;
+  document.getElementById('who-select').value=who;
+  const pc=bills.filter(b=>paid[b.id]).length;
+  document.getElementById('progress-bar').style.width=(pc/bills.length*100)+'%';
+  document.getElementById('progress-count').textContent=`${pc} / ${bills.length} pagadas`;
+  const urg=getUrgent();
+  const banner=document.getElementById('alert-banner');
+  if(urg.length){document.getElementById('alert-text').textContent=`Vence mañana: ${urg.map(b=>b.name).join(', ')}`;banner.classList.add('visible');}
+  else banner.classList.remove('visible');
+  const grid=document.getElementById('cards-grid');
+  grid.innerHTML='';
+  [...bills].sort((a,b)=>a.day-b.day).forEach((bill,i)=>{
+    const ip=!!paid[bill.id], iu=urgIds.includes(bill.id), pb=ip&&paid[bill.id]!==true?paid[bill.id]:null;
+    const c=document.createElement('div');
+    const colors=['card-c0','card-c1','card-c2','card-c3','card-c4','card-c5','card-c6'];
+c.className=`card ${colors[i%colors.length]}${ip?' paid':''}${iu&&!ip?' urgent':''}`;c.style.animationDelay=`${i*.05}s`;
+    c.innerHTML=`
+      <div class="card-day">
+        <span class="day-badge">día ${String(bill.day).padStart(2,'0')}</span>
+        ${iu&&!ip?'<span class="urgent-dot"></span>':''}
+        ${pb?`<span class="paid-by">${pb}</span>`:''}
       </div>
-    </div>
-
-    <p class="disclaimer">${t.disclaimer}</p>
-  `;
-  if(silent) window.scrollTo(0,window.scrollY);
-}
-
-function setBool(id, val){ currentValues[id]=val; openDetail(currentCalc.id, true); }
-function setSelect(id, val){ currentValues[id]=val; openDetail(currentCalc.id, true); }
-
-function toggleHow(){
-  const el = document.getElementById('howtext');
-  const btn = document.getElementById('howbtnEl');
-  el.classList.toggle('show');
-  btn.firstChild.textContent = el.classList.contains('show') ? '▾ ' : '▸ ';
-}
-
-function toggleTrust(){
-  const el = document.getElementById('trustbody');
-  const label = document.getElementById('trustbtnLabel');
-  const t = UI[LANG];
-  el.classList.toggle('show');
-  label.textContent = (el.classList.contains('show') ? '▾ ' : '▸ ') + t.trustToggle;
-}
-
-function runCalc(){
-  const c = currentCalc;
-  const missing = c.inputs.some(inp=>{
-    if(inp.type==='number') return currentValues[inp.id]===undefined || isNaN(currentValues[inp.id]);
-    if(inp.type==='bool') return currentValues[inp.id]===undefined;
-    if(inp.type==='select') return currentValues[inp.id]===undefined;
+      <div class="card-name">${bill.name}</div>
+      <div class="card-actions">
+        <button class="check-btn" onclick="toggleBill('${bill.id}')">
+          <span class="check-circle">${ip?'<svg viewBox="0 0 10 10" fill="none"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>':''}</span>
+          ${ip?'pagada':'marcar pagada'}
+        </button>
+      </div>`;
+    grid.appendChild(c);
   });
-  if(missing){
-    const box = document.getElementById('resultBox');
-    box.className = 'result show mid';
-    box.innerHTML = `<p class="rtext">${LANG==='es'?'Completá todos los campos para calcular.':'Preencha todos os campos para calcular.'}</p>`;
+  const hist=data.history||[];
+  const hel=document.getElementById('history-list');
+  hel.innerHTML=hist.length?hist.map(e=>{
+    const bn=e.bills?e.bills.filter(b=>b.paid).map(b=>b.name).join(', ')||'—':'—';
+    return `<div class="history-item" onclick='openMonthDetail(${JSON.stringify(e).replace(/'/g, "&apos;")})' title="Ver detalhes"><div><div class="history-month">${MONTHS[e.month]} ${e.year}</div><div class="history-bills">${bn}</div></div><div class="history-count">${e.paid}/${e.total} →</div></div>`;
+  }).join(''):'<div class="empty-history">Aún sin historial de meses anteriores.</div>';
+}
+
+// ── ACTIONS ───────────────────────────────────────────────────────────────────
+async function toggleBill(id) {
+  const paid=getPaid();
+  if(!data.months[curkey()])data.months[curkey()]={};
+  if(paid[id])delete data.months[curkey()][id];
+  else data.months[curkey()][id]=who;
+  render(); await remoteWrite();
+}
+
+document.getElementById('who-select').addEventListener('change',e=>{who=e.target.value;localStorage.setItem('bills_who',who);});
+
+// ── MANAGE ────────────────────────────────────────────────────────────────────
+function openManage() {
+  renderBillsList();
+  document.getElementById('manage-modal').classList.add('open');
+}
+
+function renderBillsList() {
+  const bills=getBills();
+  document.getElementById('bills-list').innerHTML=[...bills].sort((a,b)=>a.day-b.day).map(b=>`
+    <div class="bill-row">
+      <div class="bill-row-name">${b.name}</div>
+      <div class="bill-row-day">día ${String(b.day).padStart(2,'0')}</div>
+      <div class="bill-row-btns">
+        <button class="icon-btn" onclick="openBillForm('${b.id}')">✏️</button>
+        <button class="icon-btn" onclick="deleteBill('${b.id}')">🗑️</button>
+      </div>
+    </div>`).join('');
+}
+
+function openBillForm(id) {
+  editId=id;
+  if(id) {
+    const b=getBills().find(x=>x.id===id);
+    document.getElementById('form-title').textContent='Editar conta';
+    document.getElementById('f-name').value=b.name;
+    document.getElementById('f-day').value=b.day;
+  } else {
+    document.getElementById('form-title').textContent='Nova conta';
+    document.getElementById('f-name').value='';
+    document.getElementById('f-day').value='';
+  }
+  document.getElementById('form-modal').classList.add('open');
+  setTimeout(()=>document.getElementById('f-name').focus(),100);
+}
+
+async function saveBill() {
+  const name=document.getElementById('f-name').value.trim();
+  const day=parseInt(document.getElementById('f-day').value);
+  if(!name||!day||day<1||day>31){
+    document.getElementById('f-name').style.borderColor='rgba(224,80,80,.5)';
+    setTimeout(()=>document.getElementById('f-name').style.borderColor='',1000);
     return;
   }
-  const r = c.compute(currentValues, c.inputs);
-  const box = document.getElementById('resultBox');
-  box.className = 'result show ' + r.band;
-  const bandLabel = {low:{es:'Riesgo bajo',pt:'Risco baixo'}, mid:{es:'Riesgo intermedio',pt:'Risco intermediário'}, high:{es:'Riesgo alto',pt:'Risco alto'}}[r.band][LANG];
-  box.innerHTML = `
-    <p class="rlabel">${UI[LANG].result}</p>
-    <p class="rvalue">${r.value} <span style="font-size:16px; font-weight:500; color:var(--ink-soft);">${r.unit}</span></p>
-    <span class="rband">${bandLabel}</span>
-    <p class="rtext">${r.text[LANG]}</p>
-  `;
-  box.scrollIntoView({behavior:'smooth', block:'center'});
+  if(!data.bills)data.bills=[...DEFAULT_BILLS];
+  if(editId){const i=data.bills.findIndex(b=>b.id===editId);if(i>=0){data.bills[i].name=name;data.bills[i].day=day;}}
+  else{data.bills.push({id:name.toLowerCase().replace(/\s+/g,'-')+'-'+Date.now(),name,day});}
+  document.getElementById('form-modal').classList.remove('open');
+  renderBillsList(); render(); await remoteWrite();
 }
 
-function closeDetail(){
-  document.getElementById('app').classList.remove('detail-open');
-  document.getElementById('detail').classList.remove('show');
-  currentCalc = null;
+async function deleteBill(id) {
+  if(!confirm('Excluir essa conta?'))return;
+  data.bills=getBills().filter(b=>b.id!==id);
+  Object.keys(data.months).forEach(mk=>{if(data.months[mk])delete data.months[mk][id];});
+  renderBillsList(); render(); await remoteWrite();
 }
 
-/* ============ MODAL DE INSTALAÇÃO ============ */
-const INSTALL_KEY = 'cdc_install_prompt_last_shown';
-const THIRTY_DAYS_MS = 30*24*60*60*1000;
-let modalTab = 'ios';
-let modalLang = 'es';
+document.getElementById('f-name').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('f-day').focus();});
+document.getElementById('f-day').addEventListener('keydown',e=>{if(e.key==='Enter')saveBill();});
 
-function detectPlatform(){
-  const ua = navigator.userAgent || '';
-  if(/iPhone|iPad|iPod/i.test(ua)) return 'ios';
-  if(/Android/i.test(ua)) return 'android';
-  return 'ios';
-}
-
-function isStandalone(){
-  return window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
-}
-
-function setModalTab(tab){
-  modalTab = tab;
-  renderModalSteps();
-}
-
-function setModalLang(l){
-  modalLang = l;
-  renderModalChrome();
-}
-
-function renderModalSteps(){
-  const t = UI[modalLang];
-  document.getElementById('tabIOS').classList.toggle('active', modalTab==='ios');
-  document.getElementById('tabAndroid').classList.toggle('active', modalTab==='android');
-  const stepsArr = modalTab==='ios' ? t.iosSteps : t.androidSteps;
-  const wrap = document.getElementById('stepsWrap');
-  wrap.innerHTML = stepsArr.map((s,i)=>`
-    <div class="step"><div class="step-n">${i+1}</div><p>${s}</p></div>
-  `).join('');
-}
-
-function openInstallModal(){
-  modalTab = detectPlatform();
-  modalLang = LANG;
-  renderModalChrome();
-  document.getElementById('installModal').classList.add('show');
-  try{ localStorage.setItem(INSTALL_KEY, Date.now().toString()); }catch(e){}
-}
-
-function closeInstallModal(){
-  document.getElementById('installModal').classList.remove('show');
-  try{ localStorage.setItem(INSTALL_KEY, Date.now().toString()); }catch(e){}
-}
-
-function maybeAutoShowInstallModal(){
-  if(isStandalone()) return;
-  let last = null;
-  try{ last = localStorage.getItem(INSTALL_KEY); }catch(e){}
-  const now = Date.now();
-  if(!last || (now - parseInt(last,10)) > THIRTY_DAYS_MS){
-    setTimeout(openInstallModal, 900);
+// ── INIT ──────────────────────────────────────────────────────────────────────
+async function init() {
+  who=localStorage.getItem('bills_who')||'João';
+  const ok=await remoteRead();
+  if(!ok){render();return;}
+  const rolled=checkRollover();
+  if(rolled){
+    await remoteWrite();
+    document.getElementById('roll-text').textContent=`Se archivó ${rolled.label} (${rolled.pc}/${rolled.total} pagadas). Empezás ${MONTHS[CM]} ${CY} con las cuentas listas.`;
+    document.getElementById('roll-modal').classList.add('open');
   }
+  render();
+  setInterval(async()=>{const ok=await remoteRead();if(ok)render();},30000);
 }
 
-/* ============ INIT ============ */
-renderChrome();
-renderList();
-maybeAutoShowInstallModal();
+checkAuth();
+
+let currentDetailEntry = null;
+
+function openMonthDetail(entry) {
+  currentDetailEntry = entry;
+  renderDetailModal();
+  document.getElementById('detail-modal').classList.add('open');
+}
+
+function renderDetailModal() {
+  const entry = currentDetailEntry;
+  const MONTHS_LOCAL = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  document.getElementById('detail-title').textContent = MONTHS_LOCAL[entry.month] + ' ' + entry.year;
+
+  const paidCount = (entry.bills || []).filter(b => b.paid).length;
+  document.getElementById('detail-subtitle').textContent = paidCount + ' de ' + entry.total + ' contas pagas';
+
+  const paid = (entry.bills || []).filter(b => b.paid);
+  const unpaid = (entry.bills || []).filter(b => !b.paid);
+
+  let html = '';
+
+  if (paid.length) {
+    html += '<div class="detail-section-label">✅ Pagas</div>';
+    paid.forEach(b => {
+      html += `<div class="detail-bill-row paid-row" style="cursor:pointer" onclick="toggleHistoryBill('${b.id}')" title="Clique para desmarcar">
+        <span class="detail-bill-icon">✅</span>
+        <span class="detail-bill-name">${b.name}</span>
+        <span class="detail-bill-who" style="font-size:.62rem;color:rgba(232,228,216,.25)">clique para desmarcar</span>
+      </div>`;
+    });
+  }
+
+  if (unpaid.length) {
+    html += '<div class="detail-section-label">❌ Não pagas — clique para marcar como paga</div>';
+    unpaid.forEach(b => {
+      html += `<div class="detail-bill-row unpaid-row" style="cursor:pointer" onclick="toggleHistoryBill('${b.id}')" title="Marcar como paga">
+        <span class="detail-bill-icon">❌</span>
+        <span class="detail-bill-name">${b.name}</span>
+        <span class="detail-bill-who" style="font-size:.62rem;color:rgba(232,228,216,.25)">clique para marcar</span>
+      </div>`;
+    });
+  }
+
+  if (!paid.length && !unpaid.length) {
+    html = '<div class="empty-history">Sem detalhes disponíveis para este mês.</div>';
+  }
+
+  document.getElementById('detail-body').innerHTML = html;
+}
+
+async function toggleHistoryBill(billId) {
+  const entry = currentDetailEntry;
+  const mk = mkey(entry.year, entry.month);
+
+  // Ensure the month exists in data.months
+  if (!data.months[mk]) data.months[mk] = {};
+
+  const bill = (entry.bills || []).find(b => b.id === billId);
+  if (!bill) return;
+
+  if (bill.paid) {
+    // unmark
+    delete data.months[mk][billId];
+    bill.paid = false;
+  } else {
+    // mark as paid
+    data.months[mk][billId] = who;
+    bill.paid = true;
+  }
+
+  // Update history entry counts
+  entry.paid = (entry.bills || []).filter(b => b.paid).length;
+
+  // Sync history back into data.history
+  const histIdx = data.history.findIndex(h => h.year === entry.year && h.month === entry.month);
+  if (histIdx >= 0) data.history[histIdx] = entry;
+
+  renderDetailModal();
+  render();
+  await remoteWrite();
+}
+
 </script>
+
+<!-- MONTH DETAIL MODAL -->
+<div class="modal-overlay" id="detail-modal">
+  <div class="modal month-detail-modal" style="max-width:440px">
+    <h2 id="detail-title"></h2>
+    <div class="month-detail-subtitle" id="detail-subtitle"></div>
+    <div id="detail-body"></div>
+    <div class="modal-btn-row">
+      <button class="btn btn-ghost" onclick="document.getElementById('detail-modal').classList.remove('open')">Fechar</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
